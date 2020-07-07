@@ -659,6 +659,10 @@ function DragAndDropTemplates(configuration) {
                 }),
                 problemTitle,
                 problemProgress,
+                h('div.block-label.problem-label', [
+                    h('span.fal.fa-clipboard-list.block-label-icon'),
+                    h('span.block-label-text', gettext('Drag & Drop')),
+                ]),
                 h('div', [forwardKeyboardHelpButtonTemplate(ctx)]),
                 h('div.problem', [
                     problemHeader,
