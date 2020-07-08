@@ -27,10 +27,12 @@ setup(
     description='XBlock - Drag-and-Drop v2',
     packages=['drag_and_drop_v2'],
     install_requires=[
-        'XBlock',
+        'XBlock==1.2.9',
         'xblock-utils',
         'ddt',
         'mock',
+        'lxml==3.8.0',
+        'web-fragments==0.2.2',
     ],
     entry_points={
         'xblock.v1': 'drag-and-drop-v2 = drag_and_drop_v2:DragAndDropBlock',
