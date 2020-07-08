@@ -28,9 +28,9 @@ setup(
     packages=['drag_and_drop_v2'],
     install_requires=[
         'XBlock==1.2.9',
-        'xblock-utils',
-        'ddt',
-        'mock',
+        'xblock-utils==1.2.0',
+        'ddt==0.8.0',
+        'mock==1.0.1',
         'lxml==3.8.0',
         'web-fragments==0.2.2',
     ],
