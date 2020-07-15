@@ -657,13 +657,18 @@ function DragAndDropTemplates(configuration) {
                 h('object.resize-detector', {
                     attributes: {type: 'text/html', tabindex: -1, data: 'about:blank'}
                 }),
-                problemTitle,
-                h('span.far.fa-clipboard-list'),
-                problemProgress,
+                h('div.block-header-wrapper', [
+                    problemTitle,
+                    h('div.problem-progress-wrapper', [
+                        h('span.fal.fa-clipboard-list'),
+                        problemProgress,
+                    ]),
+                ]),
                 h('div.block-label.problem-label', [
                     h('span.fal.fa-clipboard-list.block-label-icon'),
                     h('span.block-label-text', gettext('Drag & Drop')),
                 ]),
+                h('hr.sep-line'),
                 h('div', [forwardKeyboardHelpButtonTemplate(ctx)]),
                 h('div.problem', [
                     problemHeader,
