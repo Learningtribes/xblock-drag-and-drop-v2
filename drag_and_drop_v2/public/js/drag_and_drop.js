@@ -660,7 +660,7 @@ function DragAndDropTemplates(configuration) {
                 h('div.block-header-wrapper', [
                     problemTitle,
                     h('div.problem-progress-wrapper', [
-                        h('span.fal.fa-clipboard-list'),
+                        h('span.fal.fa-bullseye-pointer'),
                         problemProgress,
                     ]),
                 ]),
