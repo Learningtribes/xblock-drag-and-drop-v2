@@ -593,6 +593,12 @@ function DragAndDropTemplates(configuration) {
             });
             main_element_properties.attributes['arial-labelledby'] = problem_title_id;
         } else {
+            var problem_title_id = configuration.url_name + '-problem-title';
+            problemTitle = h('h3.problem-title', {
+                id: problem_title_id,
+                innerHTML: '',
+                attributes: {'aria-describedby': problemProgress.properties.id}
+            });
             main_element_properties.attributes['aria-label'] = gettext('Drag and Drop Problem');
         }
         var problemHeader = ctx.show_problem_header ? h('h4.title1', gettext('Problem')) : null;
