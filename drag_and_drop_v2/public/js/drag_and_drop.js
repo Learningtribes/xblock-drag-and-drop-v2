@@ -663,7 +663,7 @@ function DragAndDropTemplates(configuration) {
                 h('object.resize-detector', {
                     attributes: {type: 'text/html', tabindex: -1, data: 'about:blank'}
                 }),
-                h('div.block-header-wrapper', [
+                h('div.block-header-wrapper.drag-and-drop-header-wrapper', [
                     problemTitle,
                     h('div.problem-progress-wrapper', [
                         h('span.fal.fa-bullseye-pointer'),
