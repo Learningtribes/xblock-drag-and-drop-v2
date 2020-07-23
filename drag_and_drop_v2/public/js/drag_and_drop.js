@@ -593,6 +593,12 @@ function DragAndDropTemplates(configuration) {
             });
             main_element_properties.attributes['arial-labelledby'] = problem_title_id;
         } else {
+            var problem_title_id = configuration.url_name + '-problem-title';
+            problemTitle = h('h3.problem-title', {
+                id: problem_title_id,
+                innerHTML: '',
+                attributes: {'aria-describedby': problemProgress.properties.id}
+            });
             main_element_properties.attributes['aria-label'] = gettext('Drag and Drop Problem');
         }
         var problemHeader = ctx.show_problem_header ? h('h4.title1', gettext('Problem')) : null;
@@ -657,7 +663,7 @@ function DragAndDropTemplates(configuration) {
                 h('object.resize-detector', {
                     attributes: {type: 'text/html', tabindex: -1, data: 'about:blank'}
                 }),
-                h('div.block-header-wrapper', [
+                h('div.block-header-wrapper.drag-and-drop-header-wrapper', [
                     problemTitle,
                     h('div.problem-progress-wrapper', [
                         h('span.fal.fa-bullseye-pointer'),
