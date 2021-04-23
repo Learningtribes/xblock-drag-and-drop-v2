@@ -81,6 +81,15 @@ function DragAndDropEditBlock(runtime, element, params) {
                             new LearningTribes.QuestionMark(wrapper)
                         })
                     }
+                    if (LearningTribes && LearningTribes.Switcher) {
+                        new LearningTribes.Switcher($('.display-labels-form .switcher-wrapper')[0], _fn.data.displayLabels,function(checked){
+                            _fn.data.displayLabels=checked;
+                        })
+                        new LearningTribes.Switcher($('.display-borders-form .switcher-wrapper')[0], _fn.data.displayBorders,function(checked){
+                            _fn.data.displayBorders=checked;
+                        })
+
+                    }
                 },
 
                 validate: function() {
