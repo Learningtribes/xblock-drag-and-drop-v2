@@ -746,7 +746,8 @@ function DragAndDropEditBlock(runtime, element, params) {
         };
     })(jQuery);
 
-    $element.find('.cancel-button').bind('click', function() {
+    $element.find('.cancel-button').bind('click', function(e) {
+        e.preventDefault();
         runtime.notify('cancel', {});
     });
 
