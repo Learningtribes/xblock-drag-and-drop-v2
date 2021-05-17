@@ -12,7 +12,7 @@
 <script class="zone-input-tpl" type="text/html">
     <fieldset class="zone-row" data-uid="{{zone.uid}}">
         <button type="button" class="btn remove-zone hidden" title="{{i18n 'Remove zone'}}">
-            <span class="icon remove" aria-hidden="true"></span>
+            <span class="icon fal fa-times" aria-hidden="true"></span>
         </button>
         <label>
             <span>{{i18n "Title"}}</span>
@@ -92,7 +92,7 @@
                    value="{{ zoneUid }}"
                    class="zone-checkbox"
                    {{ checked }} />
-            {{ title }}
+            <span>{{ title }}</span>
         </label>
     </div>
 </script>
@@ -100,15 +100,16 @@
 <script class="item-input-tpl" type="text/html">
     <fieldset class="item">
         <button type="button" class="btn remove-item hidden" title="{{i18n 'Remove item'}}">
-            <span class="icon remove" aria-hidden="true"></span>
+            <span class="icon fal fa-times" aria-hidden="true"></span>
         </button>
         <div class="row">
             <label class="h4">
-                {{i18n "Text"}}
+                <label>{{i18n "Text"}}</label>
                 <input type="text"
                        aria-describedby="item-text-description-{{index}}-{{id_suffix}}"
                        class="item-text"
                        value="{{ displayName }}" />
+                <span class="question-mark-wrapper" data-title='{{i18n "Use text that is clear and descriptive of the item to be placed."}}'></span>
             </label>
             <div id="item-text-description-{{index}}-{{id_suffix}}" class="form-help">
                 {{i18n "Use text that is clear and descriptive of the item to be placed."}}
@@ -116,19 +117,22 @@
         </div>
         <div class="row">
             <fieldset>
-                <legend class="h4">
+                <label class="h4">
                     {{ i18n "Zones" }}
-                </legend>
+                </label>
+                <span class="field-component-wrapper">
                 {{ checkboxes }}
+                </span>
             </fieldset>
         </div>
         <div class="row">
             <label class="h4">
-                {{i18n "Image URL (alternative to the text)"}}
+                <span>{{i18n "Image URL"}}</span>
                 <input type="text"
                        aria-describedby="item-image-url-description-{{index}}-{{id_suffix}}"
                        class="item-image-url"
                        value="{{ imageURL }}" />
+                <span class="question-mark-wrapper" data-title='{{i18n "alternative to the text"}}'></span>
             </label>
             <div id="item-image-url-description-{{index}}-{{id_suffix}}" class="form-help">
                 {{i18n "For example, 'http://example.com/image.png' or '/static/image.png'."}}
@@ -136,8 +140,9 @@
         </div>
         <div class="row">
             <label class="h4">
-                <span>{{i18n "Image description (should provide sufficient information to place the item even if the image did not load)"}}</span>
+                <span>{{i18n "Image description"}}</span>
                 <textarea {{#if imageURL}}required{{/if}} class="item-image-description">{{ imageDescription }}</textarea>
+                <span class="question-mark-wrapper" data-title='{{i18n "should provide sufficient information to place the item even if the image did not load"}}'></span>
             </label>
         </div>
         <div class="row">
@@ -164,7 +169,8 @@
                        aria-describedby="item-width-description-{{index}}-{{id_suffix}}"
                        step="0.1"
                        min="1"
-                       max="99" />%
+                       max="99" />
+                <small>%</small>
             </label>
             <div id="item-width-description-{{index}}-{{id_suffix}}" class="form-help">
                 {{i18n "Specify preferred width as percentage of the background image width. Leave blank for automatic width."}}

@@ -74,6 +74,22 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                     // Set focus on first input field.
                     $element.find('input:first').select();
+
+                    if (LearningTribes && LearningTribes.QuestionMark) {
+                        $wrappers = $('.drag-builder .tab .tab-content .question-mark-wrapper')
+                        $wrappers.each(function(i, wrapper){
+                            new LearningTribes.QuestionMark(wrapper)
+                        })
+                    }
+                    if (LearningTribes && LearningTribes.Switcher) {
+                        new LearningTribes.Switcher($('.display-labels-form .switcher-wrapper')[0], _fn.data.displayLabels,function(checked){
+                            _fn.data.displayLabels=checked;
+                        })
+                        new LearningTribes.Switcher($('.display-borders-form .switcher-wrapper')[0], _fn.data.displayBorders,function(checked){
+                            _fn.data.displayBorders=checked;
+                        })
+
+                    }
                 },
 
                 validate: function() {
@@ -282,7 +298,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             $('.items-form .item:last input[type=text]:first', element).select();
                         })
                         .on('click', '.remove-item', _fn.build.form.item.remove)
-                        .on('click', '.advanced-link button', _fn.build.form.item.showAdvancedSettings)
+                        .on('click', '.advanced-link button', _fn.build.form.item.toggleAdvancedSettings)
                         .on('input', '.item-image-url', _fn.build.form.item.imageURLChanged);
                 },
                 form: {
@@ -609,8 +625,19 @@ function DragAndDropEditBlock(runtime, element, params) {
                             ctx.checkboxes = _fn.build.form.createCheckboxes(ctx.zones);
 
                             ctx.index = _fn.build.form.item.count++;
-                            $form.append(tpl(ctx));
+                            var renderResult = tpl(ctx)
+                            var $component = $form.append(renderResult);
                             _fn.build.form.item.enableDelete();
+
+                            setTimeout(function(){
+                                if (LearningTribes && LearningTribes.QuestionMark) {
+                                    $wrappers = $component.find('.question-mark-wrapper')
+                                    $wrappers.each(function(i, wrapper){
+                                        new LearningTribes.QuestionMark(wrapper)
+                                    })
+                                }
+                            }, 200)
+
 
                         },
                         remove: function(e) {
@@ -638,10 +665,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 _fn.build.$el.items.form.find('.remove-item').addClass('hidden');
                             }
                         },
-                        showAdvancedSettings: function(e) {
+                        toggleAdvancedSettings: function(e) {
                             var $el = $(e.currentTarget).closest('.item');
                             $el.find('.row.advanced').show();
-                            $el.find('.row.advanced-link').hide();
+                            $el.find('.row.advanced-link').toggleClass('opening')
                         },
                     },
                     submit: function() {
@@ -719,7 +746,8 @@ function DragAndDropEditBlock(runtime, element, params) {
         };
     })(jQuery);
 
-    $element.find('.cancel-button').bind('click', function() {
+    $element.find('.cancel-button').bind('click', function(e) {
+        e.preventDefault();
         runtime.notify('cancel', {});
     });
 
