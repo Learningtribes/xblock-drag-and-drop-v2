@@ -352,7 +352,7 @@ class DragAndDropBlock(
         }
 
         fragment = Fragment()
-        fragment.add_content(loader.render_django_template('/templates/html/drag_and_drop_edit.html',
+        fragment.add_content(loader.render_django_template('/templates/html/drag_and_drop_edit_v3.html',
                                                            context=context,
                                                            i18n_service=self.i18n_service))
         css_urls = (
