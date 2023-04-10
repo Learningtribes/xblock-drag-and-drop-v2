@@ -20,6 +20,7 @@ from xblockutils.settings import XBlockWithSettingsMixin, ThemableXBlockMixin
 
 from .utils import _, DummyTranslationService, FeedbackMessage, FeedbackMessages, ItemStats, StateMigration, Constants
 from .default_data import DEFAULT_DATA
+from .tabs_header import TabsHeader
 
 
 # Globals ###########################################################
@@ -344,6 +345,7 @@ class DragAndDropBlock(
         id_suffix = self._get_block_id()
         js_templates = js_templates.replace('{{id_suffix}}', id_suffix)
         context = {
+            'predefined_tabs': TabsHeader(),
             'js_templates': js_templates,
             'id_suffix': id_suffix,
             'fields': self.fields,
@@ -352,9 +354,12 @@ class DragAndDropBlock(
         }
 
         fragment = Fragment()
-        fragment.add_content(loader.render_django_template('/templates/html/drag_and_drop_edit_v3.html',
-                                                           context=context,
-                                                           i18n_service=self.i18n_service))
+        fragment.add_content(
+            loader.render_django_template(
+                '/templates/html/drag_and_drop_edit_v3.html',
+                context=context, i18n_service=self.i18n_service
+            )
+        )
         css_urls = (
             'public/css/drag_and_drop_edit.css',
         )

@@ -7,6 +7,41 @@
     height: calc(100% - 60px);
     position: absolute;
     overflow-y: scroll;
+    margin: 10px 50px 10px 50px;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .supported-setting-tags-nav {
+	border: 0;
+	margin: 3px;
+	display: block;
+	font-size: 0;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .supported-setting-tags-nav .nav-item {
+	display: inline-block;
+	padding-bottom: 0px;
+	font-family: 'Open Sans';
+	font-size: 14px;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .supported-setting-tags-nav .nav-item:not(:last-of-type) {
+	margin-right: 25px;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .supported-setting-tags-nav .nav-item .btn-link {
+	font-size: 14px;
+	color: grey;
+	font-weight: 300;
+	text-decoration: none !important;
+	letter-spacing: normal;
+	line-height: initial;
+	padding-bottom: 10px;
+	padding-top: 0;
+	line-height: 20px;
+	border: none;
+	padding-left: 0;
+	padding-right: 0;
+	background-color: white;
 }
 
 /*** Drop Target ***/
