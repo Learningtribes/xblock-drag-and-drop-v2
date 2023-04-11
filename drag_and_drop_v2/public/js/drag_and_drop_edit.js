@@ -751,6 +751,23 @@ function DragAndDropEditBlock(runtime, element, params) {
         runtime.notify('cancel', {});
     });
 
+    function selectTabPage(tabId) {
+        var $tabPages = $(".supported-setting-tags section");
+
+        $tabPages.each(function () {
+            var pg = $(this);
+            if ( tabId === pg.attr('id') ) {
+                pg.removeClass('hidden');
+            } else {
+                if (!pg.hasClass('hidden')) {
+                    pg.addClass('hidden');
+                }
+            }
+
+        })
+
+    }
+
     $('.supported-setting-tags-nav > li', element).bind('click', function() {
         $(this).addClass('active-section');
         $(this).siblings().each( function (i, obj) {
@@ -760,7 +777,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                 obj.className = 'nav-item disable-section';
             }
         } )
-        //updateResList($(this).attr('id'));
+        selectTabPage($(this).attr('id'));
 
     });
 

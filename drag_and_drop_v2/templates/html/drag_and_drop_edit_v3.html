@@ -14,7 +14,7 @@
                 {% endfor %}
             </ul>
 
-            <section class="tab feedback-tab">
+            <section id="0" class="tab feedback-tab">
                 <header class="tab-header">
                     <h3>{% trans "Basic Settings" %}</h3>
                 </header>
@@ -104,7 +104,7 @@
                 </div>
             </section>
 
-            <section class="tab zones-tab hidden">
+            <section id="1" class="tab zones-tab hidden">
                 <header class="tab-header">
                     <h3>{% trans "Zones" %}</h3>
                 </header>
@@ -246,7 +246,7 @@
                 </div>
             </section>
 
-            <section class="tab items-tab hidden">
+            <section id="2" class="tab items-tab hidden">
                 <header class="tab-header">
                     <h3>{% trans "Items" %}</h3>
                 </header>
@@ -292,6 +292,10 @@
                         {% trans "Add an item" %}
                     </button>
                 </div>
+            </section>
+
+            <section id="3" class="tab hidden">
+                test...
             </section>
 
         </div>
