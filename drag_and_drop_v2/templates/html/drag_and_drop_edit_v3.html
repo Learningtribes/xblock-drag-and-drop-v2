@@ -7,11 +7,11 @@
     <div class="drag-builder">
         <div class="supported-setting-tags" id="supported-setting-tags">
             <ul class="supported-setting-tags-nav" id="supported-setting-tags-nav">
-            {% for defined_tag in predefined_tabs %}
-            <li class="nav-item" id="{{ defined_tag.id }}">
-                <button class="btn-link" title="{{ defined_tag.name }}">{% trans defined_tag.name %}</button>
-            </li>
-            {% endfor %}
+                {% for defined_tab in predefined_tabs %}
+                <li class="nav-item" id="{{ defined_tab.id }}">
+                    {% trans defined_tab.name %}
+                </li>
+                {% endfor %}
             </ul>
 
             <section class="tab feedback-tab">

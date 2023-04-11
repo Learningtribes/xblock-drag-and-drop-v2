@@ -751,5 +751,18 @@ function DragAndDropEditBlock(runtime, element, params) {
         runtime.notify('cancel', {});
     });
 
+    $('.supported-setting-tags-nav > li', element).bind('click', function() {
+        $(this).addClass('active-section');
+        $(this).siblings().each( function (i, obj) {
+            if (obj.id < 2 ) {
+                obj.className = 'nav-item';
+            } else {
+                obj.className = 'nav-item disable-section';
+            }
+        } )
+        //updateResList($(this).attr('id'));
+
+    });
+
     dragAndDrop.init();
 }
