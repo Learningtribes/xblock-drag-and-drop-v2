@@ -782,4 +782,14 @@ function DragAndDropEditBlock(runtime, element, params) {
     });
 
     dragAndDrop.init();
+    $('.supported-setting-tags-nav > li')[0].className = 'nav-item active-section';
+    $('.supported-setting-tags-nav > li').each( function (i, obj) {
+        if (i > 0) {
+            if (obj.id < 2) {
+                obj.className = 'nav-item';
+            } else {
+                obj.className = 'nav-item disable-section';
+            }
+        }
+    } );
 }

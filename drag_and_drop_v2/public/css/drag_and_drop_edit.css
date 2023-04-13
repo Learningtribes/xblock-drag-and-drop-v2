@@ -128,7 +128,6 @@
     margin-top: 0;
 }
 
-.xblock--drag-and-drop--editor .tab-header,
 .xblock--drag-and-drop--editor .tab-content {
     width: 96%;
     margin: 2%;
@@ -430,4 +429,8 @@
     -webkit-transform: rotate(45deg);
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
+}
+
+.xblock-actions-separator {
+    border-top: 1px solid #DCDCDC;
 }

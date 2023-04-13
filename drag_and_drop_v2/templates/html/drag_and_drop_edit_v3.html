@@ -1,6 +1,29 @@
 {% load i18n %}
 {% load l10n %}
 
+<script type="application/javascript" id='studioContext'>
+    var studioContext = {
+      course: {
+        lang: "fr",
+        url_name: "course",
+        name: "edX Demonstration Course",
+        display_course_number: "",
+        num: "DemoX",
+        org: "edX",
+        id: "course-v1:edX+DemoX+Demo_Course",
+        revision: "",
+        base_url: "http://localhost:18010",
+      },
+      help_tokens: {
+        files: "http://edx.readthedocs.io/projects/open\u002Dedx\u002Dbuilding\u002Dand\u002Drunning\u002Da\u002Dcourse/en/latest/course_assets/course_files.html",
+        image_accessibility: "http://edx.readthedocs.io/projects/open\u002Dedx\u002Dbuilding\u002Dand\u002Drunning\u002Da\u002Dcourse/en/latest/accessibility/best_practices_course_content_dev.html#use\u002Dbest\u002Dpractices\u002Dfor\u002Ddescribing\u002Dimages",
+      },
+      upload_settings: {
+        max_file_size_in_mbs: 10,
+      }
+    };
+</script>
+
 <div class="xblock--drag-and-drop--editor editor-with-buttons">
     {{ js_templates|safe }}
 
@@ -15,53 +38,17 @@
             </ul>
 
             <section id="0" class="tab feedback-tab">
-                <header class="tab-header">
-                    <h3>{% trans "Basic Settings" %}</h3>
-                </header>
                 <div class="tab-content">
                     <form class="feedback-form">
                         <label class="h4">
                             <span>
                                 <span class="text">{% trans fields.display_name.display_name %}</span>
                                 <label class="checkbox-label" title="{% trans fields.show_title.help %}">
-                                  <input class="show-title" type="checkbox"
-                                    {% if self.show_title %}checked="checked"{% endif %}>
-                                  <span>{% trans fields.show_title.display_name %}</span>
                                   <span class="sr">{% trans fields.show_title.help %}</span>
                                 </label>
                             </span>
                             <input class="display-name" value="{{ self.display_name }}" />
                         </label>
-
-
-                        <label class="h4">
-                            <span>{% trans fields.mode.display_name %}</span>
-                            <select class="problem-mode" aria-describedby="problem-mode-description-{{id_suffix}}">
-                                {% for field_value in fields.mode.values %}
-                                    <option value="{{ field_value.value }}" {% if self.mode == field_value.value %}selected{% endif %}>
-                                        {% trans field_value.display_name %}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            <span class="question-mark-wrapper" data-title="{% trans fields.mode.help %}"></span>
-                        </label>
-                        <div id="problem-mode-description-{{id_suffix}}" class="form-help">
-                          {% trans fields.mode.help %}
-                        </div>
-
-                        <label class="h4 assessment-setting">
-                          <span>{% trans fields.max_attempts.display_name %}</span>
-                          <input class="max-attempts"
-                                 type="number"
-                                 min="1"
-                                 step="1"
-                                 aria-describedby="max-attempts-description-{{id_suffix}}"
-                                 {% if self.max_attempts %}value="{{ self.max_attempts }}"{% endif %} />
-                            <span class="question-mark-wrapper" data-title="{% trans fields.max_attempts.help %}"></span>
-                        </label>
-                        <div id="max-attempts-description-{{id_suffix}}" class="assessment-setting form-help">
-                          {% trans fields.max_attempts.help %}
-                        </div>
 
                         <label class="h4">
                             <span>{% trans fields.weight.display_name %}</span>
@@ -75,13 +62,6 @@
                         <label class="h4">
                             <span>
                                 <span class="text">{% trans fields.question_text.display_name %}</span>
-                                <label class="checkbox-label">
-                                  <input class="show-problem-header"
-                                         type="checkbox"
-                                         aria-describedby="show-problem-header-description-{{id_suffix}}"
-                                    {% if self.show_question_header %}checked="checked"{% endif %}>
-                                  <span>{% trans fields.show_question_header.display_name %}</span>
-                                </label>
                             </span>
                             <textarea class="problem-text">{{ self.question_text }}</textarea>
                             <span class="question-mark-wrapper" data-title="{% trans fields.show_question_header.help %}"></span>
@@ -92,11 +72,6 @@
                         </div>
 
                         <label class="h4">
-                            <span>{% trans "Introductory feedback" %}</span>
-                            <textarea class="intro-feedback">{{ self.data.feedback.start }}</textarea>
-                        </label>
-
-                        <label class="h4">
                             <span>{% trans "Final feedback" %}</span>
                             <textarea class="final-feedback">{{ self.data.feedback.finish }}</textarea>
                         </label>
@@ -104,10 +79,16 @@
                 </div>
             </section>
 
-            <section id="1" class="tab zones-tab hidden">
-                <header class="tab-header">
-                    <h3>{% trans "Zones" %}</h3>
-                </header>
+            <section id="1" class="tab hidden">
+                <div id="root" class="SFE"></div>
+                <script type="text/javascript" src="{{ runtime_min_js }}"></script>
+                <script type="text/javascript" src="{{ common_min_js }}"></script>
+                <script type="text/javascript" src="{{ assets_min_js }}"></script>
+                <link rel="stylesheet" type="text/css" href="{{ common_min_css }}" />
+                <link rel="stylesheet" type="text/css" href="{{ assets_min_css }}" />
+            </section>
+
+            <section id="2" class="tab zones-tab hidden">
                 <div class="tab-content">
                     <form class="target-image-form">
                         <fieldset>
@@ -246,10 +227,7 @@
                 </div>
             </section>
 
-            <section id="2" class="tab items-tab hidden">
-                <header class="tab-header">
-                    <h3>{% trans "Items" %}</h3>
-                </header>
+            <section id="3" class="tab items-tab hidden">
                 <div class="tab-content">
                     <form class="item-styles-form">
                         <label class="h4">
@@ -294,15 +272,11 @@
                 </div>
             </section>
 
-            <section id="3" class="tab hidden">
-                test...
-            </section>
-
         </div>
 
     </div>
 
-    <div class="xblock-actions">
+    <div class="xblock-actions xblock-actions-separator">
       <ul class="action-buttons">
         <li class="action-item">
           <a href="#" class="button cancel-button">{% trans "Cancel" %}</a>

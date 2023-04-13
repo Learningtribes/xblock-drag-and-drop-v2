@@ -10,6 +10,9 @@ import logging
 import urllib
 import webob
 
+from django.contrib.staticfiles.storage import staticfiles_storage
+from pipeline_mako.helpers.studiofrontend import load_sfe_i18n_messages
+
 from xblock.core import XBlock
 from xblock.exceptions import JsonHandlerError
 from xblock.fields import Scope, String, Dict, Float, Boolean, Integer
@@ -29,6 +32,15 @@ loader = ResourceLoader(__name__)
 logger = logging.getLogger(__name__)
 
 # Classes ###########################################################
+
+
+def _get_storage_url(file_path, raw=False):
+    try:
+        url = staticfiles_storage.url(file_path)
+    except:
+        url = file_path
+    ## HTML-escaping must be handled by caller
+    return url if raw else urllib.quote(url)
 
 
 @XBlock.wants('settings')
@@ -63,7 +75,7 @@ class DragAndDropBlock(
         display_name=_("Title"),
         help=_("The title of the drag and drop problem. The title is displayed to learners."),
         scope=Scope.settings,
-        default=_("Drag and Drop"),
+        default=_("Drag & Drop"),
         enforce_type=True,
     )
 
@@ -351,6 +363,12 @@ class DragAndDropBlock(
             'fields': self.fields,
             'self': self,
             'data': urllib.quote(json.dumps(self.data)),
+            ### For editImageModal rendering
+            'common_min_css': _get_storage_url('/common/js/vendor/learningtribes-studio-frontend/dist/common.min.css'),
+            'assets_min_css': _get_storage_url('/common/js/vendor/learningtribes-studio-frontend/dist/assets.min.css'),
+            'runtime_min_js': _get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/runtime.min.js'),
+            'common_min_js': _get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/common.min.js'),
+            'assets_min_js': _get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/assets.min.js')
         }
 
         fragment = Fragment()
@@ -365,10 +383,11 @@ class DragAndDropBlock(
         )
         js_urls = (
             'public/js/vendor/handlebars-v1.1.2.js',
-            'public/js/drag_and_drop_edit.js',
+            'public/js/drag_and_drop_edit.js'
         )
         for css_url in css_urls:
             fragment.add_css_url(self.runtime.local_resource_url(self, css_url))
+
         for js_url in js_urls:
             fragment.add_javascript_url(self.runtime.local_resource_url(self, js_url))
 
