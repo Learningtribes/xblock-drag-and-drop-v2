@@ -14,6 +14,8 @@
         revision: "",
         base_url: "http://localhost:18010",
       },
+      showFilterAndList: false,
+      collapseBorder: true,
       help_tokens: {
         files: "http://edx.readthedocs.io/projects/open\u002Dedx\u002Dbuilding\u002Dand\u002Drunning\u002Da\u002Dcourse/en/latest/course_assets/course_files.html",
         image_accessibility: "http://edx.readthedocs.io/projects/open\u002Dedx\u002Dbuilding\u002Dand\u002Drunning\u002Da\u002Dcourse/en/latest/accessibility/best_practices_course_content_dev.html#use\u002Dbest\u002Dpractices\u002Dfor\u002Ddescribing\u002Dimages",
@@ -79,7 +81,10 @@
                 </div>
             </section>
 
-            <section id="1" class="tab hidden">
+            <section id="1" class="tab background-image-tab hidden">
+                <div class="drag-drop-tip">
+                    {% trans "Please drag & drop a file or choose one of our background" %}
+                </div>
                 <div id="root" class="SFE"></div>
                 <script type="text/javascript" src="{{ runtime_min_js }}"></script>
                 <script type="text/javascript" src="{{ common_min_js }}"></script>

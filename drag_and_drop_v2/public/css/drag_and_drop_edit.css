@@ -3,7 +3,7 @@
   height: 100%;
 }
 .modal-window .drag-builder  {
-    width: 100%;
+    width: 980px;
     height: calc(100% - 60px);
     position: absolute;
     overflow-y: scroll;
@@ -191,6 +191,14 @@
 
 .xblock--drag-and-drop--editor .feedback-tab input[type=checkbox] {
     display: inline-block;
+}
+
+.xblock--drag-and-drop--editor .background-image-tab {
+
+}
+
+.xblock--drag-and-drop--editor .background-image-tab .drag-drop-tip {
+    margin: 10px 0 0 10px;
 }
 
 /* Zones Tab */
