@@ -753,6 +753,13 @@ function DragAndDropEditBlock(runtime, element, params) {
 
     function selectTabPage(tabId) {
         var $tabPages = $(".supported-setting-tags section");
+        var pageFrame = $(".xblock--drag-and-drop--editor");
+
+        if ('1' === tabId) {
+            pageFrame.height('750px');
+        } else {
+            pageFrame.height('100%');
+        }
 
         $tabPages.each(function () {
             var pg = $(this);

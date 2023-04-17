@@ -16,6 +16,7 @@
       },
       showFilterAndList: false,
       collapseBorder: true,
+      supportedFileTypes: ".pdf, .jpg, .png",
       help_tokens: {
         files: "http://edx.readthedocs.io/projects/open\u002Dedx\u002Dbuilding\u002Dand\u002Drunning\u002Da\u002Dcourse/en/latest/course_assets/course_files.html",
         image_accessibility: "http://edx.readthedocs.io/projects/open\u002Dedx\u002Dbuilding\u002Dand\u002Drunning\u002Da\u002Dcourse/en/latest/accessibility/best_practices_course_content_dev.html#use\u002Dbest\u002Dpractices\u002Dfor\u002Ddescribing\u002Dimages",
@@ -86,11 +87,22 @@
                     {% trans "Please drag & drop a file or choose one of our background" %}
                 </div>
                 <div id="root" class="SFE"></div>
+                <link rel="stylesheet" type="text/css" href="{{ common_min_css }}" />
+                <link rel="stylesheet" type="text/css" href="{{ assets_min_css }}" />
                 <script type="text/javascript" src="{{ runtime_min_js }}"></script>
                 <script type="text/javascript" src="{{ common_min_js }}"></script>
                 <script type="text/javascript" src="{{ assets_min_js }}"></script>
-                <link rel="stylesheet" type="text/css" href="{{ common_min_css }}" />
-                <link rel="stylesheet" type="text/css" href="{{ assets_min_css }}" />
+                <ul class="supported-template-patterns">
+                    <li class="pattern-item">
+                        <img class="pattern-image" src="{{ triangle_img }}"/>
+                    </li>
+                    <li class="pattern-item">
+                        <img class="pattern-image" src="{{ triangle_img }}"/>
+                    </li>
+                    <li class="pattern-item">
+                        <div class="pattern-no-background">{% trans "No background (Zone only)" %}</div>
+                    </li>
+                </ul>
             </section>
 
             <section id="2" class="tab zones-tab hidden">
