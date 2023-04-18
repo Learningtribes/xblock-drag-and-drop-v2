@@ -93,13 +93,12 @@
                 <script type="text/javascript" src="{{ common_min_js }}"></script>
                 <script type="text/javascript" src="{{ assets_min_js }}"></script>
                 <ul class="supported-template-patterns">
+                    {% for tpl_summary in tpl_summaries %}
                     <li class="pattern-item">
-                        <img class="pattern-image" src="{{ triangle_img }}"/>
+                        <img class="pattern-image" id="{{ tpl_summary.type_id }}" src="{{ tpl_summary.thumbnail }}"/>
                     </li>
-                    <li class="pattern-item">
-                        <img class="pattern-image" src="{{ triangle_img }}"/>
-                    </li>
-                    <li class="pattern-item">
+                    {% endfor %}
+                    <li class="pattern-item" id="id-pattern-no-background">
                         <div class="pattern-no-background">{% trans "No background (Zone only)" %}</div>
                     </li>
                 </ul>

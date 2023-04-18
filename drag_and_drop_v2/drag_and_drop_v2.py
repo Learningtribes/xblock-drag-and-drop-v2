@@ -24,6 +24,7 @@ from xblockutils.settings import XBlockWithSettingsMixin, ThemableXBlockMixin
 from .utils import _, DummyTranslationService, FeedbackMessage, FeedbackMessages, ItemStats, StateMigration, Constants
 from .default_data import DEFAULT_DATA
 from .tabs_header import TabsHeader
+from .zone_template import ZONE_TPL_DEFINITIONS
 
 
 # Globals ###########################################################
@@ -356,7 +357,6 @@ class DragAndDropBlock(
         # connect 'for' and 'aria-describedby' attributes to the associated elements.
         id_suffix = self._get_block_id()
         js_templates = js_templates.replace('{{id_suffix}}', id_suffix)
-        #raise Exception(self.default_background_image_url())
         context = {
             'predefined_tabs': TabsHeader(),
             'js_templates': js_templates,
@@ -364,7 +364,8 @@ class DragAndDropBlock(
             'fields': self.fields,
             'self': self,
             'data': urllib.quote(json.dumps(self.data)),
-            'triangle_img': '/xblock/resource/drag-and-drop-v2/public/img/triangle.png',#self.default_background_image_url(),
+            'triangle_img': self.default_background_image_url,
+            'tpl_summaries': ZONE_TPL_DEFINITIONS.get_templates_summary(self, self.runtime.local_resource_url),
             ### For editImageModal rendering
             'common_min_css': _get_storage_url('/common/js/vendor/learningtribes-studio-frontend/dist/common.min.css'),
             'assets_min_css': _get_storage_url('/common/js/vendor/learningtribes-studio-frontend/dist/assets.min.css'),
