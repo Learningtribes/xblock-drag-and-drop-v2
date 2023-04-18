@@ -247,6 +247,12 @@
   justify-content: space-between;
 }
 
+.xblock--drag-and-drop--editor .zones-tab .zones-tips {
+    font-size: 16px;
+    font-weight: 400;
+    margin: 10px 0px 10px 0px;
+}
+
 .xblock--drag-and-drop--editor .zones-tab .tab-content .controls {
   width: 40%;
   max-width: 50%;
