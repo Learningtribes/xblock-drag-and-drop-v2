@@ -6,13 +6,12 @@
     width: 980px;
     height: calc(100% - 60px);
     position: absolute;
-    overflow-y: scroll;
-    margin: 10px 30px 10px 30px;
+    margin: 10px 30px 10px 0px;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .supported-setting-tags-nav {
 	border: 0;
-	margin: 3px;
+	margin: 3px 3px 3px 30px;
 	display: block;
 	font-size: 0;
     border: 1px solid #DCDCDC;
@@ -166,7 +165,39 @@
 
 .xblock--drag-and-drop--editor .tab-content {
     width: 96%;
-    margin: 2%;
+    margin-left: 30px;
+}
+
+.xblock--drag-and-drop--editor .tab-content .zones-tips {
+    margin-left: 10px;
+}
+
+.xblock--drag-and-drop--editor .tab-content .drag_drop_area {
+    display: flex;
+    width: 920px;
+    height: 523px;
+    margin: 15px 0px 15px 0px;
+}
+
+.xblock--drag-and-drop--editor .tab-content .left {
+    border: 1px solid #629a2c;
+    width: 50%;
+}
+
+.xblock--drag-and-drop--editor .tab-content .right {
+    border: 1px solid #ff143e;
+    width: 50%;
+}
+
+.xblock--drag-and-drop--editor .zones_settings {
+    border-top: 1px solid #DCDCDC;
+}
+
+.xblock--drag-and-drop--editor .zones_settings .setting_flag {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 19.07px;
+    margin: 20px 20px 20px 30px;
 }
 
 .xblock--drag-and-drop--editor .items {
@@ -384,16 +415,17 @@
 
 /** Buttons **/
 .xblock--drag-and-drop--editor .btn {
-    background-color: #1d5280;
-    color: #fff;
-    border: 1px solid #156ab4;
+    background-color: #e7413c;
+    color: black;
+    border: 0;
     border-radius: 6px;
     padding: 5px 10px;
+    box-shadow: 1px 1px 4px rgba(231,65,60,0.35);
 }
 
 .xblock--drag-and-drop--editor .btn:hover,
 .xblock--drag-and-drop--editor .btn:focus {
-    background-color: #296ba5;
+    background-color: white;
     box-shadow: 0 1px 1px rgba(0,0,0,0.5);
 }
 

@@ -349,22 +349,18 @@ class DragAndDropBlock(
         Editing view in Studio
         """
 
-        js_templates = loader.load_unicode('/templates/html/js_templates.html')
         # Get an 'id_suffix' string that is unique for this block.
         # We append it to HTML element ID attributes to ensure multiple instances of the DnDv2 block
         # on the same page don't share the same ID value.
         # We avoid using ID attributes in preference to classes, but sometimes we still need IDs to
         # connect 'for' and 'aria-describedby' attributes to the associated elements.
         id_suffix = self._get_block_id()
-        js_templates = js_templates.replace('{{id_suffix}}', id_suffix)
         context = {
             'predefined_tabs': TabsHeader(),
-            'js_templates': js_templates,
             'id_suffix': id_suffix,
             'fields': self.fields,
             'self': self,
             'data': urllib.quote(json.dumps(self.data)),
-            'triangle_img': self.default_background_image_url,
             'tpl_summaries': ZONE_TPL_DEFINITIONS.get_templates_summary(self, self.runtime.local_resource_url),
             ### For editImageModal rendering
             'common_min_css': _get_storage_url('/common/js/vendor/learningtribes-studio-frontend/dist/common.min.css'),

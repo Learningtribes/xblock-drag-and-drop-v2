@@ -757,6 +757,8 @@ function DragAndDropEditBlock(runtime, element, params) {
 
         if ('1' === tabId) {
             pageFrame.height('750px');
+        } else if ('2' === tabId) {
+            pageFrame.height('876px');
         } else {
             pageFrame.height('100%');
         }
@@ -788,7 +790,6 @@ function DragAndDropEditBlock(runtime, element, params) {
 
     });
 
-    dragAndDrop.init();
     $('.supported-setting-tags-nav > li')[0].className = 'nav-item active-section';
     $('.supported-setting-tags-nav > li').each( function (i, obj) {
         if (i > 0) {
@@ -799,4 +800,7 @@ function DragAndDropEditBlock(runtime, element, params) {
             }
         }
     } );
+
+    dragAndDrop.init();
+
 }

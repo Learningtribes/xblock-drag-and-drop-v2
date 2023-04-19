@@ -28,7 +28,6 @@
 </script>
 
 <div class="xblock--drag-and-drop--editor editor-with-buttons">
-    {{ js_templates|safe }}
 
     <div class="drag-builder">
         <div class="supported-setting-tags" id="supported-setting-tags">
@@ -83,166 +82,51 @@
             </section>
 
             <section id="1" class="tab background-image-tab hidden">
-                <div class="drag-drop-tip">
-                    {% trans "Please drag & drop a file or choose one of our background" %}
+                <div class="tab-content">
+                    <div class="drag-drop-tip">
+                        {% trans "Please drag & drop a file or choose one of our background" %}
+                    </div>
+                    <div id="root" class="SFE"></div>
+                    <link rel="stylesheet" type="text/css" href="{{ common_min_css }}" />
+                    <link rel="stylesheet" type="text/css" href="{{ assets_min_css }}" />
+                    <script type="text/javascript" src="{{ runtime_min_js }}"></script>
+                    <script type="text/javascript" src="{{ common_min_js }}"></script>
+                    <script type="text/javascript" src="{{ assets_min_js }}"></script>
+                    <ul class="supported-template-patterns">
+                        {% for tpl_summary in tpl_summaries %}
+                        <li class="pattern-item">
+                            <img class="pattern-image" id="{{ tpl_summary.type_id }}" src="{{ tpl_summary.thumbnail }}"/>
+                        </li>
+                        {% endfor %}
+                        <li class="pattern-item" id="id-pattern-no-background">
+                            <div class="pattern-no-background">{% trans "No background (Zone only)" %}</div>
+                        </li>
+                    </ul>
                 </div>
-                <div id="root" class="SFE"></div>
-                <link rel="stylesheet" type="text/css" href="{{ common_min_css }}" />
-                <link rel="stylesheet" type="text/css" href="{{ assets_min_css }}" />
-                <script type="text/javascript" src="{{ runtime_min_js }}"></script>
-                <script type="text/javascript" src="{{ common_min_js }}"></script>
-                <script type="text/javascript" src="{{ assets_min_js }}"></script>
-                <ul class="supported-template-patterns">
-                    {% for tpl_summary in tpl_summaries %}
-                    <li class="pattern-item">
-                        <img class="pattern-image" id="{{ tpl_summary.type_id }}" src="{{ tpl_summary.thumbnail }}"/>
-                    </li>
-                    {% endfor %}
-                    <li class="pattern-item" id="id-pattern-no-background">
-                        <div class="pattern-no-background">{% trans "No background (Zone only)" %}</div>
-                    </li>
-                </ul>
             </section>
 
             <section id="2" class="tab zones-tab hidden">
-                <div class="tab-content">
+                <div id="rectangle_editor" class="tab-content">
                     <div class="zones-tips">
                         <div>Click on Add Zone and create your zone using your mouse.</div>
                         <div>You can modify your Zone name by clicking on the name once you created the Zone.</div>
                     </div>
-                    <form class="target-image-form">
-                        <fieldset>
-                            <label class="h4">{% trans "Background Image" %}</label>
-                            <span class="field-component-wrapper">
-                            <label class="background-image-type">
-                                <input type="radio" name="background-image-type-{{id_suffix}}" value="manual" />
-                                <span>{% trans "Provide custom image" %}</span>
-                            </label>
-                            <label class="background-image-type">
-                                <input type="radio" name="background-image-type-{{id_suffix}}" value="auto" />
-                                <span>{% trans "Generate image automatically" %}</span>
-                            </label>
-                            </span>
-                        </fieldset>
-                        <fieldset class="background-manual">
-                            <label class="h4" for="background-url-{{id_suffix}}">
-                                <span>{% trans "Background URL" %}</span>
-                            </label>
-                            <span class="field-component-wrapper">
-                            <input class="background-url"
-                                  id="background-url-{{id_suffix}}"
-                                  type="text"
-                                  aria-describedby="background-url-description-{{id_suffix}}" />
-                            </label>
-                            <button type="button" class="btn">{% trans "Change background" %}</button>
-                            <span class="question-mark-wrapper" data-title="{% trans "For example, 'http://example.com/background.png' or '/static/background.png'." %}"></span>
-                            <div id="background-url-description-{{id_suffix}}" class="form-help">
-                                {% trans "For example, 'http://example.com/background.png' or '/static/background.png'." %}
-                            </div>
-                            </span>
-                        </fieldset>
-                        <fieldset class="background-auto">
-                            <fieldset>
-                                <label class="h4">{% trans "Zone Layout" %}</label>
-                                <span class="field-component-wrapper">
-                                <label class="sr" for="autozone-cols-{{id_suffix}}">
-                                    {% trans "Number of columns" %}
-                                </label>
-                                <input id="autozone-cols-{{id_suffix}}"
-                                       class="autozone-layout autozone-layout-cols"
-                                       type="text"
-                                       aria-describedby="autozone-layout-description-{{id_suffix}}" />
-                                <span>&times;</span>
-                                <label class="sr" for="autozone-rows-{{id_suffix}}">
-                                    {% trans "Number of rows" %}
-                                </label>
-                                <input id="autozone-rows-{{id_suffix}}"
-                                       class="autozone-layout autozone-layout-rows"
-                                       type="text"
-                                       aria-describedby="autozone-layout-description-{{id_suffix}}" />
-                                <div id="autozone-layout-description-{{id_suffix}}" class="form-help">
-                                    {% trans "Number of columns and rows." %}
-                                </div>
-                                </span>
-                            </fieldset>
-                            <fieldset>
-                                <label class="h4">{% trans "Zone Size" %}</label>
-                                <span class="field-component-wrapper">
-                                <label class="sr" for="autozone-zone-width-{{id_suffix}}">
-                                    {% trans "Zone width" %}
-                                </label>
-                                <input id="autozone-zone-width-{{id_suffix}}"
-                                       class="autozone-size autozone-size-width"
-                                       type="text"
-                                       aria-describedby="autozone-size-description-{{id_suffix}}" />
-                                <span>&times;</span>
-                                <label class="sr" for="autozone-zone-height-{{id_suffix}}">
-                                    {% trans "Zone height" %}
-                                </label>
-                                <input id="autozone-zone-height-{{id_suffix}}"
-                                       class="autozone-size autozone-size-height"
-                                       type="text"
-                                       aria-describedby="autozone-size-description-{{id_suffix}}" />
-                                <div id="autozone-size-description-{{id_suffix}}" class="form-help">
-                                    {% trans "Size of a single zone in pixels." %}
-                                </div>
-                                </span>
-                            </fieldset>
-                            <button type="button" class="btn">{% trans "Generate image and zones" %}</button>
-                        </fieldset>
-                        <label class="h4">
-                            <label>{% trans "Background description" %}</label>
-                            <textarea required class="background-description"
-                                      aria-describedby="background-description-description-{{id_suffix}}"></textarea>
-                            <span class="question-mark-wrapper" data-title="{% blocktrans %}
-                                Please provide a description of the image for non-visual users.
-                                The description should provide sufficient information to allow anyone
-                                to solve the problem even without seeing the image.
-                            {% endblocktrans %}"></span>
-                        </label>
-
-                        <div id="background-description-description-{{id_suffix}}" class="form-help">
-                            {% blocktrans %}
-                                Please provide a description of the image for non-visual users.
-                                The description should provide sufficient information to allow anyone
-                                to solve the problem even without seeing the image.
-                            {% endblocktrans %}
-                        </div>
-                    </form>
+                    <div class="operation_bar">
+                        <button type="button" class="btn">{% trans "+ Add Zone" %}</button>
+                    </div>
+                    <div class="drag_drop_area">
+                        <div class="left"></div>
+                        <div class="right"></div>
+                    </div>
                 </div>
-                <div class="tab-content">
-                    <form class="display-labels-form">
-                        <h4>{% trans "Zone labels" %}</h4>
-                        <label class="checkbox-label">
-                            <input name="display-labels" class="display-labels" type="checkbox" />
-                            <span class="switcher-wrapper"></span>
-                            <span>{% trans "Display label names on the image" %}</span>
-                        </label>
-                    </form>
-                    <form class="display-borders-form">
-                        <h4>{% trans "Zone borders" %}</h4>
-                        <label class="checkbox-label">
-                            <input name="display-borders" class="display-borders" type="checkbox" />
-                            <span class="switcher-wrapper"></span>
-                            <span>{% trans "Display zone borders on the image" %}</span>
-                        </label>
-                    </form>
-                </div>
-                <div class="tab-content">
-                    <h4>{% trans "Zone definitions" %}</h4>
-                    <div class="zone-editor">
-                        <div class="controls">
-                            <form class="zones-form"></form>
-                            <button class="btn add-zone add-element">
-                                <span class="icon fal fa-plus" aria-hidden="true"></span>
-                                {% trans "Add a zone" %}
-                            </button>
-                        </div>
-                        <div class="target">
-                            <img class="target-img">
-                            <div class="zones-preview">
-                            </div>
-                        </div>
+                <div class="zones_settings">
+                    <div class="setting_flag">
+                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                        <span>{% trans "Display zone borders on the image" %}</span>
+                    </div>
+                    <div class="setting_flag">
+                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                        <span>{% trans "Display label names on the image" %}</span>
                     </div>
                 </div>
             </section>
