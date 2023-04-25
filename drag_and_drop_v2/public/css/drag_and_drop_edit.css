@@ -181,29 +181,39 @@
 
 .xblock--drag-and-drop--editor .tab-content .left {
     border: 1px solid #629a2c;
-    width: 50%;
+    width: 465px;
+    height: 500px;
+    position: absolute;
+    left: 30px;
 }
 
 .xblock--drag-and-drop--editor .tab-content .right {
     border: 1px solid #ff143e;
-    width: 50%;
+    width: 465px;
+    height: 500px;
+    position: absolute;
+    left: 500px;
 }
 
 .xblock--drag-and-drop--editor .tab-content .left .resizable_box {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 1px solid #29CB97;
+    position: absolute;
+    border: 1px solid #1D1D1D;
     width: 10px;
     height: 10px;
-    overflow: auto;
-    resize: both;
-    cursor:pointer;
+    margin: 3px;
 }
 
 .xblock--drag-and-drop--editor .tab-content .left .resizable_box .zone_title {
     font-size: 14px;
     font-weight: 700;
+}
+
+.xblock--drag-and-drop--editor .tab-content .right .resizable_box {
+    position: absolute;
+    border: 1px solid #1D1D1D;
+    width: 10px;
+    height: 10px;
+    margin: 3px;
 }
 
 .xblock--drag-and-drop--editor .zones_settings {

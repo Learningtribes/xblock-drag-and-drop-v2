@@ -112,13 +112,11 @@
                         <div>You can modify your Zone name by clicking on the name once you created the Zone.</div>
                     </div>
                     <div class="operation_bar">
-                        <button type="button" class="btn">{% trans "+ Add Zone" %}</button>
+                        <button type="button" class="btn" id="id_add_zone_bt">{% trans "+ Add Zone" %}</button>
                     </div>
                     <div class="drag_drop_area">
-                        <div class="left">
-                            <div class="resizable_box"><div class="zone_title">{% trans "Zone 1" %}</div></div>
-                        </div>
-                        <div class="right"></div>
+                        <div class="left resizable_box_container"></div>
+                        <div class="right resizable_box_container"></div>
                     </div>
                 </div>
                 <div class="zones_settings">
