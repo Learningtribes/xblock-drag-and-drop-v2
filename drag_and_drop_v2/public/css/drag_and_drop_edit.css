@@ -189,6 +189,23 @@
     width: 50%;
 }
 
+.xblock--drag-and-drop--editor .tab-content .left .resizable_box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #29CB97;
+    width: 10px;
+    height: 10px;
+    overflow: auto;
+    resize: both;
+    cursor:pointer;
+}
+
+.xblock--drag-and-drop--editor .tab-content .left .resizable_box .zone_title {
+    font-size: 14px;
+    font-weight: 700;
+}
+
 .xblock--drag-and-drop--editor .zones_settings {
     border-top: 1px solid #DCDCDC;
 }
