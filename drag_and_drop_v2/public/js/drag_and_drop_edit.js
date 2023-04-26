@@ -29,11 +29,11 @@ function DragAndDropEditBlock(runtime, element, params) {
             tpl: {
                 init: function() {
                     _fn.tpl = {
-                        zoneInput: Handlebars.compile($(".zone-input-tpl", element).html()),
-                        zoneElement: Handlebars.compile($(".zone-element-tpl", element).html()),
-                        zoneCheckbox: Handlebars.compile($(".zone-checkbox-tpl", element).html()),
-                        itemInput: Handlebars.compile($(".item-input-tpl", element).html()),
-                        autozoneSvg: Handlebars.compile($(".autozone-tpl", element).html())
+                        // zoneInput: Handlebars.compile($(".zone-input-tpl", element).html()),
+                        // zoneElement: Handlebars.compile($(".zone-element-tpl", element).html()),
+                        // zoneCheckbox: Handlebars.compile($(".zone-checkbox-tpl", element).html()),
+                        // itemInput: Handlebars.compile($(".item-input-tpl", element).html()),
+                        // autozoneSvg: Handlebars.compile($(".autozone-tpl", element).html())
                     };
                 }
             },
@@ -170,6 +170,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                         $itemTab = _fn.build.$el.items.tab;
 
                     var self = this;
+
+                    $element.one('click', '.save-button', function saveButtonHandler(e) {
+                        e.preventDefault();
+                    });
 
                     $element.one('click', '.continue-button', function loadSecondTab(e) {
                         // $fbkTab -> $zoneTab
@@ -359,10 +363,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                             _fn.build.form.zone.zoneObjects.push(zoneObj);
 
                             // Add fields to zone form
-                            $zoneNode = $(_fn.tpl.zoneInput({
-                                zone: zoneObj,
-                                index: _fn.build.form.zone.totalZonesCreated++,
-                            }));
+                            // $zoneNode = $(_fn.tpl.zoneInput({
+                            //     zone: zoneObj,
+                            //     index: _fn.build.form.zone.totalZonesCreated++,
+                            // }));
                             _fn.build.$el.zones.form.append($zoneNode);
                             _fn.build.form.zone.enableDelete();
 
