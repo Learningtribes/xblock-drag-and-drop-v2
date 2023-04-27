@@ -275,6 +275,8 @@
 .xblock--drag-and-drop--editor label > span {
     display: inline-block;
     margin-bottom: 0.25em;
+    margin-left: 30px;
+    min-width: 350px;
 }
 
 .xblock--drag-and-drop--editor label.checkbox-label {
@@ -285,6 +287,26 @@
 .xblock--drag-and-drop--editor .feedback-tab input,
 .xblock--drag-and-drop--editor .feedback-tab select {
     display: block;
+    width: 412px;
+}
+
+.xblock--drag-and-drop--editor .feedback-tab .input_box {
+    display: block;
+    width: 412px !important;
+}
+
+.xblock--drag-and-drop--editor .feedback-tab .title_button {
+    display: inline-block;
+    width: 20px;
+    margin-left: 5px;
+}
+
+.xblock--drag-and-drop--editor .feedback-tab .question-mark-wrapper {
+    position: absolute;
+}
+
+.xblock--drag-and-drop--editor .feedback-tab .question-mark-wrapper .after {
+    right: 300px !important;
 }
 
 .xblock--drag-and-drop--editor .feedback-tab input[type=checkbox] {
@@ -377,7 +399,7 @@
 
 
 .xblock--drag-and-drop--editor .feedback-form textarea {
-    width: 99%;
+    width: 412px !important;
     height: 128px;
 }
 

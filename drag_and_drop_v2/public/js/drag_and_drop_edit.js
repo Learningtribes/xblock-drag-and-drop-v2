@@ -178,6 +178,12 @@ function DragAndDropEditBlock(runtime, element, params) {
                         _fn.build.form.submit();
                     });
 
+                    $element.one('click', '.save-continue-button', function saveContinueButtonHandler(e) {
+                        e.preventDefault();
+
+                        _fn.build.form.submit(continue_mode=true);
+                    });
+
                     $element.one('click', '.continue-button', function loadSecondTab(e) {
                         // $fbkTab -> $zoneTab
 
@@ -670,7 +676,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             $el.find('.row.advanced-link').toggleClass('opening')
                         },
                     },
-                    submit: function() {
+                    submit: function(continue_mode=false) {
                         // save all
                         var items = [],
                             $form = _fn.build.$el.items.form.find('.item');
@@ -727,24 +733,20 @@ function DragAndDropEditBlock(runtime, element, params) {
                             'data': _fn.data,
                         };
 
-                        console.log("submit() ========> ")
-                        console.log(data)
-
                         var handlerUrl = runtime.handlerUrl(element, 'studio_submit');
-                        console.log(handlerUrl)
-                        runtime.notify('save', {state: 'start', message: gettext("Saving")});
-                        // $.post(handlerUrl, JSON.stringify(data), 'json').done(function(response) {
-                        //     if (response.result === 'success') {
-                        //         runtime.notify('save', {state: 'end'});
-                        //     } else {
-                        //         var message = response.messages.join(", ");
-                        //         runtime.notify('error', {
-                        //             'title': window.gettext("There was an error with your form."),
-                        //             'message': message
-                        //         });
-                        //     }
-                        // });
 
+                        runtime.notify('save', {state: 'start', message: gettext("Saving")});
+                        $.post(handlerUrl, JSON.stringify(data), 'json').done(function(response) {
+                            if (response.result === 'success') {
+                                runtime.notify('save', continue_mode ? {state: 'save_and_continue'} : {state: 'end'});
+                            } else {
+                                var message = response.messages.join(", ");
+                                runtime.notify('error', {
+                                    'title': window.gettext("There was an error with your form."),
+                                    'message': message
+                                });
+                            }
+                        });
 
                     }
                 }
@@ -1034,10 +1036,22 @@ function DragAndDropEditBlock(runtime, element, params) {
 
         if ('1' === tabId) {
             pageFrame.height('750px');
+            $('#id_xblock_save_button').className = 'action-item hidden';
+            $('#id_xblock_save_and_continue_button').className = 'action-item ';
         } else if ('2' === tabId) {
             pageFrame.height('876px');
+            $('#id_xblock_save_button').className = 'action-item hidden';
+            $('#id_xblock_save_and_continue_button').className = 'action-item ';
+        } else if ('3' === tabId) {
+            $('#id_xblock_save_button').removeClass('hidden');
+            var bt = $('#id_xblock_save_and_continue_button');
+            if (!bt.hasClass('hidden')) {
+                bt.addClass('hidden')
+            }
         } else {
             pageFrame.height('100%');
+            $('#id_xblock_save_button').className = 'action-item hidden';
+            $('#id_xblock_save_and_continue_button').className = 'action-item ';
         }
 
         $tabPages.each(function () {
@@ -1057,10 +1071,11 @@ function DragAndDropEditBlock(runtime, element, params) {
     $('.supported-setting-tags-nav > li', element).bind('click', function() {
         $(this).addClass('active-section');
         $(this).siblings().each( function (i, obj) {
-            if (obj.id < 2 ) {
+            if (parseInt(obj.id) < 2 ) {
                 obj.className = 'nav-item';
             } else {
                 obj.className = 'nav-item disable-section';
+                $('#id_xblock_save_and_continue_button').className = 'action-item';
             }
         } )
         selectTabPage($(this).attr('id'));
