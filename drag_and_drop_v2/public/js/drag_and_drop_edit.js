@@ -173,6 +173,9 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                     $element.one('click', '.save-button', function saveButtonHandler(e) {
                         e.preventDefault();
+
+                        // add new save function for post data each step
+                        _fn.build.form.submit();
                     });
 
                     $element.one('click', '.continue-button', function loadSecondTab(e) {
@@ -237,14 +240,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                             $itemTab.find('input:first').select();
 
                             $(this).addClass('hidden');
-                            $('.save-button', element).parent()
-                                .removeClass('hidden')
-                                .on('click', function submitForm(e) {
-                                    // $itemTab -> submit
-
-                                    e.preventDefault();
-                                    _fn.build.form.submit();
-                                });
                         });
                     });
 
@@ -590,12 +585,12 @@ function DragAndDropEditBlock(runtime, element, params) {
                         var html = checkboxes.join('');
                         return new Handlebars.SafeString(html);
                     },
-                    feedback: function($form) {
-                        _fn.data.feedback = {
-                            start: $form.find('.intro-feedback').val(),
-                            finish: $form.find('.final-feedback').val()
-                        };
-                    },
+                    // feedback: function($form) {
+                    //     _fn.data.feedback = {
+                    //         start: $form.find('.intro-feedback').val(),
+                    //         finish: $form.find('.final-feedback').val()
+                    //     };
+                    // },
                     item: {
                         count: 0,
                         add: function(itemData) {
@@ -676,6 +671,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         },
                     },
                     submit: function() {
+                        // save all
                         var items = [],
                             $form = _fn.build.$el.items.form.find('.item');
 
@@ -722,22 +718,34 @@ function DragAndDropEditBlock(runtime, element, params) {
                             'item_background_color': $element.find('.item-background-color').val(),
                             'item_text_color': $element.find('.item-text-color').val(),
                             'max_items_per_zone': $element.find('.max-items-per-zone').val(),
+                            'feedback': {
+                                'start': $element.find('.intro-feedback').val(),
+                                'finish': $element.find('.final-feedback').val()
+                            },
+                            // 'targetImg': '',
+                            // 'targetImgDescription': '',
                             'data': _fn.data,
                         };
 
+                        console.log("submit() ========> ")
+                        console.log(data)
+
                         var handlerUrl = runtime.handlerUrl(element, 'studio_submit');
+                        console.log(handlerUrl)
                         runtime.notify('save', {state: 'start', message: gettext("Saving")});
-                        $.post(handlerUrl, JSON.stringify(data), 'json').done(function(response) {
-                            if (response.result === 'success') {
-                                runtime.notify('save', {state: 'end'});
-                            } else {
-                                var message = response.messages.join(", ");
-                                runtime.notify('error', {
-                                    'title': window.gettext("There was an error with your form."),
-                                    'message': message
-                                });
-                            }
-                        });
+                        // $.post(handlerUrl, JSON.stringify(data), 'json').done(function(response) {
+                        //     if (response.result === 'success') {
+                        //         runtime.notify('save', {state: 'end'});
+                        //     } else {
+                        //         var message = response.messages.join(", ");
+                        //         runtime.notify('error', {
+                        //             'title': window.gettext("There was an error with your form."),
+                        //             'message': message
+                        //         });
+                        //     }
+                        // });
+
+
                     }
                 }
             },
