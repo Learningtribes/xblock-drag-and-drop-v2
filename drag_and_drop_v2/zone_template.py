@@ -4,26 +4,24 @@
 """
 
 
-from abc import ABCMeta, abstractmethod
-
-from .utils import _
+from .utils import _, Constants, StateMigration
 
 
-class _ZoneTemplatePolicy(object):
-    """Abs Policy class of zone template
+class ZonesDefinition(object):
+    """Maintenance zones definitions ( generate or parse zones definition for user )
 
         Sample:
             {
                 "zones": [
                     {
-                        "key": TOP_ZONE_ID,
+                        "uid": TOP_ZONE_ID,
                         "title": TOP_ZONE_TITLE, "description": TOP_ZONE_DESCRIPTION,
                         "x": 160, "y": 30, "width": 196, "height": 178, "align": "center"
                     }, ......
                 ],
                 "items": [
                     {
-                        "item_id": 0, "displayName": ITEM_TOP_ZONE_NAME,
+                        "id": 0, "displayName": ITEM_TOP_ZONE_NAME,
                         "feedback": {
                             "incorrect": ITEM_INCORRECT_FEEDBACK,
                             "correct": ITEM_CORRECT_FEEDBACK.format(zone=TOP_ZONE_TITLE)
@@ -35,24 +33,22 @@ class _ZoneTemplatePolicy(object):
                 "thumbnail": "public/img/abc.jpg"
             }
     """
-    __metaclass__ = ABCMeta
-
     def __init__(self, tpl_data=None):
         self._tpl_data = tpl_data
 
-    def gen_zone_settings(self, key, title, description, x, y, width, height, align):
+    def gen_zone_settings(self, uid, title, description, x, y, width, height, align):
         """Generate and return zone settings (dict) according to arguments
         """
         return {
-            'key': key, 'title': title, 'description': description,
+            'uid': uid, 'title': title, 'description': description,
             'x': x, 'y': y, 'width': width, 'height': height, 'align': align
         }
 
-    def gen_item_settings(self, item_id, display_name, incorrect_feedback, correct_feedback, related_zones, image_url):
+    def gen_item_settings(self, id, display_name, incorrect_feedback, correct_feedback, related_zones, image_url):
         """Generate and return zone settings (dict) according to arguments
         """
         return {
-            'id': item_id, 'display_name': display_name,
+            'id': id, 'display_name': display_name,
             'feedback': {
                 'incorrect': incorrect_feedback, 'correct': correct_feedback
             },
@@ -67,50 +63,132 @@ class _ZoneTemplatePolicy(object):
             'finish': finish
         }
 
-    @classmethod
-    def get_type_id(cls):
+    def get_type_id(self):
         """Return zone template type id ( Integer )
 
             @return:            predefined type id of zone template
             @rtype:             Integer
         """
-        raise NotImplementedError
+        return self._tpl_data['template_type'] if 'template_type' in self._tpl_data else 0
 
-    @abstractmethod
     def get_thumbnail_path(self):
         """Return thumbnail path"""
-        raise NotImplementedError
+        return self._tpl_data['thumbnail'] if self._tpl_data else None
 
-    @abstractmethod
-    def get_valid_zone_keys(self):
-        """Return all predefined zone keys ( List )
+    def get_valid_zone_uids(self):
+        """Return zones' uids List edited by User
 
-            @return:            predefined zone ids
+            @return:            zone Keys
             @rtype:             list
         """
-        raise NotImplementedError
+        if self._tpl_data is None:
+            raise NotImplementedError('zones data is empty.')
 
-    @abstractmethod
-    def get_zone_info_key(self, zone_key):
-        """Return all predefined zone keys ( List )
+        return [zone['uid'] for zone in self._tpl_data['zones']]
 
-            @param zone_key:    key value of a predefined zone
-            @type zone_key:     string / integer
+    def get_valid_item_ids(self):
+        """Return all valid item IDs
+
+            @return:            item ids
+            @rtype:             List
+        """
+        if self._tpl_data is None:
+            raise NotImplementedError('zones data is empty.')
+
+        return set([str(item['id']) for item in self._tpl_data['items']])
+
+    def get_zone_info_by_uid(self, uid):
+        """Query & Return zone summary information by `zone uid`.
+
+            @param uid:         uid value of a predefined zone
+            @type uid:          string / integer
             @return:            predefined zone information
             @rtype:             dict
         """
-        raise NotImplementedError
+        zone = [
+            {'title': zone['title'], 'description': zone['description']} for zone in self._tpl_data['zones'] if uid == zone['uid']
+        ]
+        assert len(zone) == 1
+        return zone[0]
 
-    @abstractmethod
+    def is_attempt_correct(self, attempt):
+        """Check if the item was placed on correct area.
+        """
+        correct_zones = self.get_zones_by_item_id(attempt['val'])
+        if correct_zones == [] and attempt['zone'] is None and self.mode == Constants.ASSESSMENT_MODE:
+            return True
+        return attempt['zone'] in correct_zones
+
+    def get_item_by_id(self, id):
+        """Return item definition by `item id`
+        """
+        return next(_item for _item in self._tpl_data['items'] if _item['id'] == id)
+
+    def get_zones_by_item_id(self, id):
+        """Return item related zones by `id` in a zones `LIST`
+        """
+        _item = self.get_item_by_id(id)
+
+        if _item.get('zones') is not None:
+            return _item.get('zones')
+        elif _item.get('zone') is not None and _item.get('zone') != 'none':
+            return [_item.get('zone')]
+        else:
+            return []
+
+    def get_zone_by_uid(self, uid):
+        """Given a zone UID, return that zone, or None.
+        """
+        for _zone in self.get_compatible_zones():
+            if _zone["uid"] == uid:
+                return _zone
+
+        return None
+
+    def get_compatible_zones(self):
+        """Get drop zone data, defined by the author.
+            It's compatible with old format
+        """
+        # Convert zone data from old to new format if necessary
+        return [
+            StateMigration(self).apply_zone_migrations(zone) for zone in self._tpl_data.get('zones', [])
+        ]
+
+    def get_correct_state(self):
+        """Returns one of the possible correct states for the configured data.
+        """
+        _state = {}
+
+        for _item in copy.deepcopy(self._tpl_data.get('items', [])):
+            zones = _item.get('zones')
+
+            # For backwards compatibility
+            if zones is None:
+                zones = []
+                zone = _item.get('zone')
+                if zone is not None and zone != 'none':
+                    zones.append(zone)
+
+            if zones:
+                zone = zones.pop()
+                _state[str(_item['id'])] = {
+                    'zone': zone,
+                    'correct': True,
+                }
+
+        return {'items': _state}
+
     def generate(self):
         """Generate and return template dict by settings in derived class
         """
         raise NotImplementedError
 
 
-class TriangleTemplate(_ZoneTemplatePolicy):
+class TriangleTemplate(ZonesDefinition):
     """Predefined triangle template
     """
+    TYPE_ID = 0
+
     _TOP_ZONE_ID = "top"
     _MIDDLE_ZONE_ID = "middle"
     _BOTTOM_ZONE_ID = "bottom"
@@ -130,27 +208,36 @@ class TriangleTemplate(_ZoneTemplatePolicy):
     _ITEM_ANY_ZONE_FEEDBACK = _("Of course it goes here! It goes anywhere!")
 
     def __init__(self, tpl_data=None):
-        super(TriangleTemplate, self).__init__(tpl_data)
+        super(TriangleTemplate, self).__init__(tpl_data = tpl_data)
 
-    @classmethod
-    def get_type_id(cls):
-        return 0
+    def get_valid_zone_uids(self):
+        """Return zones' uid List edited by User if user has stored zones definitions in MongoDB
+            Otherwise return predefined zones' Key List
 
-    def get_thumbnail_path(self):
-        return 'public/img/triangle.png'
+            @return:            zone Keys
+            @rtype:             list
+        """
+        if self._tpl_data is None:
+            return super(TriangleTemplate, self).get_valid_zone_uids()
 
-    def get_valid_zone_keys(self):
+        # Return predefined uids of zone.
         return [_TOP_ZONE_ID, _MIDDLE_ZONE_ID, _BOTTOM_ZONE_ID]
 
-    def get_zone_info_key(self, zone_key):
-        if zone_key == _TOP_ZONE_ID:
+    def get_zone_info_by_uid(self, uid):
+        """Query & Return zone summary information by `zone uid`. if user has stored zoned definitions in MongoDB
+            Otherwise return predefined zones summary
+        """
+        if self._tpl_data is not None:
+            return super(TriangleTemplate, self).get_zone_info_by_uid(uid)
+
+        if uid == _TOP_ZONE_ID:
             return {'title': _TOP_ZONE_TITLE, 'description': None}
-        elif zone_key == _MIDDLE_ZONE_ID:
+        elif uid == _MIDDLE_ZONE_ID:
             return {'title': _MIDDLE_ZONE_ID, 'description': None}
-        elif zone_key == _BOTTOM_ZONE_ID:
+        elif uid == _BOTTOM_ZONE_ID:
             return {'title': _BOTTOM_ZONE_ID, 'description': None}
 
-        raise KeyError('Invalie zone key : {}'.format(zone_key))
+        raise KeyError('Invalie zone uid : {}'.format(uid))
 
     def generate(self):
         if self._tpl_data:
@@ -158,30 +245,33 @@ class TriangleTemplate(_ZoneTemplatePolicy):
 
         self._tpl_data = {
             'zones': [
-                self.gen_zone_settings(key=self._TOP_ZONE_ID, title=self._TOP_ZONE_TITLE, description=None, x=160, y=30, width=196, height=178, align='center'),
-                self.gen_zone_settings(key=self._MIDDLE_ZONE_ID, title=self._MIDDLE_ZONE_TITLE, description=None, x=86, y=210, width=340, height=138, align='center'),
-                self.gen_zone_settings(key=self._BOTTOM_ZONE_ID, title=self._BOTTOM_ZONE_TITLE, description=None, x=15, y=350, width=485, height=135, align='center')
+                self.gen_zone_settings(uid=self._TOP_ZONE_ID, title=self._TOP_ZONE_TITLE, description=None, x=160, y=30, width=196, height=178, align='center'),
+                self.gen_zone_settings(uid=self._MIDDLE_ZONE_ID, title=self._MIDDLE_ZONE_TITLE, description=None, x=86, y=210, width=340, height=138, align='center'),
+                self.gen_zone_settings(uid=self._BOTTOM_ZONE_ID, title=self._BOTTOM_ZONE_TITLE, description=None, x=15, y=350, width=485, height=135, align='center')
             ],
             'items': [
-                self.gen_item_settings(item_id=0, display_name=self._ITEM_TOP_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._TOP_ZONE_TITLE), related_zones=self._TOP_ZONE_ID, image_url=''),
-                self.gen_item_settings(item_id=1, display_name=self._ITEM_MIDDLE_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._MIDDLE_ZONE_TITLE), related_zones=self._MIDDLE_ZONE_ID, image_url=''),
-                self.gen_item_settings(item_id=2, display_name=self._ITEM_BOTTOM_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._BOTTOM_ZONE_TITLE), related_zones=self._BOTTOM_ZONE_ID, image_url=''),
-                self.gen_item_settings(item_id=3, display_name=self._ITEM_ANY_ZONE_NAME, incorrect_feedback='', correct_feedback=self._ITEM_ANY_ZONE_FEEDBACK, related_zones=[self._TOP_ZONE_ID, self._BOTTOM_ZONE_ID, self._MIDDLE_ZONE_ID], image_url=''),
-                self.gen_item_settings(item_id=4, display_name=self._ITEM_NO_ZONE_NAME, incorrect_feedback=self._ITEM_NO_ZONE_FEEDBACK, correct_feedback='', related_zones=[], image_url='')
+                self.gen_item_settings(id=0, display_name=self._ITEM_TOP_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._TOP_ZONE_TITLE), related_zones=self._TOP_ZONE_ID, image_url=''),
+                self.gen_item_settings(id=1, display_name=self._ITEM_MIDDLE_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._MIDDLE_ZONE_TITLE), related_zones=self._MIDDLE_ZONE_ID, image_url=''),
+                self.gen_item_settings(id=2, display_name=self._ITEM_BOTTOM_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._BOTTOM_ZONE_TITLE), related_zones=self._BOTTOM_ZONE_ID, image_url=''),
+                self.gen_item_settings(id=3, display_name=self._ITEM_ANY_ZONE_NAME, incorrect_feedback='', correct_feedback=self._ITEM_ANY_ZONE_FEEDBACK, related_zones=[self._TOP_ZONE_ID, self._BOTTOM_ZONE_ID, self._MIDDLE_ZONE_ID], image_url=''),
+                self.gen_item_settings(id=4, display_name=self._ITEM_NO_ZONE_NAME, incorrect_feedback=self._ITEM_NO_ZONE_FEEDBACK, correct_feedback='', related_zones=[], image_url='')
             ],
             'feedback': self.gen_feedback(
-                start=_("Drag the items onto the image above."),
-                finish=_("Good work! You have completed this drag and drop problem.")
+                start=_('Drag the items onto the image above.'),
+                finish=_('Good work! You have completed this drag and drop problem.')
             ),
-            'thumbnail': self.get_thumbnail_path()
+            'thumbnail': self.get_thumbnail_path(),
+            'template_type': 0
         }
 
         return self._tpl_data
 
 
-class RectangleTemplate(_ZoneTemplatePolicy):
+class RectangleTemplate(ZonesDefinition):
     """Predefined rectangle template
     """
+    TYPE_ID = 1
+
     _TOP_ZONE_ID = "top"
     _MIDDLE_ZONE_ID = "middle"
     _BOTTOM_ZONE_ID = "bottom"
@@ -201,27 +291,35 @@ class RectangleTemplate(_ZoneTemplatePolicy):
     _ITEM_ANY_ZONE_FEEDBACK = _("Of course it goes here! It goes anywhere!")
 
     def __init__(self, tpl_data=None):
-        super(RectangleTemplate, self).__init__(tpl_data)
+        super(RectangleTemplate, self).__init__(tpl_data=tpl_data)
 
-    @classmethod
-    def get_type_id(self):
-        return 1
+    def get_valid_zone_uids(self):
+        """Return zones' uid List edited by User if user has stored zones definitions in MongoDB
+            Otherwise return predefined zones' Key List
 
-    def get_thumbnail_path(self):
-        return 'public/img/hat.png'
+            @return:            zone Keys
+            @rtype:             list
+        """
+        if self._tpl_data is None:
+            return super(RectangleTemplate, self).get_valid_zone_uids()
 
-    def get_valid_zone_keys(self):
         return [_TOP_ZONE_ID, _MIDDLE_ZONE_ID, _BOTTOM_ZONE_ID]
 
-    def get_zone_info_key(self, zone_key):
-        if zone_key == _TOP_ZONE_ID:
+    def get_zone_info_by_uid(self, uid):
+        """Query & Return zone summary information by `zone uid`. if user has stored zoned definitions in MongoDB
+            Otherwise return predefined zones summary
+        """
+        if self._tpl_data is not None:
+            return super(RectangleTemplate, self).get_zone_info_by_uid(uid)
+
+        if uid == _TOP_ZONE_ID:
             return {'title': _TOP_ZONE_TITLE, 'description': None}
-        elif zone_key == _MIDDLE_ZONE_ID:
+        elif uid == _MIDDLE_ZONE_ID:
             return {'title': _MIDDLE_ZONE_ID, 'description': None}
-        elif zone_key == _BOTTOM_ZONE_ID:
+        elif uid == _BOTTOM_ZONE_ID:
             return {'title': _BOTTOM_ZONE_ID, 'description': None}
 
-        raise KeyError('Invalid zone key : {}'.format(zone_key))
+        raise KeyError('Invalid zone uid : {}'.format(uid))
 
     def generate(self):
         if self._tpl_data:
@@ -229,22 +327,23 @@ class RectangleTemplate(_ZoneTemplatePolicy):
 
         self._tpl_data = {
             'zones': [
-                self.gen_zone_settings(key=self._TOP_ZONE_ID, title=self._TOP_ZONE_TITLE, description=None, x=160, y=30, width=196, height=178, align='center'),
-                self.gen_zone_settings(key=self._MIDDLE_ZONE_ID, title=self._MIDDLE_ZONE_TITLE, description=None, x=86, y=210, width=340, height=138, align='center'),
-                self.gen_zone_settings(key=self._BOTTOM_ZONE_ID, title=self._BOTTOM_ZONE_TITLE, description=None, x=15, y=350, width=485, height=135, align='center')
+                self.gen_zone_settings(uid=self._TOP_ZONE_ID, title=self._TOP_ZONE_TITLE, description=None, x=160, y=30, width=196, height=178, align='center'),
+                self.gen_zone_settings(uid=self._MIDDLE_ZONE_ID, title=self._MIDDLE_ZONE_TITLE, description=None, x=86, y=210, width=340, height=138, align='center'),
+                self.gen_zone_settings(uid=self._BOTTOM_ZONE_ID, title=self._BOTTOM_ZONE_TITLE, description=None, x=15, y=350, width=485, height=135, align='center')
             ],
             'items': [
-                self.gen_item_settings(item_id=0, display_name=self._ITEM_TOP_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._TOP_ZONE_TITLE), related_zones=self._TOP_ZONE_ID, image_url=''),
-                self.gen_item_settings(item_id=1, display_name=self._ITEM_MIDDLE_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._MIDDLE_ZONE_TITLE), related_zones=self._MIDDLE_ZONE_ID, image_url=''),
-                self.gen_item_settings(item_id=2, display_name=self._ITEM_BOTTOM_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._BOTTOM_ZONE_TITLE), related_zones=self._BOTTOM_ZONE_ID, image_url=''),
-                self.gen_item_settings(item_id=3, display_name=self._ITEM_ANY_ZONE_NAME, incorrect_feedback='', correct_feedback=self._ITEM_ANY_ZONE_FEEDBACK, related_zones=[self._TOP_ZONE_ID, self._BOTTOM_ZONE_ID, self._MIDDLE_ZONE_ID], image_url=''),
-                self.gen_item_settings(item_id=4, display_name=self._ITEM_NO_ZONE_NAME, incorrect_feedback=self._ITEM_NO_ZONE_FEEDBACK, correct_feedback='', related_zones=[], image_url='')
+                self.gen_item_settings(id=0, display_name=self._ITEM_TOP_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._TOP_ZONE_TITLE), related_zones=self._TOP_ZONE_ID, image_url=''),
+                self.gen_item_settings(id=1, display_name=self._ITEM_MIDDLE_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._MIDDLE_ZONE_TITLE), related_zones=self._MIDDLE_ZONE_ID, image_url=''),
+                self.gen_item_settings(id=2, display_name=self._ITEM_BOTTOM_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._BOTTOM_ZONE_TITLE), related_zones=self._BOTTOM_ZONE_ID, image_url=''),
+                self.gen_item_settings(id=3, display_name=self._ITEM_ANY_ZONE_NAME, incorrect_feedback='', correct_feedback=self._ITEM_ANY_ZONE_FEEDBACK, related_zones=[self._TOP_ZONE_ID, self._BOTTOM_ZONE_ID, self._MIDDLE_ZONE_ID], image_url=''),
+                self.gen_item_settings(id=4, display_name=self._ITEM_NO_ZONE_NAME, incorrect_feedback=self._ITEM_NO_ZONE_FEEDBACK, correct_feedback='', related_zones=[], image_url='')
             ],
             'feedback': self.gen_feedback(
-                start=_("Drag the items onto the image above."),
-                finish=_("Good work! You have completed this drag and drop problem.")
+                start=_('Drag the items onto the image above.'),
+                finish=_('Good work! You have completed this drag and drop problem.')
             ),
-            'thumbnail': self.get_thumbnail_path()
+            'thumbnail': self.get_thumbnail_path(),
+            'template_type': 1
         }
 
         return self._tpl_data
@@ -253,14 +352,14 @@ class RectangleTemplate(_ZoneTemplatePolicy):
 class _ZoneTemplateDefinitions(object):
     """Definitions of zone templates used in drag and drop zone tab
     """
-    ALL_SUPPORTED_TEMPLATES = [TriangleTemplate.get_type_id(), RectangleTemplate.get_type_id()]
+    ALL_SUPPORTED_TEMPLATES = [TriangleTemplate.TYPE_ID, RectangleTemplate.TYPE_ID]
 
     def __init__(self):
         """Assemble predefined templates into dict object.
         """
         self._predefined_templates = {
-            TriangleTemplate.get_type_id(): TriangleTemplate().generate(),
-            RectangleTemplate.get_type_id(): RectangleTemplate().generate()
+            TriangleTemplate.TYPE_ID: TriangleTemplate().generate(),
+            RectangleTemplate.TYPE_ID: RectangleTemplate().generate()
         }
 
     def get_predefined_template_by_type(self, tpl_id):
