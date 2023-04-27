@@ -227,6 +227,10 @@
     margin: 20px 20px 20px 30px;
 }
 
+.xblock--drag-and-drop--editor .zones_settings .setting_flag input[type=checkbox] {
+    display: none;
+}
+
 .xblock--drag-and-drop--editor .items {
     width: calc(100% - 515px);
     margin: 10px 0 0 0;

@@ -120,12 +120,14 @@
                     </div>
                 </div>
                 <div class="zones_settings">
-                    <div class="setting_flag">
-                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                    <div class="setting_flag display-labels-form">
+                        <input name="display-borders" class="display-borders" type="checkbox" />
+                        <span class="switcher-wrapper"></span>
                         <span>{% trans "Display zone borders on the image" %}</span>
                     </div>
-                    <div class="setting_flag">
-                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                    <div class="setting_flag display-borders-form">
+                        <input name="display-labels" class="display-labels" type="checkbox" />
+                        <span class="switcher-wrapper"></span>
                         <span>{% trans "Display label names on the image" %}</span>
                     </div>
                 </div>
@@ -185,7 +187,7 @@
         <li class="action-item">
           <a href="#" class="button cancel-button">{% trans "Cancel" %}</a>
         </li>
-        <li class="action-item hidden">
+        <li class="action-item">
           <a href="#" class="button action-primary save-button">{% trans "Save" %}</a>
         </li>
         <li class="action-item">
