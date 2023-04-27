@@ -187,7 +187,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         _fn.build.form.submit();
                     });
 
-                    $element.one('click', '.save-continue-button', function saveContinueButtonHandler(e) {
+                    $element.find('.save-continue-button').bind('click', '.save-continue-button', function saveContinueButtonHandler(e) {
                         e.preventDefault();
 
                         _fn.build.form.submit(continue_mode=true);
