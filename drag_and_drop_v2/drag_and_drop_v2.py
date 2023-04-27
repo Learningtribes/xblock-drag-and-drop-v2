@@ -17,6 +17,7 @@ from xblock.fragment import Fragment
 from xblock.scorable import ScorableXBlockMixin, Score
 from xblockutils.resources import ResourceLoader
 from xblockutils.settings import XBlockWithSettingsMixin, ThemableXBlockMixin
+from xmodule.modulestore.django import modulestore
 
 from .utils import (
     _, DummyTranslationService, FeedbackMessage, FeedbackMessages,
@@ -348,7 +349,18 @@ class DragAndDropBlock(
             """
             return xblock.location.html_id() if hasattr(xblock, 'location') else unicode(xblock.scope_ids.usage_id)
 
+        course_module = modulestore().get_course(self.course_id)
+
         context = {
+            'course_id': "{}".format(self.course_id),
+            'course': {
+                'lang': course_module.language,
+                'org': self.course_id.org,
+                'number': self.course_id.course,
+                'run': self.course_id.run,
+                'url_name': course_module.url_name,
+                'display_name': course_module.display_name
+            },
             'predefined_tabs': TabsHeader(),
             'id_suffix': _get_block_id(self),
             'fields': self.fields,

@@ -4,13 +4,13 @@
 <script type="application/javascript" id='studioContext'>
     var studioContext = {
       course: {
-        lang: "fr",
-        url_name: "course",
-        name: "edX Demonstration Course",
+        lang: "{{ course.lang }}",
+        url_name: "{{ course.url_name }}",      // "course",
+        name: "{{ course.display_name }}",      //"My Course Drag and Drop",
         display_course_number: "",
-        num: "DemoX",
-        org: "edX",
-        id: "course-v1:edX+DemoX+Demo_Course",
+        num: "{{ course.number }}",             // "NOAH-001",
+        org: "{{ course.org }}",                // "edX",
+        id: "{{ course_id }}",                  // "course-v1:edX+NOAH-001+course",
         revision: "",
         base_url: "http://localhost:18010",
       },

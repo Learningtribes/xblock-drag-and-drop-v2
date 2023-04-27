@@ -66,6 +66,15 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                     _fn.build.clickHandlers();
 
+                    // upload success handler
+                    const rootDiv = document.getElementById('root');
+                    rootDiv.addEventListener('uploadAssetsSuccessEvent', function onUploadSuccessHandler(e) {
+                        console.log('[N uploadAssetsSuccess', e)
+                    });
+                    rootDiv.addEventListener('getAssetsSuccessEvent', function onUploadSuccessHandler(e) {
+                        console.log('[N getAssetsSuccess', e)
+                    });
+
                     // Hide settings that are specific to assessment mode
                     _fn.build.$el.feedback.form.find('.problem-mode').trigger('change');
 
