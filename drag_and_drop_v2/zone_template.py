@@ -188,6 +188,7 @@ class TriangleTemplate(ZonesDefinition):
     """Predefined triangle template
     """
     TYPE_ID = 0
+    THUMBNAIL_PATH = 'public/img/triangle.png'
 
     _TOP_ZONE_ID = "top"
     _MIDDLE_ZONE_ID = "middle"
@@ -260,8 +261,8 @@ class TriangleTemplate(ZonesDefinition):
                 start=_('Drag the items onto the image above.'),
                 finish=_('Good work! You have completed this drag and drop problem.')
             ),
-            'thumbnail': self.get_thumbnail_path(),
-            'template_type': 0
+            'thumbnail': self.THUMBNAIL_PATH,
+            'template_type': self.TYPE_ID
         }
 
         return self._tpl_data
@@ -271,6 +272,7 @@ class RectangleTemplate(ZonesDefinition):
     """Predefined rectangle template
     """
     TYPE_ID = 1
+    THUMBNAIL_PATH = 'public/img/hat.png'
 
     _TOP_ZONE_ID = "top"
     _MIDDLE_ZONE_ID = "middle"
@@ -342,8 +344,8 @@ class RectangleTemplate(ZonesDefinition):
                 start=_('Drag the items onto the image above.'),
                 finish=_('Good work! You have completed this drag and drop problem.')
             ),
-            'thumbnail': self.get_thumbnail_path(),
-            'template_type': 1
+            'thumbnail': self.THUMBNAIL_PATH,
+            'template_type': self.TYPE_ID
         }
 
         return self._tpl_data
