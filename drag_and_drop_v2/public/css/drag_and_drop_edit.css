@@ -187,14 +187,6 @@
     left: 30px;
 }
 
-.xblock--drag-and-drop--editor .tab-content .unselected_box {
-    border-width: 1px;
-}
-
-.xblock--drag-and-drop--editor .tab-content .selected_box {
-    border-width: 3px !important;
-}
-
 .xblock--drag-and-drop--editor .tab-content .right {
     border: 1px solid #ff143e;
     width: 465px;

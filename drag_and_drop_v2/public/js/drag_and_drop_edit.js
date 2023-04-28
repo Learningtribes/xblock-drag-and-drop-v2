@@ -830,13 +830,14 @@ function DragAndDropEditBlock(runtime, element, params) {
 
 
         const corner1 = document.createElement('div');
-        corner1.style.width = size + 'px';
-        corner1.style.height = size + 'px';
-        corner1.style.backgroundColor = 'transparent';
+        corner1.style.width = '10px';
+        corner1.style.height = '10px';
+        corner1.style.backgroundColor = '#ffffff';
         corner1.style.position = 'absolute';
         corner1.style.top = - (size/2) + 'px';
         corner1.style.left = - (size/2) + 'px';
         corner1.style.cursor = 'nw-resize';
+        corner1.style.border = '1px solid #000000';
 
         corner1.addEventListener('mousedown',resizeXNegative())
         corner1.addEventListener('mousedown',resizeYNegative())
@@ -844,13 +845,14 @@ function DragAndDropEditBlock(runtime, element, params) {
         element.appendChild(corner1);
 
         const corner2 = document.createElement('div');
-        corner2.style.width = size + 'px';
-        corner2.style.height = size + 'px';
-        corner2.style.backgroundColor = 'transparent';
+        corner2.style.width = '10px';
+        corner2.style.height = '10px';
+        corner2.style.backgroundColor = '#ffffff';
         corner2.style.position = 'absolute';
-        corner2.style.top = - (size/2) + 'px';
-        corner2.style.right = - (size/2) + 'px';
+        corner2.style.top = '-5px';
+        corner2.style.right = '-5px';
         corner2.style.cursor = 'ne-resize';
+        corner2.style.border = '1px solid #000000';
 
         corner2.addEventListener('mousedown',resizeXPositive())
         corner2.addEventListener('mousedown',resizeYNegative())
@@ -858,13 +860,14 @@ function DragAndDropEditBlock(runtime, element, params) {
         element.appendChild(corner2);
 
         const corner3 = document.createElement('div');
-        corner3.style.width = size + 'px';
-        corner3.style.height = size + 'px';
-        corner3.style.backgroundColor = 'transparent';
+        corner3.style.width = '10px';
+        corner3.style.height = '10px';
+        corner3.style.backgroundColor = '#ffffff';
         corner3.style.position = 'absolute';
-        corner3.style.bottom = - (size/2) + 'px';
-        corner3.style.left = - (size/2) + 'px';
+        corner3.style.bottom = '-5px';
+        corner3.style.left = '-5px';
         corner3.style.cursor = 'sw-resize';
+        corner3.style.border = '1px solid #000000';
 
         corner3.addEventListener('mousedown',resizeXNegative())
         corner3.addEventListener('mousedown',resizeYPositive())
@@ -872,13 +875,14 @@ function DragAndDropEditBlock(runtime, element, params) {
         element.appendChild(corner3);
 
         const corner4 = document.createElement('div');
-        corner4.style.width = size + 'px';
-        corner4.style.height = size + 'px';
-        corner4.style.backgroundColor = 'transparent';
+        corner4.style.width = '10px';
+        corner4.style.height = '10px';
+        corner4.style.backgroundColor = '#ffffff';
         corner4.style.position = 'absolute';
-        corner4.style.bottom = - (size/2) + 'px';
-        corner4.style.right = - (size/2) + 'px';
+        corner4.style.bottom = '-5px';
+        corner4.style.right = '-5px';
         corner4.style.cursor = 'se-resize';
+        corner4.style.border = '1px solid #000000';
 
         corner4.addEventListener('mousedown',resizeXPositive())
         corner4.addEventListener('mousedown',resizeYPositive())
@@ -1032,33 +1036,12 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                 new_div.setAttribute( "class", "resizable_box" );
                 item.appendChild(new_div);
-                makeResizable(new_div, 10, 10);
+                makeResizable(new_div, 200, 100);
 
                 return;
             }
-        };
-    })
-
-    $element.find('.resizable_box_container').bind('click', function(e){
-        var selected_val = e.currentTarget.getAttribute('data-selected');
-        if (selected_val !== '1') {
-            e.currentTarget.setAttribute('data-selected', '1');
-            e.currentTarget.className = e.currentTarget.className.split(' ').filter(
-                x => x !== 'unselected_box'
-            ).join(' ');
-            e.currentTarget.className += ' selected_box';
         }
 
-        if (e.currentTarget.className.split(' ').includes('left')) {
-            $('#id_right_two_rectangle').removeClass('selected_box');
-            $('#id_right_two_rectangle').addClass('unselected_box');
-            $('#id_right_two_rectangle').attr('data-selected', '0');
-        } else {
-            $('#id_left_two_rectangle').removeClass('selected_box');
-            $('#id_left_two_rectangle').addClass('unselected_box');
-            $('#id_left_two_rectangle').attr('data-selected', '0');
-
-        }
     })
 
     function selectTabPage(tabId) {
