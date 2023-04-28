@@ -834,8 +834,8 @@ function DragAndDropEditBlock(runtime, element, params) {
         corner1.style.height = '10px';
         corner1.style.backgroundColor = '#ffffff';
         corner1.style.position = 'absolute';
-        corner1.style.top = - (size/2) + 'px';
-        corner1.style.left = - (size/2) + 'px';
+        corner1.style.top = '-5px';
+        corner1.style.left = '-5px';
         corner1.style.cursor = 'nw-resize';
         corner1.style.border = '1px solid #000000';
 
@@ -1025,23 +1025,24 @@ function DragAndDropEditBlock(runtime, element, params) {
     }
 
     $element.find('#id_add_zone_bt').bind('click', function(e) {
-        let items = $element.find('.resizable_box_container');
+        let new_div = document.createElement('div');
+        let new_div_title = document.createElement('div');
+        let title_edit_icon = document.createElement('i');
+        let title_icon_container = document.createElement('div');
 
-        for (let i = 0; i < items.length; i++) {
-            var item = items[i];
-            var resizable_box = item.getElementsByClassName('resizable_box');
+        new_div.setAttribute( 'class', 'resizable_box' );
+        new_div.setAttribute('style','width:200px; height:100px');
+        new_div_title.setAttribute('class', 'zone_title');
+        new_div_title.innerText = 'Zone 1';
+        title_edit_icon.setAttribute('class', 'fa-solid fa-pen-circle');
+        title_icon_container.setAttribute('class', 'title_edit_button');
 
-            if (resizable_box.length === 0) {
-                let new_div = document.createElement('div');
+        title_icon_container.appendChild(title_edit_icon);
+        new_div_title.appendChild(title_icon_container);
+        new_div.appendChild(new_div_title);
+        $('#id_canvas_two_rectangle')[0].appendChild(new_div);
 
-                new_div.setAttribute( "class", "resizable_box" );
-                item.appendChild(new_div);
-                makeResizable(new_div, 200, 100);
-
-                return;
-            }
-        }
-
+        makeResizable(new_div, 200, 100);
     })
 
     function selectTabPage(tabId) {
