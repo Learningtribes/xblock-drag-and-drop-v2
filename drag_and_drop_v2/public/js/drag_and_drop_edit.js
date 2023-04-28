@@ -1039,6 +1039,28 @@ function DragAndDropEditBlock(runtime, element, params) {
         };
     })
 
+    $element.find('.resizable_box_container').bind('click', function(e){
+        var selected_val = e.currentTarget.getAttribute('data-selected');
+        if (selected_val !== '1') {
+            e.currentTarget.setAttribute('data-selected', '1');
+            e.currentTarget.className = e.currentTarget.className.split(' ').filter(
+                x => x !== 'unselected_box'
+            ).join(' ');
+            e.currentTarget.className += ' selected_box';
+        }
+
+        if (e.currentTarget.className.split(' ').includes('left')) {
+            $('#id_right_two_rectangle').removeClass('selected_box');
+            $('#id_right_two_rectangle').addClass('unselected_box');
+            $('#id_right_two_rectangle').attr('data-selected', '0');
+        } else {
+            $('#id_left_two_rectangle').removeClass('selected_box');
+            $('#id_left_two_rectangle').addClass('unselected_box');
+            $('#id_left_two_rectangle').attr('data-selected', '0');
+
+        }
+    })
+
     function selectTabPage(tabId) {
         var $tabPages = $(".supported-setting-tags section");
         var pageFrame = $(".xblock--drag-and-drop--editor");
