@@ -66,7 +66,11 @@
                             <span>
                                 <span class="text">{% trans fields.question_text.display_name %}</span>
                             </span>
+                            {% if self.question_text %}
                             <textarea class="problem-text">{{ self.question_text }}</textarea>
+                            {% else %}
+                            <textarea class="problem-text">{{ default_start_feedback }}</textarea>
+                            {% endif %}
                         </label>
 
                         <div id="show-problem-header-description-{{id_suffix}}" class="form-help">
@@ -75,7 +79,11 @@
 
                         <label class="h4">
                             <span>{% trans "Final feedback" %}</span>
+                            {% if self.data.feedback.finish %}
                             <textarea class="final-feedback">{{ self.data.feedback.finish }}</textarea>
+                            {% else %}
+                            <textarea class="final-feedback">{{ default_finish_feedback }}</textarea>
+                            {% endif %}
                         </label>
                     </form>
                 </div>

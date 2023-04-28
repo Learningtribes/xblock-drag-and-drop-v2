@@ -372,7 +372,9 @@ class DragAndDropBlock(
             'assets_min_css': get_storage_url('/common/js/vendor/learningtribes-studio-frontend/dist/assets.min.css'),
             'runtime_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/runtime.min.js'),
             'common_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/common.min.js'),
-            'assets_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/assets.min.js')
+            'assets_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/assets.min.js'),
+            'default_start_feedback': ZonesDefinition.START_FEEDBACK,
+            'default_finish_feedback': ZonesDefinition.FINISH_FEEDBACK
         }
 
         fragment = Fragment()
@@ -441,6 +443,12 @@ class DragAndDropBlock(
             self.max_items_per_zone = get_max_items_per_zone(submissions.get('max_items_per_zone', None))
         if 'data' in submissions:
             self.data = submissions['data']
+        if 'feedback' in submissions:
+            feedback = submissions['feedback']
+            if 'start' in feedback:
+                self.data['feedback']['start'] = feedback['start']
+            if 'finish' in feedback:
+                self.data['feedback']['finish'] = feedback['finish']
 
         return {
             'result': 'success',

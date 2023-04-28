@@ -33,6 +33,9 @@ class ZonesDefinition(object):
                 "thumbnail": "public/img/abc.jpg"
             }
     """
+    START_FEEDBACK = _("Drag the items onto the image above.")
+    FINISH_FEEDBACK = _("Good work! You have completed this drag and drop problem.")
+
     def __init__(self, tpl_data=None):
         self._tpl_data = tpl_data
 
@@ -258,8 +261,8 @@ class TriangleTemplate(ZonesDefinition):
                 self.gen_item_settings(id=4, display_name=self._ITEM_NO_ZONE_NAME, incorrect_feedback=self._ITEM_NO_ZONE_FEEDBACK, correct_feedback='', related_zones=[], image_url='')
             ],
             'feedback': self.gen_feedback(
-                start=_('Drag the items onto the image above.'),
-                finish=_('Good work! You have completed this drag and drop problem.')
+                start=_(self.START_FEEDBACK),
+                finish=_(self.FINISH_FEEDBACK)
             ),
             'thumbnail': self.THUMBNAIL_PATH,
             'template_type': self.TYPE_ID
@@ -341,8 +344,8 @@ class RectangleTemplate(ZonesDefinition):
                 self.gen_item_settings(id=4, display_name=self._ITEM_NO_ZONE_NAME, incorrect_feedback=self._ITEM_NO_ZONE_FEEDBACK, correct_feedback='', related_zones=[], image_url='')
             ],
             'feedback': self.gen_feedback(
-                start=_('Drag the items onto the image above.'),
-                finish=_('Good work! You have completed this drag and drop problem.')
+                start=_(self.START_FEEDBACK),
+                finish=_(self.FINISH_FEEDBACK)
             ),
             'thumbnail': self.THUMBNAIL_PATH,
             'template_type': self.TYPE_ID
