@@ -114,30 +114,34 @@
             </section>
 
             <section id="2" class="tab zones-tab hidden">
-                <div id="rectangle_editor" class="tab-content">
-                    <div class="zones-tips">
-                        <div>Click on Add Zone and create your zone using your mouse.</div>
-                        <div>You can modify your Zone name by clicking on the name once you created the Zone.</div>
-                    </div>
-                    <div class="operation_bar">
-                        <button type="button" class="btn" id="id_add_zone_bt">{% trans "+ Add Zone" %}</button>
-                    </div>
-                    <div class="drag_drop_area" id="id_canvas_two_rectangle">
-                        <div class="left resizable_box_container"></div>
-                        <div class="right resizable_box_container"></div>
-                    </div>
-                </div>
-                <div class="zones_settings">
-                    <div class="setting_flag display-labels-form">
-                        <input name="display-borders" class="display-borders" type="checkbox" />
-                        <span class="switcher-wrapper"></span>
-                        <span>{% trans "Display zone borders on the image" %}</span>
-                    </div>
-                    <div class="setting_flag display-borders-form">
-                        <input name="display-labels" class="display-labels" type="checkbox" />
-                        <span class="switcher-wrapper"></span>
-                        <span>{% trans "Display label names on the image" %}</span>
-                    </div>
+                <div class="tab-content">
+                    <form class="zones-form">
+                        <div id="rectangle_editor" class="tab-content">
+                            <div class="zones-tips">
+                                <div>Click on Add Zone and create your zone using your mouse.</div>
+                                <div>You can modify your Zone name by clicking on the name once you created the Zone.</div>
+                            </div>
+                            <div class="operation_bar">
+                                <button type="button" class="btn" id="id_add_zone_bt">{% trans "+ Add Zone" %}</button>
+                            </div>
+                            <div class="drag_drop_area" id="id_canvas_two_rectangle">
+                                <div class="left resizable_box_container"></div>
+                                <div class="right resizable_box_container"></div>
+                            </div>
+                        </div>
+                        <div class="zones_settings">
+                            <div class="setting_flag display-labels-form">
+                                <input name="display-borders" class="display-borders" type="checkbox" />
+                                <span class="switcher-wrapper"></span>
+                                <span>{% trans "Display zone borders on the image" %}</span>
+                            </div>
+                            <div class="setting_flag display-borders-form">
+                                <input name="display-labels" class="display-labels" type="checkbox" />
+                                <span class="switcher-wrapper"></span>
+                                <span>{% trans "Display label names on the image" %}</span>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </section>
 
