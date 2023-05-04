@@ -84,6 +84,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                     // Set focus on first input field.
                     $element.find('input:first').select();
 
+                    // Recover existing zones
+                    _fn.build.form.zone.generateZones(_fn.data.zones);
+                    // Create existing zones
                     _fn.build.recoverZonesFromStorage();
 
                     if (LearningTribes && LearningTribes.QuestionMark) {
@@ -147,7 +150,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                 },
 
                 recoverZonesFromStorage: function() {
-                    _fn.data.zones.forEach(function(zoneObj) {
+                    _fn.build.form.zone.zoneObjects.forEach(function(zoneObj) {
                         _fn.build.form.zone.makeResizableZone(
                             {
                                 uid: zoneObj.uid, title: zoneObj.title,
@@ -626,12 +629,15 @@ function DragAndDropEditBlock(runtime, element, params) {
                             element.appendChild(new_div_title);
                             $('#id_canvas_two_rectangle')[0].appendChild(element);
 
-                            _fn.build.form.zone.add({
-                                uid: zone_uid, title: zone_title,
-                                width: minW, height: minH,
-                                x: zone_left, y: zone_top, align: zone_align,
-                                description: oldZone.description
-                            });
+                            // We add new record into list if creating a new zone
+                            if (oldZone.uid === undefined) {
+                                _fn.build.form.zone.add({
+                                    uid: zone_uid, title: zone_title,
+                                    width: minW, height: minH,
+                                    x: zone_left, y: zone_top, align: zone_align,
+                                    description: oldZone.description
+                                });
+                            }
 
                             const top = document.createElement('div');
                             top.style.width = '100%';
@@ -681,7 +687,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             right.style.right = - (size/2) + 'px';
                             right.style.cursor = 'e-resize';
 
-                            right.addEventListener('mousedown',resizeXPositive())
+                            right.addEventListener('mousedown',resizeXPositive());
 
                             element.appendChild(right);
 
@@ -695,23 +701,26 @@ function DragAndDropEditBlock(runtime, element, params) {
                             corner1.style.cursor = 'nw-resize';
                             corner1.style.border = '1px solid #000000';
 
-                            corner1.addEventListener('mousedown',resizeXNegative())
-                            corner1.addEventListener('mousedown',resizeYNegative())
+                            corner1.addEventListener('mousedown', resizeXNegative());
+                            corner1.addEventListener('mousedown', resizeYNegative());
 
                             element.appendChild(corner1);
 
-                            const corner2 = document.createElement('div');
-                            corner2.style.width = '10px';
-                            corner2.style.height = '10px';
-                            corner2.style.backgroundColor = '#ffffff';
+                            // It's a remove button.
+                            const corner2 = document.createElement('i');
+                            corner2.setAttribute('id', 'id_remove_zone');
+                            corner2.setAttribute('class', 'fa-solid fa-circle-minus');
+                            corner2.setAttribute('style', 'color: #f50000;');
+                            corner2.style.width = '16px';
+                            corner2.style.height = '16px';
                             corner2.style.position = 'absolute';
-                            corner2.style.top = '-5px';
-                            corner2.style.right = '-5px';
-                            corner2.style.cursor = 'ne-resize';
-                            corner2.style.border = '1px solid #000000';
+                            corner2.style.top = '-9px';
+                            corner2.style.right = '-8px';
+                            corner2.style.cursor = 'pointer';
 
-                            corner2.addEventListener('mousedown',resizeXPositive())
-                            corner2.addEventListener('mousedown',resizeYNegative())
+                            corner2.addEventListener('mousedown', resizeXPositive());
+                            corner2.addEventListener('mousedown', resizeYNegative());
+                            corner2.addEventListener('click', removeZone);
 
                             element.appendChild(corner2);
 
@@ -725,8 +734,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                             corner3.style.cursor = 'sw-resize';
                             corner3.style.border = '1px solid #000000';
 
-                            corner3.addEventListener('mousedown',resizeXNegative())
-                            corner3.addEventListener('mousedown',resizeYPositive())
+                            corner3.addEventListener('mousedown',resizeXNegative());
+                            corner3.addEventListener('mousedown',resizeYPositive());
 
                             element.appendChild(corner3);
 
@@ -892,6 +901,19 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     document.removeEventListener("mousemove", elementDrag);
                                   }
                                 return dragMouseDown
+                            }
+
+                            function removeZone(e) {
+                                let zone_uid = e.currentTarget.parentElement.id;
+
+                                // Remove zone from page
+                                e.currentTarget.parentElement.remove();
+                                // Find the uid of the zone in the array and remove it.
+                                for (array_index = 0; array_index < _fn.build.form.zone.zoneObjects.length;
+                                     array_index++) {
+                                    if (_fn.build.form.zone.zoneObjects[array_index].uid == zone_uid) break;
+                                }
+                                _fn.build.form.zone.zoneObjects.splice(array_index, 1);
                             }
                         }
 
