@@ -84,6 +84,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                     // Set focus on first input field.
                     $element.find('input:first').select();
 
+                    _fn.build.recoverZonesFromStorage();
+
                     if (LearningTribes && LearningTribes.QuestionMark) {
                         $wrappers = $('.drag-builder .tab .tab-content .question-mark-wrapper')
                         $wrappers.each(function(i, wrapper){
@@ -142,6 +144,18 @@ function DragAndDropEditBlock(runtime, element, params) {
                         }
                     }
                     return false;
+                },
+
+                recoverZonesFromStorage: function() {
+                    _fn.data.zones.forEach(function(zoneObj) {
+                        _fn.build.form.zone.makeResizableZone(
+                            {
+                                uid: zoneObj.uid, title: zoneObj.title,
+                                x: zoneObj.x, y: zoneObj.y, width: zoneObj.width, height: zoneObj.height,
+                                align: zoneObj.align, description: zoneObj.description
+                            });
+                    });
+
                 },
 
                 // When we auto generate a background image, we embed some parameters such as zone size and position
@@ -305,7 +319,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                             _fn.data.displayBorders = $('.display-borders-form input', element).is(':checked');
                         })
                         .on('click', '#id_add_zone_bt', function(e) {
-                            _fn.build.form.zone.makeResizableZone(200, 100);
+                            let canvas = $('#id_canvas_two_rectangle')[0];
+                            let left = canvas.offsetWidth / 100 * 40;
+                            let top = canvas.offsetHeight / 100 * 45;
+
+                            _fn.build.form.zone.makeResizableZone({x: left, y: top, width: 200, height: 100});
                         });
 
                     $itemTab
@@ -579,18 +597,25 @@ function DragAndDropEditBlock(runtime, element, params) {
                             _fn.data.displayLabels = true;
                             $('.display-labels-form input', element).prop('checked', true);
                         },
-                        makeResizableZone: function(minW = 200, minH = 100, size = 20) {
+                        makeResizableZone: function(oldZone) {
+                            // Generating new zone (uid / title) if not specifying `uid` or `title` in `OldZone` .
                             let element = document.createElement('div');
                             let new_div_title = document.createElement('div');
                             let title_edit_icon = document.createElement('i');
                             let title_icon_container = document.createElement('div');
                             let num = _fn.build.form.zone.zoneObjects.length + 1;
-                            let zone_title = 'Zone ' + num;
-                            let zone_uid = _fn.build.form.zone.generateUID();
+                            let zone_title = oldZone.title || 'Zone ' + num;
+                            let zone_uid = oldZone.uid || _fn.build.form.zone.generateUID();
+                            let zone_align = oldZone.align || 'center';
+                            let zone_left = oldZone.x || 0;
+                            let zone_top = oldZone.y || 0;
+                            let minW = oldZone.width || 200;
+                            let minH = oldZone.height || 100;
+                            let size = oldZone.size || 20;
 
                             element.setAttribute('id', zone_uid);
                             element.setAttribute( 'class', 'resizable_box' );
-                            element.setAttribute('style','width:200px; height:100px');
+                            element.setAttribute('style',`width:${minW}px; height:${minH}px; left:${zone_left}px; top:${zone_top}px`);
                             new_div_title.setAttribute('class', 'zone_title');
                             new_div_title.innerText = zone_title;
                             title_edit_icon.setAttribute('class', 'fa-solid fa-pen-circle');
@@ -604,10 +629,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                             _fn.build.form.zone.add({
                                 uid: zone_uid, title: zone_title,
                                 width: minW, height: minH,
-                                x: 0, y: 0, align: 'center'
+                                x: zone_left, y: zone_top, align: zone_align,
+                                description: oldZone.description
                             });
-
-                            update_zones_data(element);
 
                             const top = document.createElement('div');
                             top.style.width = '100%';
