@@ -303,6 +303,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                         })
                         .on('click', '.display-borders-form input', function(e) {
                             _fn.data.displayBorders = $('.display-borders-form input', element).is(':checked');
+                        })
+                        .on('click', '#id_add_zone_bt', function(e) {
+                            _fn.build.form.zone.makeResizableZone(200, 100);
                         });
 
                     $itemTab
@@ -377,12 +380,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                             //     zone: zoneObj,
                             //     index: _fn.build.form.zone.totalZonesCreated++,
                             // }));
-                            _fn.build.$el.zones.form.append($zoneNode);
-                            _fn.build.form.zone.enableDelete();
+                            // _fn.build.$el.zones.form.append($zoneNode);
 
                             // Add zone div to target
-                            _fn.build.form.zone.renderZonesPreview();
-
+                            // _fn.build.form.zone.renderZonesPreview();
                         },
                         generateUID: function() {
                             // Generate a unique ID for a new zone.
@@ -412,11 +413,6 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                             _fn.build.form.zone.disableDelete();
 
-                        },
-                        enableDelete: function() {
-                            if (_fn.build.form.zone.zoneObjects.length > 1) {
-                                _fn.build.$el.zones.form.find('.remove-zone').removeClass('hidden');
-                            }
                         },
                         disableDelete: function() {
                             if (_fn.build.form.zone.zoneObjects.length === 1) {
@@ -582,7 +578,299 @@ function DragAndDropEditBlock(runtime, element, params) {
                             // Make sure "Display label names on the image" is checked.
                             _fn.data.displayLabels = true;
                             $('.display-labels-form input', element).prop('checked', true);
+                        },
+                        makeResizableZone: function(minW = 200, minH = 100, size = 20) {
+                            let element = document.createElement('div');
+                            let new_div_title = document.createElement('div');
+                            let title_edit_icon = document.createElement('i');
+                            let title_icon_container = document.createElement('div');
+                            let num = _fn.build.form.zone.zoneObjects.length + 1;
+                            let zone_title = 'Zone ' + num;
+                            let zone_uid = _fn.build.form.zone.generateUID();
+
+                            element.setAttribute('id', zone_uid);
+                            element.setAttribute( 'class', 'resizable_box' );
+                            element.setAttribute('style','width:200px; height:100px');
+                            new_div_title.setAttribute('class', 'zone_title');
+                            new_div_title.innerText = zone_title;
+                            title_edit_icon.setAttribute('class', 'fa-solid fa-pen-circle');
+                            title_icon_container.setAttribute('class', 'title_edit_button');
+
+                            title_icon_container.appendChild(title_edit_icon);
+                            new_div_title.appendChild(title_icon_container);
+                            element.appendChild(new_div_title);
+                            $('#id_canvas_two_rectangle')[0].appendChild(element);
+
+                            _fn.build.form.zone.add({
+                                uid: zone_uid, title: zone_title,
+                                width: minW, height: minH,
+                                x: 0, y: 0, align: 'center'
+                            });
+
+                            update_zones_data(element);
+
+                            const top = document.createElement('div');
+                            top.style.width = '100%';
+                            top.style.height = size + 'px';
+                            top.style.backgroundColor = 'transparent';
+                            top.style.position = 'absolute';
+                            top.style.top = - (size/2) + 'px';
+                            top.style.left = '0px';
+                            top.style.cursor = 'n-resize';
+
+                            top.addEventListener('mousedown', resizeYNegative());
+
+                            element.appendChild(top);
+
+                            const bottom = document.createElement('div');
+                            bottom.style.width = '100%';
+                            bottom.style.height = size + 'px';
+                            bottom.style.backgroundColor = 'transparent';
+                            bottom.style.position = 'absolute';
+                            bottom.style.bottom = - (size/2) + 'px';
+                            bottom.style.left = '0px';
+                            bottom.style.cursor = 'n-resize';
+
+                            bottom.addEventListener('mousedown',resizeYPositive())
+
+                            element.appendChild(bottom);
+
+                            const left = document.createElement('div');
+                            left.style.width = size + 'px';
+                            left.style.height = '100%';
+                            left.style.backgroundColor = 'transparent';
+                            left.style.position = 'absolute';
+                            left.style.top = '0px';
+                            left.style.left = - (size/2) + 'px';
+                            left.style.cursor = 'e-resize';
+
+                            left.addEventListener('mousedown', resizeXNegative());
+
+                            element.appendChild(left);
+
+                            const right = document.createElement('div');
+                            right.style.width = size + 'px';
+                            right.style.height = '100%';
+                            right.style.backgroundColor = 'transparent';
+                            right.style.position = 'absolute';
+                            right.style.top = '0px';
+                            right.style.right = - (size/2) + 'px';
+                            right.style.cursor = 'e-resize';
+
+                            right.addEventListener('mousedown',resizeXPositive())
+
+                            element.appendChild(right);
+
+                            const corner1 = document.createElement('div');
+                            corner1.style.width = '10px';
+                            corner1.style.height = '10px';
+                            corner1.style.backgroundColor = '#ffffff';
+                            corner1.style.position = 'absolute';
+                            corner1.style.top = '-5px';
+                            corner1.style.left = '-5px';
+                            corner1.style.cursor = 'nw-resize';
+                            corner1.style.border = '1px solid #000000';
+
+                            corner1.addEventListener('mousedown',resizeXNegative())
+                            corner1.addEventListener('mousedown',resizeYNegative())
+
+                            element.appendChild(corner1);
+
+                            const corner2 = document.createElement('div');
+                            corner2.style.width = '10px';
+                            corner2.style.height = '10px';
+                            corner2.style.backgroundColor = '#ffffff';
+                            corner2.style.position = 'absolute';
+                            corner2.style.top = '-5px';
+                            corner2.style.right = '-5px';
+                            corner2.style.cursor = 'ne-resize';
+                            corner2.style.border = '1px solid #000000';
+
+                            corner2.addEventListener('mousedown',resizeXPositive())
+                            corner2.addEventListener('mousedown',resizeYNegative())
+
+                            element.appendChild(corner2);
+
+                            const corner3 = document.createElement('div');
+                            corner3.style.width = '10px';
+                            corner3.style.height = '10px';
+                            corner3.style.backgroundColor = '#ffffff';
+                            corner3.style.position = 'absolute';
+                            corner3.style.bottom = '-5px';
+                            corner3.style.left = '-5px';
+                            corner3.style.cursor = 'sw-resize';
+                            corner3.style.border = '1px solid #000000';
+
+                            corner3.addEventListener('mousedown',resizeXNegative())
+                            corner3.addEventListener('mousedown',resizeYPositive())
+
+                            element.appendChild(corner3);
+
+                            const corner4 = document.createElement('div');
+                            corner4.style.width = '10px';
+                            corner4.style.height = '10px';
+                            corner4.style.backgroundColor = '#ffffff';
+                            corner4.style.position = 'absolute';
+                            corner4.style.bottom = '-5px';
+                            corner4.style.right = '-5px';
+                            corner4.style.cursor = 'se-resize';
+                            corner4.style.border = '1px solid #000000';
+
+                            corner4.addEventListener('mousedown',resizeXPositive())
+                            corner4.addEventListener('mousedown',resizeYPositive())
+
+                            element.appendChild(corner4);
+
+                            function update_zones_data(resizable_rect) {
+                                let zone_uid = resizable_rect.id;
+                                let pos = $('#' + zone_uid).position();
+
+                                _fn.build.form.zone.zoneObjects.forEach(function(zoneObj) {
+                                    if (zoneObj.uid === zone_uid) {
+                                        zoneObj.x = pos.left;
+                                        zoneObj.y = pos.top;
+                                    }
+                                });
+                            }
+
+                            function get_int_style(key) {
+                                return parseInt(window.getComputedStyle(element).getPropertyValue(key));
+                            }
+
+                            function resizeXPositive() {
+                                let offsetX
+                                function dragMouseDown(e) {
+                                    if(e.button !== 0) return
+                                    e = e || window.event;
+                                    e.preventDefault();
+                                    const {clientX} = e;
+                                    offsetX = clientX - element.offsetLeft - get_int_style('width');
+                                    document.addEventListener('mouseup', closeDragElement)
+                                    document.addEventListener('mousemove', elementDrag)
+                                  }
+
+                                  function elementDrag(e) {
+                                        const {clientX} = e;
+                                        let x = clientX - element.offsetLeft - offsetX
+                                        if(x < minW) x = minW;
+                                        element.style.width =  x + 'px';
+                                  }
+
+                                  function closeDragElement() {
+                                    update_zones_data(element);
+
+                                    document.removeEventListener("mouseup", closeDragElement);
+                                    document.removeEventListener("mousemove", elementDrag);
+                                  }
+                                return dragMouseDown
+                            }
+
+                            function resizeYPositive() {
+                                let offsetY
+                                function dragMouseDown(e) {
+                                    if(e.button !== 0) return
+                                    e = e || window.event;
+                                    e.preventDefault();
+                                    const {clientY} = e;
+                                    offsetY = clientY - element.offsetTop - get_int_style('height');
+
+                                    document.addEventListener('mouseup',closeDragElement)
+                                    document.addEventListener('mousemove',elementDrag)
+                                  }
+
+                                  function elementDrag(e) {
+                                        const {clientY} = e;
+                                        let y =  clientY - element.offsetTop - offsetY;
+                                        if(y < minH) y = minH;
+                                        element.style.height = y + 'px';
+                                  }
+
+                                  function closeDragElement() {
+                                    update_zones_data(element);
+
+                                    document.removeEventListener("mouseup", closeDragElement);
+                                    document.removeEventListener("mousemove", elementDrag);
+                                  }
+                                return dragMouseDown
+                            }
+
+                            function resizeXNegative() {
+                                let offsetX
+                                let startX
+                                let startW
+                                let maxX
+                                function dragMouseDown(e) {
+                                    if(e.button !== 0) return
+                                    e = e || window.event;
+                                    e.preventDefault();
+                                    const {clientX} = e;
+                                    startX = get_int_style('left')
+                                    startW = get_int_style('width')
+                                    offsetX = clientX - startX;
+                                    maxX = startX + startW - minW
+
+                                    document.addEventListener('mouseup',closeDragElement)
+                                    document.addEventListener('mousemove',elementDrag)
+                                  }
+
+                                  function elementDrag(e) {
+                                        const {clientX} = e;
+                                        let x = clientX - offsetX
+                                        let w = startW + startX - x
+                                        if(w < minW) w = minW;
+                                        if(x > maxX) x = maxX;
+                                        element.style.left = x + 'px';
+                                        element.style.width = w + 'px';
+                                  }
+
+                                  function closeDragElement() {
+                                    update_zones_data(element);
+
+                                    document.removeEventListener("mouseup", closeDragElement);
+                                    document.removeEventListener("mousemove", elementDrag);
+                                  }
+                                return dragMouseDown
+                            }
+
+                            function resizeYNegative() {
+                                let offsetY
+                                let startY
+                                let startH
+                                let maxY
+                                function dragMouseDown(e) {
+                                    if(e.button !== 0) return
+                                    e = e || window.event;
+                                    e.preventDefault();
+                                    const {clientY} = e;
+                                    startY = get_int_style('top')
+                                    startH = get_int_style('height')
+                                    offsetY = clientY - startY;
+                                    maxY = startY + startH - minH
+
+                                    document.addEventListener('mouseup',closeDragElement,false)
+                                    document.addEventListener('mousemove',elementDrag,false)
+                                  }
+
+                                  function elementDrag(e) {
+                                        const {clientY} = e;
+                                        let y =  clientY - offsetY
+                                        let h = startH + startY - y
+                                        if(h < minH) h = minH;
+                                        if(y > maxY) y = maxY;
+                                        element.style.top = y + 'px';
+                                        element.style.height = h + 'px';
+                                  }
+
+                                  function closeDragElement() {
+                                    update_zones_data(element);
+
+                                    document.removeEventListener("mouseup", closeDragElement);
+                                    document.removeEventListener("mousemove", elementDrag);
+                                  }
+                                return dragMouseDown
+                            }
                         }
+
                     },
                     createCheckboxes: function(selectedZones) {
                         var template = _fn.tpl.zoneCheckbox;
@@ -773,277 +1061,6 @@ function DragAndDropEditBlock(runtime, element, params) {
         e.preventDefault();
         runtime.notify('cancel', {});
     });
-
-    function makeResizable(element, minW = 100, minH = 100, size = 20)
-    {
-        const top = document.createElement('div');
-        top.style.width = '100%';
-        top.style.height = size + 'px';
-        top.style.backgroundColor = 'transparent';
-        top.style.position = 'absolute';
-        top.style.top = - (size/2) + 'px';
-        top.style.left = '0px';
-        top.style.cursor = 'n-resize';
-
-        top.addEventListener('mousedown',resizeYNegative())
-
-        element.appendChild(top);
-
-        const bottom = document.createElement('div');
-        bottom.style.width = '100%';
-        bottom.style.height = size + 'px';
-        bottom.style.backgroundColor = 'transparent';
-        bottom.style.position = 'absolute';
-        bottom.style.bottom = - (size/2) + 'px';
-        bottom.style.left = '0px';
-        bottom.style.cursor = 'n-resize';
-
-        bottom.addEventListener('mousedown',resizeYPositive())
-
-        element.appendChild(bottom);
-
-        const left = document.createElement('div');
-        left.style.width = size + 'px';
-        left.style.height = '100%';
-        left.style.backgroundColor = 'transparent';
-        left.style.position = 'absolute';
-        left.style.top = '0px';
-        left.style.left = - (size/2) + 'px';
-        left.style.cursor = 'e-resize';
-
-        left.addEventListener('mousedown',resizeXNegative())
-
-        element.appendChild(left);
-
-        const right = document.createElement('div');
-        right.style.width = size + 'px';
-        right.style.height = '100%';
-        right.style.backgroundColor = 'transparent';
-        right.style.position = 'absolute';
-        right.style.top = '0px';
-        right.style.right = - (size/2) + 'px';
-        right.style.cursor = 'e-resize';
-
-        right.addEventListener('mousedown',resizeXPositive())
-
-        element.appendChild(right);
-
-
-        const corner1 = document.createElement('div');
-        corner1.style.width = '10px';
-        corner1.style.height = '10px';
-        corner1.style.backgroundColor = '#ffffff';
-        corner1.style.position = 'absolute';
-        corner1.style.top = '-5px';
-        corner1.style.left = '-5px';
-        corner1.style.cursor = 'nw-resize';
-        corner1.style.border = '1px solid #000000';
-
-        corner1.addEventListener('mousedown',resizeXNegative())
-        corner1.addEventListener('mousedown',resizeYNegative())
-
-        element.appendChild(corner1);
-
-        const corner2 = document.createElement('div');
-        corner2.style.width = '10px';
-        corner2.style.height = '10px';
-        corner2.style.backgroundColor = '#ffffff';
-        corner2.style.position = 'absolute';
-        corner2.style.top = '-5px';
-        corner2.style.right = '-5px';
-        corner2.style.cursor = 'ne-resize';
-        corner2.style.border = '1px solid #000000';
-
-        corner2.addEventListener('mousedown',resizeXPositive())
-        corner2.addEventListener('mousedown',resizeYNegative())
-
-        element.appendChild(corner2);
-
-        const corner3 = document.createElement('div');
-        corner3.style.width = '10px';
-        corner3.style.height = '10px';
-        corner3.style.backgroundColor = '#ffffff';
-        corner3.style.position = 'absolute';
-        corner3.style.bottom = '-5px';
-        corner3.style.left = '-5px';
-        corner3.style.cursor = 'sw-resize';
-        corner3.style.border = '1px solid #000000';
-
-        corner3.addEventListener('mousedown',resizeXNegative())
-        corner3.addEventListener('mousedown',resizeYPositive())
-
-        element.appendChild(corner3);
-
-        const corner4 = document.createElement('div');
-        corner4.style.width = '10px';
-        corner4.style.height = '10px';
-        corner4.style.backgroundColor = '#ffffff';
-        corner4.style.position = 'absolute';
-        corner4.style.bottom = '-5px';
-        corner4.style.right = '-5px';
-        corner4.style.cursor = 'se-resize';
-        corner4.style.border = '1px solid #000000';
-
-        corner4.addEventListener('mousedown',resizeXPositive())
-        corner4.addEventListener('mousedown',resizeYPositive())
-
-        element.appendChild(corner4);
-
-        function get_int_style(key)
-        {
-            return parseInt(window.getComputedStyle(element).getPropertyValue(key));
-        }
-
-        function resizeXPositive()
-        {
-            let offsetX
-            function dragMouseDown(e) {
-                if(e.button !== 0) return
-                e = e || window.event;
-                e.preventDefault();
-                const {clientX} = e;
-                offsetX = clientX - element.offsetLeft - get_int_style('width');
-                document.addEventListener('mouseup', closeDragElement)
-                document.addEventListener('mousemove', elementDrag)
-              }
-
-              function elementDrag(e) {
-                    const {clientX} = e;
-                    let x = clientX - element.offsetLeft - offsetX
-                    if(x < minW) x = minW;
-                    element.style.width =  x + 'px';
-              }
-
-              function closeDragElement() {
-                document.removeEventListener("mouseup", closeDragElement);
-                document.removeEventListener("mousemove", elementDrag);
-              }
-            return dragMouseDown
-        }
-
-        function resizeYPositive()
-        {
-            let offsetY
-            function dragMouseDown(e) {
-                if(e.button !== 0) return
-                e = e || window.event;
-                e.preventDefault();
-                const {clientY} = e;
-                offsetY = clientY - element.offsetTop - get_int_style('height');
-
-                document.addEventListener('mouseup',closeDragElement)
-                document.addEventListener('mousemove',elementDrag)
-              }
-
-              function elementDrag(e) {
-                    const {clientY} = e;
-                    let y =  clientY - element.offsetTop - offsetY;
-                    if(y < minH) y = minH;
-                    element.style.height = y + 'px';
-              }
-
-              function closeDragElement() {
-                document.removeEventListener("mouseup", closeDragElement);
-                document.removeEventListener("mousemove", elementDrag);
-              }
-            return dragMouseDown
-        }
-
-        function resizeXNegative()
-        {
-            let offsetX
-            let startX
-            let startW
-            let maxX
-            function dragMouseDown(e) {
-                if(e.button !== 0) return
-                e = e || window.event;
-                e.preventDefault();
-                const {clientX} = e;
-                startX = get_int_style('left')
-                startW = get_int_style('width')
-                offsetX = clientX - startX;
-                maxX = startX + startW - minW
-
-                document.addEventListener('mouseup',closeDragElement)
-                document.addEventListener('mousemove',elementDrag)
-              }
-
-              function elementDrag(e) {
-                    const {clientX} = e;
-                    let x = clientX - offsetX
-                    let w = startW + startX - x
-                    if(w < minW) w = minW;
-                    if(x > maxX) x = maxX;
-                    element.style.left = x + 'px';
-                    element.style.width = w + 'px';
-              }
-
-              function closeDragElement() {
-                document.removeEventListener("mouseup", closeDragElement);
-                document.removeEventListener("mousemove", elementDrag);
-              }
-            return dragMouseDown
-        }
-
-        function resizeYNegative()
-        {
-            let offsetY
-            let startY
-            let startH
-            let maxY
-            function dragMouseDown(e) {
-                if(e.button !== 0) return
-                e = e || window.event;
-                e.preventDefault();
-                const {clientY} = e;
-                startY = get_int_style('top')
-                startH = get_int_style('height')
-                offsetY = clientY - startY;
-                maxY = startY + startH - minH
-
-                document.addEventListener('mouseup',closeDragElement,false)
-                document.addEventListener('mousemove',elementDrag,false)
-              }
-
-              function elementDrag(e) {
-                    const {clientY} = e;
-                    let y =  clientY - offsetY
-                    let h = startH + startY - y
-                    if(h < minH) h = minH;
-                    if(y > maxY) y = maxY;
-                    element.style.top = y + 'px';
-                    element.style.height = h + 'px';
-              }
-
-              function closeDragElement() {
-                document.removeEventListener("mouseup", closeDragElement);
-                document.removeEventListener("mousemove", elementDrag);
-              }
-            return dragMouseDown
-        }
-    }
-
-    $element.find('#id_add_zone_bt').bind('click', function(e) {
-        let new_div = document.createElement('div');
-        let new_div_title = document.createElement('div');
-        let title_edit_icon = document.createElement('i');
-        let title_icon_container = document.createElement('div');
-
-        new_div.setAttribute( 'class', 'resizable_box' );
-        new_div.setAttribute('style','width:200px; height:100px');
-        new_div_title.setAttribute('class', 'zone_title');
-        new_div_title.innerText = 'Zone 1';
-        title_edit_icon.setAttribute('class', 'fa-solid fa-pen-circle');
-        title_icon_container.setAttribute('class', 'title_edit_button');
-
-        title_icon_container.appendChild(title_edit_icon);
-        new_div_title.appendChild(title_icon_container);
-        new_div.appendChild(new_div_title);
-        $('#id_canvas_two_rectangle')[0].appendChild(new_div);
-
-        makeResizable(new_div, 200, 100);
-    })
 
     function selectTabPage(tabId) {
         var $tabPages = $(".supported-setting-tags section");
