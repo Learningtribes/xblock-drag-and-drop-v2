@@ -200,25 +200,30 @@
     left: 500px;
 }
 
-.xblock--drag-and-drop--editor .tab-content .left .resizable_box {
+.xblock--drag-and-drop--editor .tab-content .drag_drop_area .resizable_box {
     position: absolute;
     border: 1px solid #1D1D1D;
-    width: 10px;
-    height: 10px;
     margin: 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.xblock--drag-and-drop--editor .tab-content .left .resizable_box .zone_title {
+.xblock--drag-and-drop--editor .tab-content .drag_drop_area .resizable_box .zone_title {
     font-size: 14px;
     font-weight: 700;
+    border: 1px solid black;
+    padding: 5px 17px 5px 17px;
+    border-radius: 8px;
+    position: relative;
 }
 
-.xblock--drag-and-drop--editor .tab-content .right .resizable_box {
+.xblock--drag-and-drop--editor .tab-content .drag_drop_area .resizable_box .zone_title .title_edit_button {
+    width: 20px;
+    height: 20px;
     position: absolute;
-    border: 1px solid #1D1D1D;
-    width: 10px;
-    height: 10px;
-    margin: 3px;
+    top: -10px;
+    right: -10px;
 }
 
 .xblock--drag-and-drop--editor .zones_settings {
