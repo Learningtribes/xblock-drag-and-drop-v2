@@ -425,7 +425,7 @@ class DragAndDropBlock(
             'type_id': self.type_id,
             'tpl_summaries': ZONE_TPL_DEFINITIONS.get_templates_summary(self, self.runtime.local_resource_url),
             'target_img_expanded_url': self.target_img_expanded_url,
-            'default_background_image_url': self.default_background_image_url,
+            'pyramid_background_image_url': self.pyramid_background_image_url,
         })
 
         return fragment
@@ -714,16 +714,20 @@ class DragAndDropBlock(
         return i18n_service if i18n_service else DummyTranslationService()
 
     @property
-    def target_img_expanded_url(self):
-        """ Get the expanded URL to the target image (the image items are dragged onto). """
+    def target_img_expanded_url(self, tpl_type_id=0):
+        """Get the expanded URL to the target image (the image items are dragged onto).
+        """
         if self.data.get('targetImg'):
             return self._expand_static_url(self.data['targetImg'])
+        elif 0 == tpl_type_id:
+            return self.pyramid_background_image_url
         else:
-            return self.default_background_image_url
+            raise NotImplementedError('Not implementing background image for template Type ID = {}'.format(tpl_type_id))
 
     @property
-    def default_background_image_url(self):
-        """ The URL to the default background image, shown when no custom background is used """
+    def pyramid_background_image_url(self):
+        """The URL to the `pyramid` background image, shown when pyramid template is selected
+        """
         return self.runtime.local_resource_url(self, "public/img/triangle.png")
 
     @property

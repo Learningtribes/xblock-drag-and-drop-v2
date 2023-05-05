@@ -442,7 +442,9 @@ class _ZoneTemplateDefinitions(object):
         for type_id, tpl_data in self._predefined_templates.items():
             tpl_summaries.append({
                 'type_id': type_id,
-                'thumbnail': runtime_local_resource_url(xblock, tpl_data['thumbnail']) if tpl_data['thumbnail'] else ''
+                'thumbnail': runtime_local_resource_url(xblock, tpl_data['thumbnail']) if tpl_data['thumbnail'] else '',
+                # Get background image from attribute `targetImg` of Field `data` :
+                'zones_background_image': xblock.target_img_expanded_url
             })
         return tpl_summaries
 

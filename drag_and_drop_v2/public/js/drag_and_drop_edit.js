@@ -260,6 +260,80 @@ function DragAndDropEditBlock(runtime, element, params) {
                     }
                 },
 
+                selectTabPage: function(tabId) {
+                    var $tabPages = $(".supported-setting-tags section");
+                    var pageFrame = $(".xblock--drag-and-drop--editor");
+                    var existing_left_rect = document.getElementById('id_two_rect_template_left');
+                    var existing_right_rect = document.getElementById('id_two_rect_template_right');
+                    var canvas_element = $('#id_author_canvas')[0];
+
+                    if ('1' === tabId) {
+                        pageFrame.height('750px');
+                        $('#id_xblock_save_button').className = 'action-item hidden';
+                        $('#id_xblock_save_and_continue_button').className = 'action-item ';
+
+                        if (existing_left_rect !== null) {
+                            existing_left_rect.remove();
+                        }
+                        if (existing_right_rect != null) {
+                            existing_right_rect.remove();
+                        }
+                    } else if ('2' === tabId) {
+                        pageFrame.height('876px');
+                        $('#id_xblock_save_button').className = 'action-item hidden';
+                        $('#id_xblock_save_and_continue_button').className = 'action-item ';
+
+                        if (_fn.type_id === 0) {           // Triangle template
+                            _fn.tpl_summaries.forEach(function(tpl_summary) {
+                                if (tpl_summary.type_id === 0) {
+                                     var triangle_bk_image = document.createElement('img');
+                                     triangle_bk_image.setAttribute('class', 'target-img');
+                                     triangle_bk_image.setAttribute('src', tpl_summary.zones_background_image);
+                                     canvas_element.appendChild(triangle_bk_image);
+                                }
+                            })
+                        } else if (_fn.type_id === 1) {    // Two rectangle template
+                            if (existing_left_rect === null) {
+                                let left_rect = document.createElement('div');
+                                let right_rect = document.createElement('div');
+
+                                left_rect.setAttribute('id', 'id_two_rect_template_left');
+                                left_rect.setAttribute('class', 'left resizable_box_container');
+                                right_rect.setAttribute('id', 'id_two_rect_template_right');
+                                right_rect.setAttribute('class', 'right resizable_box_container');
+
+                                canvas_element.appendChild(left_rect);
+                                canvas_element.appendChild(right_rect);
+                            }
+                        }
+
+                    } else if ('3' === tabId) {
+                        $('#id_xblock_save_button').removeClass('hidden');
+                        var bt = $('#id_xblock_save_and_continue_button');
+                        if (!bt.hasClass('hidden')) {
+                            bt.addClass('hidden')
+                        }
+
+                    } else {
+                        pageFrame.height('100%');
+                        $('#id_xblock_save_button').className = 'action-item hidden';
+                        $('#id_xblock_save_and_continue_button').className = 'action-item ';
+                    }
+
+                    $tabPages.each(function () {
+                        var pg = $(this);
+                        if ( tabId === pg.attr('id') ) {
+                            pg.removeClass('hidden');
+                        } else {
+                            if (!pg.hasClass('hidden')) {
+                                pg.addClass('hidden');
+                            }
+                        }
+
+                    })
+
+                },
+
                 clickHandlers: function() {
                     var $fbkTab = _fn.build.$el.feedback.tab,
                         $zoneTab = _fn.build.$el.zones.tab,
@@ -268,6 +342,20 @@ function DragAndDropEditBlock(runtime, element, params) {
                     const $backgroundChoose = _fn.build.$el.backgroundChoose;
 
                     var self = this;
+
+                    $element.find('.supported-setting-tags-nav > li').bind('click', function() {
+                        $(this).addClass('active-section');
+                        $(this).siblings().each( function (i, obj) {
+                            if (parseInt(obj.id) < 2 ) {
+                                obj.className = 'nav-item';
+                            } else {
+                                obj.className = 'nav-item disable-section';
+                                $('#id_xblock_save_and_continue_button').className = 'action-item';
+                            }
+                        } )
+                        _fn.build.selectTabPage($(this).attr('id'));
+
+                    });
 
                     $element.find('.save-continue-button').bind('click', '.save-continue-button', function saveContinueButtonHandler(e) {
                         e.preventDefault();
@@ -303,7 +391,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             _fn.data.displayBorders = $('.display-borders-form input', element).is(':checked');
                         })
                         .on('click', '#id_add_zone_bt', function(e) {
-                            let canvas = $('#id_canvas_two_rectangle')[0];
+                            let canvas = $('#id_author_canvas')[0];
                             let left = canvas.offsetWidth / 100 * 40;
                             let top = canvas.offsetHeight / 100 * 45;
 
@@ -615,7 +703,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             title_icon_container.appendChild(title_edit_icon);
                             new_div_title.appendChild(title_icon_container);
                             element.appendChild(new_div_title);
-                            $('#id_canvas_two_rectangle')[0].appendChild(element);
+                            $('#id_author_canvas')[0].appendChild(element);
 
                             // We add new record into list if creating a new zone
                             if (oldZone.uid === undefined) {
@@ -1110,58 +1198,6 @@ function DragAndDropEditBlock(runtime, element, params) {
     $element.find('.cancel-button').bind('click', function(e) {
         e.preventDefault();
         runtime.notify('cancel', {});
-    });
-
-    function selectTabPage(tabId) {
-        var $tabPages = $(".supported-setting-tags section");
-        var pageFrame = $(".xblock--drag-and-drop--editor");
-
-        if ('1' === tabId) {
-            pageFrame.height('750px');
-            $('#id_xblock_save_button').className = 'action-item hidden';
-            $('#id_xblock_save_and_continue_button').className = 'action-item ';
-        } else if ('2' === tabId) {
-            pageFrame.height('876px');
-            $('#id_xblock_save_button').className = 'action-item hidden';
-            $('#id_xblock_save_and_continue_button').className = 'action-item ';
-        } else if ('3' === tabId) {
-            $('#id_xblock_save_button').removeClass('hidden');
-            var bt = $('#id_xblock_save_and_continue_button');
-            if (!bt.hasClass('hidden')) {
-                bt.addClass('hidden')
-            }
-        } else {
-            pageFrame.height('100%');
-            $('#id_xblock_save_button').className = 'action-item hidden';
-            $('#id_xblock_save_and_continue_button').className = 'action-item ';
-        }
-
-        $tabPages.each(function () {
-            var pg = $(this);
-            if ( tabId === pg.attr('id') ) {
-                pg.removeClass('hidden');
-            } else {
-                if (!pg.hasClass('hidden')) {
-                    pg.addClass('hidden');
-                }
-            }
-
-        })
-
-    }
-
-    $('.supported-setting-tags-nav > li', element).bind('click', function() {
-        $(this).addClass('active-section');
-        $(this).siblings().each( function (i, obj) {
-            if (parseInt(obj.id) < 2 ) {
-                obj.className = 'nav-item';
-            } else {
-                obj.className = 'nav-item disable-section';
-                $('#id_xblock_save_and_continue_button').className = 'action-item';
-            }
-        } )
-        selectTabPage($(this).attr('id'));
-
     });
 
     $('.supported-setting-tags-nav > li')[0].className = 'nav-item active-section';
