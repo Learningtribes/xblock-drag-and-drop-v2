@@ -23,7 +23,7 @@ function DragAndDropEditBlock(runtime, element, params) {
 
     var $element = $(element);
 
-    const CUSTOM_TEMPLATE_TYPE = "3";
+    const CUSTOM_TEMPLATE_TYPE = 3;
 
     var dragAndDrop = (function($) {
         var _fn = {
@@ -64,13 +64,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                 init: function() {
                     _fn.data = params.data;
 
-                    _fn.type_id = params.type_id.toString();
+                    _fn.type_id = params.type_id;
                     _fn.tpl_summaries = params.tpl_summaries;
                     _fn.background_index = params.background_index;
-                    _fn.background_asset_id = params.background_asset_id;
-                    _fn.background_thumbnail_url = params.background_thumbnail_url;
 
-                    _fn.build.changeBackgroundType(_fn.type_id)
+                    _fn.build.changeBackgroundType(_fn.type_id);
 
                     // Compile templates
                     _fn.tpl.init();
@@ -118,24 +116,22 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                 onBackgroundUploadSuccessHandler(e) {
                     // old asset to delete
-                    const old_asset_id = _fn.background_asset_id;
+                    const oldAssetId = _fn.data.targetImg.substring(_fn.data.targetImg.lastIndexOf('/') + 1);
                     const newXblockAsset = e.detail.asset;
                     const newBlockId = newXblockAsset.id.toString();
-                    if (old_asset_id !== newBlockId) {
-                        if (old_asset_id) {
-                            _fn.build.form.background_check(asset_id=old_asset_id)
-                        }
-                        _fn.background_asset_id = newBlockId;
-                        _fn.background_thumbnail_url = newXblockAsset.thumbnail;
-                        _fn.data.targetImg = newXblockAsset.url;
-                        // $('#id-background-thumbnail').attr('src', _fn.background_thumbnail_url);
-                        $('#id-background-thumbnail').css("background-image", "url('" + _fn.background_thumbnail_url + "')");
 
-                        _fn.build.form.submit(continue_mode=true);
+                    if (oldAssetId !== newBlockId) {
+                        // custom => custom need check and delete unused background file
+                        if (_fn.type_id === CUSTOM_TEMPLATE_TYPE && oldAssetId) {
+                            _fn.build.form.background_check(oldAssetId)
+                        }
+                        _fn.data.targetImg = newXblockAsset.url;
 
                         _fn.build.changeBackgroundType(CUSTOM_TEMPLATE_TYPE)
 
-                        console.log('uploadAssetsSuccessEvent: ', _fn.background_asset_id, _fn.data.targetImg)
+                        _fn.build.form.submit(continue_mode=true);
+
+                        console.log('uploadAssetsSuccessEvent: ', _fn.data.targetImg)
                     }
                 },
 
@@ -228,13 +224,35 @@ function DragAndDropEditBlock(runtime, element, params) {
                 },
 
                 changeBackgroundType: function(type_id) {
-                    _fn.type_id = type_id
+                    if (type_id === undefined) {
+                        return;
+                    }
+                    // custom => any need check and delete unused background file
+                    if (type_id !== _fn.type_id && _fn.type_id === CUSTOM_TEMPLATE_TYPE) {
+                        const oldAssetId = _fn.data.targetImg.substring(_fn.data.targetImg.lastIndexOf('/') + 1);
+                        if (oldAssetId) {
+                            _fn.build.form.background_check(oldAssetId)
+                        }
+                    }
+                    _fn.type_id = parseInt(type_id)
+
+                    if (_fn.type_id === CUSTOM_TEMPLATE_TYPE) {
+                        $('#id-background-thumbnail')
+                            .css("display", "")
+                            .css("background-image", "url('" + _fn.data.targetImg + "')");
+                    } else {
+                        $('#id-background-thumbnail').css("display", "none");
+                    }
+
                     for (var i = 0; i < params.tpl_summaries.length; i++) {
                         const selecedObj = $("#item-selected-circle-" + i.toString());
                         const selectObj = $("#item-select-circle-" + i.toString());
-                        if (_fn.type_id === params.tpl_summaries[i].type_id.toString()) {
+                        if (_fn.type_id === parseInt(params.tpl_summaries[i].type_id)) {
                             selectObj.css('display', 'none');
                             selecedObj.css('display', '');
+                            if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE) {
+                                _fn.data.targetImg = params.tpl_summaries[i].thumbnail
+                            }
                         } else {
                             selectObj.css('display', '');
                             selecedObj.css('display', 'none');
@@ -319,8 +337,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                     backgroundChoose: {
                       backgroundTemplateChoose: function(e) {
                           e.preventDefault();
-                          _fn.type_id = e.currentTarget.id.replace('background-type-', '');
-                          _fn.build.changeBackgroundType(_fn.type_id);
+                          const type_id = parseInt(e.currentTarget.id.replace('background-type-', ''));
+                          _fn.build.changeBackgroundType(type_id);
                       }
                     },
                     zone: {
@@ -989,9 +1007,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                             $el.find('.row.advanced-link').toggleClass('opening')
                         },
                     },
-                    background_check(asset_id) {
+                    background_check(oldAssetId) {
                         const data = {
-                            asset_id: asset_id
+                            asset_id: oldAssetId
                         }
                         var handlerUrl = runtime.handlerUrl(element, 'background_check');
                         $.post(handlerUrl, JSON.stringify(data), 'json').done(function(response) {
@@ -1059,8 +1077,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 'finish': $element.find('.final-feedback').val()
                             },
                             'type_id': parseInt(_fn.type_id),
-                            'background_asset_id': _fn.background_asset_id,
-                            'background_thumbnail_url': _fn.background_thumbnail_url,
                             'data': _fn.data,
                         };
 

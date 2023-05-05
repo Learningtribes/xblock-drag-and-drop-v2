@@ -102,7 +102,6 @@
                     <script type="text/javascript" src="{{ assets_min_js }}"></script>
                     <ul class="supported-template-patterns">
                         {% for tpl_summary in tpl_summaries %}
-                        {% if tpl_summary.type_id != 3 or background_asset_id %}
                         <li class="pattern-item" id="background-type-{{ tpl_summary.type_id }}">
                              <div id="item-selected-circle-{{ tpl_summary.type_id }}" class="item-selected-circle">
                                 <svg width="11" height="8" viewBox="0 0 11 8" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -119,10 +118,9 @@
                             {% elif tpl_summary.type_id == 2 %}
                             <div class="pattern-no-background">{% trans "No background (Zone only)" %}</div>
                             {% elif tpl_summary.type_id == 3 %}
-                            <div class="pattern-image" id="id-background-thumbnail" style="background-image: url('{{ background_thumbnail_url }}')"></div>
+                            <div class="pattern-image" id="id-background-thumbnail"></div>
                             {% endif %}
                         </li>
-                        {% endif %}
                         {% endfor %}
 
                     </ul>

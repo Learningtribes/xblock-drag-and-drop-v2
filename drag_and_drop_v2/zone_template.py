@@ -358,7 +358,6 @@ class NoBackgroundTemplate(ZonesDefinition):
     """Predefined rectangle template
     """
     TYPE_ID = 2
-    THUMBNAIL_PATH = 'public/img/triangle.png'
 
     def __init__(self, tpl_data=None):
         super(NoBackgroundTemplate, self).__init__(tpl_data=tpl_data)
@@ -371,7 +370,7 @@ class NoBackgroundTemplate(ZonesDefinition):
                 start=_(self.START_FEEDBACK),
                 finish=_(self.FINISH_FEEDBACK)
             ),
-            'thumbnail': self.THUMBNAIL_PATH,
+            'thumbnail': '',
             'template_type': self.TYPE_ID
         }
         return self._tpl_data
@@ -381,7 +380,6 @@ class CustomTemplate(ZonesDefinition):
     """Predefined rectangle template
     """
     TYPE_ID = 3
-    THUMBNAIL_PATH = 'public/img/triangle.png'
 
     def __init__(self, tpl_data=None):
         super(CustomTemplate, self).__init__(tpl_data=tpl_data)
@@ -394,7 +392,7 @@ class CustomTemplate(ZonesDefinition):
                 start=_(self.START_FEEDBACK),
                 finish=_(self.FINISH_FEEDBACK)
             ),
-            'thumbnail': self.THUMBNAIL_PATH,
+            'thumbnail': '',
             'template_type': self.TYPE_ID
         }
         return self._tpl_data
@@ -444,7 +442,7 @@ class _ZoneTemplateDefinitions(object):
         for type_id, tpl_data in self._predefined_templates.items():
             tpl_summaries.append({
                 'type_id': type_id,
-                'thumbnail': runtime_local_resource_url(xblock, tpl_data['thumbnail'])
+                'thumbnail': runtime_local_resource_url(xblock, tpl_data['thumbnail']) if tpl_data['thumbnail'] else ''
             })
         return tpl_summaries
 

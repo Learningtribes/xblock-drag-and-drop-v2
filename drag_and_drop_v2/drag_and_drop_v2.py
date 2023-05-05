@@ -203,21 +203,7 @@ class DragAndDropBlock(
     type_id = Integer(
         help=_("Background index of pyramid, rectangles, blank, custom"),
         scope=Scope.settings,
-        default=0,
-        enforce_type=True,
-    )
-
-    background_asset_id = String(
-        help=_("Background image asset id from upload background file"),
-        scope=Scope.settings,
-        default='',
-        enforce_type=True,
-    )
-
-    background_thumbnail_url = String(
-        help=_("Background image thumbnail url from upload background file"),
-        scope=Scope.settings,
-        default='',
+        default=None,
         enforce_type=True,
     )
 
@@ -391,8 +377,6 @@ class DragAndDropBlock(
             'self': self,
             'data': urllib.quote(json.dumps(self.data)),
             'type_id': self.type_id if self.type_id else 0,
-            'background_asset_id': self.background_asset_id,
-            'background_thumbnail_url': self.background_thumbnail_url,
             'tpl_summaries': ZONE_TPL_DEFINITIONS.get_templates_summary(self, self.runtime.local_resource_url),
             ### For editImageModal rendering
             'common_min_css': get_storage_url('/common/js/vendor/learningtribes-studio-frontend/dist/common.min.css'),
@@ -440,8 +424,6 @@ class DragAndDropBlock(
             'data': self.data,
             'type_id': self.type_id,
             'tpl_summaries': ZONE_TPL_DEFINITIONS.get_templates_summary(self, self.runtime.local_resource_url),
-            'background_asset_id': self.background_asset_id,
-            'background_thumbnail_url': self.background_thumbnail_url,
             'target_img_expanded_url': self.target_img_expanded_url,
             'default_background_image_url': self.default_background_image_url,
         })
@@ -465,10 +447,8 @@ class DragAndDropBlock(
 
         for xblock in xblocks:
             other_xblock_id = _get_block_id(xblock)
-            other_xblock_asset_id = getattr(xblock, 'background_asset_id', '')
-            # print('other_xblock_id %s' % other_xblock_id)
-            # print('asset_id %s' % asset_id)
-            # print('other_xblock_asset_id %s' % other_xblock_asset_id)
+            data = getattr(xblock, 'data', '')
+            other_xblock_asset_id = getattr(data, 'targetImg', '')
             if other_xblock_id != xblock_id:
                 if other_xblock_asset_id == asset_id:
                     return {
@@ -522,10 +502,6 @@ class DragAndDropBlock(
                 self.data['feedback']['finish'] = feedback['finish']
         if 'type_id' in submissions:
             self.type_id = submissions['type_id']
-        if 'background_asset_id' in submissions:
-            self.background_asset_id = submissions['background_asset_id']
-        if 'background_thumbnail_url' in submissions:
-            self.background_thumbnail_url = submissions['background_thumbnail_url']
 
         return {
             'result': 'success',
