@@ -23,6 +23,8 @@ function DragAndDropEditBlock(runtime, element, params) {
 
     var $element = $(element);
 
+    const CUSTOM_TEMPLATE_TYPE = "3";
+
     var dragAndDrop = (function($) {
         var _fn = {
             // Templates
@@ -44,6 +46,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                         form: $('.drag-builder .feedback-form', element),
                         tab: $('.drag-builder .feedback-tab', element)
                     },
+                    backgroundChoose: {
+                        templates: $('.drag-builder .supported-template-patterns', element),
+                        tag: $('.drag-builder .background-image-tab', element),
+                    },
                     zones: {
                         form: $('.drag-builder .zones-form', element),
                         tab: $('.drag-builder .zones-tab', element)
@@ -58,6 +64,14 @@ function DragAndDropEditBlock(runtime, element, params) {
                 init: function() {
                     _fn.data = params.data;
 
+                    _fn.type_id = params.type_id.toString();
+                    _fn.tpl_summaries = params.tpl_summaries;
+                    _fn.background_index = params.background_index;
+                    _fn.background_asset_id = params.background_asset_id;
+                    _fn.background_thumbnail_url = params.background_thumbnail_url;
+
+                    _fn.build.changeBackgroundType(_fn.type_id)
+
                     // Compile templates
                     _fn.tpl.init();
 
@@ -68,12 +82,8 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                     // upload success handler
                     const rootDiv = document.getElementById('root');
-                    rootDiv.addEventListener('uploadAssetsSuccessEvent', function onUploadSuccessHandler(e) {
-                        console.log('[N uploadAssetsSuccess', e)
-                    });
-                    rootDiv.addEventListener('getAssetsSuccessEvent', function onUploadSuccessHandler(e) {
-                        console.log('[N getAssetsSuccess', e)
-                    });
+                    rootDiv.addEventListener('uploadAssetsSuccessEvent', _fn.build.onBackgroundUploadSuccessHandler);
+                    rootDiv.addEventListener('getAssetsSuccessEvent', _fn.build.onBackgroundGetAssetsSuccessHandler);
 
                     // Hide settings that are specific to assessment mode
                     _fn.build.$el.feedback.form.find('.problem-mode').trigger('change');
@@ -99,6 +109,33 @@ function DragAndDropEditBlock(runtime, element, params) {
                         })
 
                     }
+                },
+
+                onBackgroundUploadSuccessHandler(e) {
+                    // old asset to delete
+                    const old_asset_id = _fn.background_asset_id;
+                    const newXblockAsset = e.detail.asset;
+                    const newBlockId = newXblockAsset.id.toString();
+                    if (old_asset_id !== newBlockId) {
+                        if (old_asset_id) {
+                            _fn.build.form.background_check(asset_id=old_asset_id)
+                        }
+                        _fn.background_asset_id = newBlockId;
+                        _fn.background_thumbnail_url = newXblockAsset.thumbnail;
+                        _fn.data.targetImg = newXblockAsset.url;
+                        // $('#id-background-thumbnail').attr('src', _fn.background_thumbnail_url);
+                        $('#id-background-thumbnail').css("background-image", "url('" + _fn.background_thumbnail_url + "')");
+
+                        _fn.build.form.submit(continue_mode=true);
+
+                        _fn.build.changeBackgroundType(CUSTOM_TEMPLATE_TYPE)
+
+                        console.log('uploadAssetsSuccessEvent: ', _fn.background_asset_id, _fn.data.targetImg)
+                    }
+                },
+
+                onBackgroundGetAssetsSuccessHandler(e) {
+
                 },
 
                 validate: function() {
@@ -173,19 +210,29 @@ function DragAndDropEditBlock(runtime, element, params) {
                     $('.drag-builder', element).scrollTop(0);
                 },
 
+                changeBackgroundType: function(type_id) {
+                    _fn.type_id = type_id
+                    for (var i = 0; i < params.tpl_summaries.length; i++) {
+                        const selecedObj = $("#item-selected-circle-" + i.toString());
+                        const selectObj = $("#item-select-circle-" + i.toString());
+                        if (_fn.type_id === params.tpl_summaries[i].type_id.toString()) {
+                            selectObj.css('display', 'none');
+                            selecedObj.css('display', '');
+                        } else {
+                            selectObj.css('display', '');
+                            selecedObj.css('display', 'none');
+                        }
+                    }
+                },
+
                 clickHandlers: function() {
                     var $fbkTab = _fn.build.$el.feedback.tab,
                         $zoneTab = _fn.build.$el.zones.tab,
                         $itemTab = _fn.build.$el.items.tab;
 
+                    const $backgroundChoose = _fn.build.$el.backgroundChoose;
+
                     var self = this;
-
-                    $element.one('click', '.save-button', function saveButtonHandler(e) {
-                        e.preventDefault();
-
-                        // add new save function for post data each step
-                        _fn.build.form.submit();
-                    });
 
                     $element.find('.save-continue-button').bind('click', '.save-continue-button', function saveContinueButtonHandler(e) {
                         e.preventDefault();
@@ -193,73 +240,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                         _fn.build.form.submit(continue_mode=true);
                     });
 
-                    $element.one('click', '.continue-button', function loadSecondTab(e) {
-                        // $fbkTab -> $zoneTab
-
-                        e.preventDefault();
-
-                        if (!self.validate()) {
-                            $(e.target).one('click', loadSecondTab);
-                            return
-                        }
-
-                        _fn.build.form.feedback(_fn.build.$el.feedback.form);
-                        for (var i = 0; i < _fn.data.zones.length; i++) {
-                            _fn.build.form.zone.add(_fn.data.zones[i]);
-                        }
-                        if (_fn.data.zones.length === 0) {
-                            _fn.build.form.zone.add();
-                        }
-
-                        // Set the target image and bind its event handler:
-                        if (!_fn.build.isAutogeneratedImage(_fn.data.targetImg)) {
-                            $('.target-image-form .background-url', element).val(_fn.data.targetImg);
-                        }
-                        $('.target-image-form .background-description', element).val(_fn.data.targetImgDescription);
-                        _fn.build.$el.targetImage.load(_fn.build.form.zone.imageLoaded);
-                        _fn.build.$el.targetImage.attr('src', params.target_img_expanded_url);
-                        _fn.build.$el.targetImage.attr('alt', _fn.data.targetImgDescription);
-
-                        if (_fn.data.displayLabels) {
-                            $('.display-labels-form input', element).prop('checked', true);
-                        }
-
-                        if (_fn.data.displayBorders) {
-                            $('.display-borders-form input', element).prop('checked', true);
-                        }
-
-                        $fbkTab.addClass('hidden');
-                        $zoneTab.removeClass('hidden');
-                        self.scrollToTop();
-                        $zoneTab.find('input:first').select();
-
-                        $(this).one('click', function loadThirdTab(e) {
-                            // $zoneTab -> $itemTab
-                            e.preventDefault();
-
-                            if (!self.validate()) {
-                                $(e.target).one('click', loadThirdTab);
-                                return
-                            }
-
-                            for (var i = 0; i < _fn.data.items.length; i++) {
-                                _fn.build.form.item.add(_fn.data.items[i]);
-                            }
-                            if (_fn.data.items.length === 0) {
-                                _fn.build.form.item.add();
-                            }
-
-                            $zoneTab.addClass('hidden');
-                            $itemTab.removeClass('hidden');
-                            self.scrollToTop();
-                            $itemTab.find('input:first').select();
-
-                            $(this).addClass('hidden');
-                        });
-                    });
-
                     $fbkTab
                         .on('change', '.problem-mode', _fn.build.form.problem.toggleAssessmentSettings);
+
+                    $backgroundChoose.templates
+                        .on('click', '.pattern-item', _fn.build.form.backgroundChoose.backgroundTemplateChoose);
 
                     $zoneTab
                         .on('change', '.background-image-type input', _fn.build.form.zone.toggleAutozoneSettings)
@@ -271,33 +256,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                         .on('click', '.remove-zone', _fn.build.form.zone.remove)
                         .on('input', '.zone-row input', _fn.build.form.zone.changedInputHandler)
                         .on('change', '.zone-align-select', _fn.build.form.zone.changedInputHandler)
-                        .on('click', '.target-image-form .background-manual button', function(e) {
-                            var new_img_url = $.trim($('.target-image-form .background-url', element).val());
-                            if (new_img_url) {
-                                // We may need to 'expand' the URL before it will be valid.
-                                // e.g. '/static/blah.png' becomes '/asset-v1:course+id/blah.png'
-                                var handlerUrl = runtime.handlerUrl(element, 'expand_static_url');
-                                $.post(handlerUrl, JSON.stringify(new_img_url), function(result) {
-                                    _fn.build.$el.targetImage.attr('src', result.url);
-                                });
-                            } else {
-                                new_img_url = params.default_background_image_url;
-                                _fn.build.$el.targetImage.attr('src', new_img_url);
-                            }
-                            _fn.data.targetImg = new_img_url;
-                        })
                         .on(
                             'click',
                             '.target-image-form .background-auto button',
                             _fn.build.form.zone.generateBackgroundAndZones
                         )
-                        .on('input', '.target-image-form .background-description', function(e) {
-                            var new_description = $.trim(
-                                $('.target-image-form .background-description', element).val()
-                            );
-                            _fn.build.$el.targetImage.attr('alt', new_description);
-                            _fn.data.targetImgDescription = new_description;
-                        })
                         .on('click', '.display-labels-form input', function(e) {
                             _fn.data.displayLabels = $('.display-labels-form input', element).is(':checked');
                         })
@@ -328,6 +291,13 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 $assessmentSettings.hide();
                             }
                         }
+                    },
+                    backgroundChoose: {
+                      backgroundTemplateChoose: function(e) {
+                          e.preventDefault();
+                          _fn.type_id = e.currentTarget.id.replace('background-type-', '');
+                          _fn.build.changeBackgroundType(_fn.type_id);
+                      }
                     },
                     zone: {
                         totalZonesCreated: 0, // This counter is used for HTML IDs. Never decremented.
@@ -685,6 +655,23 @@ function DragAndDropEditBlock(runtime, element, params) {
                             $el.find('.row.advanced-link').toggleClass('opening')
                         },
                     },
+                    background_check(asset_id) {
+                        const data = {
+                            asset_id: asset_id
+                        }
+                        var handlerUrl = runtime.handlerUrl(element, 'background_check');
+                        $.post(handlerUrl, JSON.stringify(data), 'json').done(function(response) {
+                            if (response.result === 'success') {
+                                // runtime.notify('save', continue_mode ? {state: 'save_and_continue'} : {state: 'end'});
+                            } else {
+                                var message = response.messages.join(", ");
+                                runtime.notify('error', {
+                                    'title': window.gettext("There was an error with your form."),
+                                    'message': message
+                                });
+                            }
+                        });
+                    },
                     submit: function(continue_mode=false) {
                         // save all
                         var items = [],
@@ -737,8 +724,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 'start': $element.find('.intro-feedback').val(),
                                 'finish': $element.find('.final-feedback').val()
                             },
-                            // 'targetImg': '',
-                            // 'targetImgDescription': '',
+                            'type_id': parseInt(_fn.type_id),
+                            'background_asset_id': _fn.background_asset_id,
+                            'background_thumbnail_url': _fn.background_thumbnail_url,
                             'data': _fn.data,
                         };
 

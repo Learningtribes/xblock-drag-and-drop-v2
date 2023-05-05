@@ -3,7 +3,7 @@
     With classes in this file we can extend drag and drop templates more easyier.
 """
 
-
+import copy
 from .utils import _, Constants, StateMigration
 
 
@@ -212,7 +212,7 @@ class TriangleTemplate(ZonesDefinition):
     _ITEM_ANY_ZONE_FEEDBACK = _("Of course it goes here! It goes anywhere!")
 
     def __init__(self, tpl_data=None):
-        super(TriangleTemplate, self).__init__(tpl_data = tpl_data)
+        super(TriangleTemplate, self).__init__(tpl_data=tpl_data)
 
     def get_valid_zone_uids(self):
         """Return zones' uid List edited by User if user has stored zones definitions in MongoDB
@@ -225,7 +225,7 @@ class TriangleTemplate(ZonesDefinition):
             return super(TriangleTemplate, self).get_valid_zone_uids()
 
         # Return predefined uids of zone.
-        return [_TOP_ZONE_ID, _MIDDLE_ZONE_ID, _BOTTOM_ZONE_ID]
+        return [TriangleTemplate._TOP_ZONE_ID, TriangleTemplate._MIDDLE_ZONE_ID, TriangleTemplate._BOTTOM_ZONE_ID]
 
     def get_zone_info_by_uid(self, uid):
         """Query & Return zone summary information by `zone uid`. if user has stored zoned definitions in MongoDB
@@ -234,12 +234,12 @@ class TriangleTemplate(ZonesDefinition):
         if self._tpl_data is not None:
             return super(TriangleTemplate, self).get_zone_info_by_uid(uid)
 
-        if uid == _TOP_ZONE_ID:
-            return {'title': _TOP_ZONE_TITLE, 'description': None}
-        elif uid == _MIDDLE_ZONE_ID:
-            return {'title': _MIDDLE_ZONE_ID, 'description': None}
-        elif uid == _BOTTOM_ZONE_ID:
-            return {'title': _BOTTOM_ZONE_ID, 'description': None}
+        if uid == TriangleTemplate._TOP_ZONE_ID:
+            return {'title': TriangleTemplate._TOP_ZONE_TITLE, 'description': None}
+        elif uid == TriangleTemplate._MIDDLE_ZONE_ID:
+            return {'title': TriangleTemplate._MIDDLE_ZONE_ID, 'description': None}
+        elif uid == TriangleTemplate._BOTTOM_ZONE_ID:
+            return {'title': TriangleTemplate._BOTTOM_ZONE_ID, 'description': None}
 
         raise KeyError('Invalie zone uid : {}'.format(uid))
 
@@ -308,7 +308,7 @@ class RectangleTemplate(ZonesDefinition):
         if self._tpl_data is None:
             return super(RectangleTemplate, self).get_valid_zone_uids()
 
-        return [_TOP_ZONE_ID, _MIDDLE_ZONE_ID, _BOTTOM_ZONE_ID]
+        return [RectangleTemplate._TOP_ZONE_ID, RectangleTemplate._MIDDLE_ZONE_ID, RectangleTemplate._BOTTOM_ZONE_ID]
 
     def get_zone_info_by_uid(self, uid):
         """Query & Return zone summary information by `zone uid`. if user has stored zoned definitions in MongoDB
@@ -317,12 +317,12 @@ class RectangleTemplate(ZonesDefinition):
         if self._tpl_data is not None:
             return super(RectangleTemplate, self).get_zone_info_by_uid(uid)
 
-        if uid == _TOP_ZONE_ID:
-            return {'title': _TOP_ZONE_TITLE, 'description': None}
-        elif uid == _MIDDLE_ZONE_ID:
-            return {'title': _MIDDLE_ZONE_ID, 'description': None}
-        elif uid == _BOTTOM_ZONE_ID:
-            return {'title': _BOTTOM_ZONE_ID, 'description': None}
+        if uid == RectangleTemplate._TOP_ZONE_ID:
+            return {'title': RectangleTemplate._TOP_ZONE_TITLE, 'description': None}
+        elif uid == RectangleTemplate._MIDDLE_ZONE_ID:
+            return {'title': RectangleTemplate._MIDDLE_ZONE_ID, 'description': None}
+        elif uid == RectangleTemplate._BOTTOM_ZONE_ID:
+            return {'title': RectangleTemplate._BOTTOM_ZONE_ID, 'description': None}
 
         raise KeyError('Invalid zone uid : {}'.format(uid))
 
@@ -354,24 +354,77 @@ class RectangleTemplate(ZonesDefinition):
         return self._tpl_data
 
 
+class NoBackgroundTemplate(ZonesDefinition):
+    """Predefined rectangle template
+    """
+    TYPE_ID = 2
+    THUMBNAIL_PATH = 'public/img/triangle.png'
+
+    def __init__(self, tpl_data=None):
+        super(NoBackgroundTemplate, self).__init__(tpl_data=tpl_data)
+
+    def generate(self):
+        self._tpl_data = {
+            'zones': [],
+            'items': [],
+            'feedback': self.gen_feedback(
+                start=_(self.START_FEEDBACK),
+                finish=_(self.FINISH_FEEDBACK)
+            ),
+            'thumbnail': self.THUMBNAIL_PATH,
+            'template_type': self.TYPE_ID
+        }
+        return self._tpl_data
+
+
+class CustomTemplate(ZonesDefinition):
+    """Predefined rectangle template
+    """
+    TYPE_ID = 3
+    THUMBNAIL_PATH = 'public/img/triangle.png'
+
+    def __init__(self, tpl_data=None):
+        super(CustomTemplate, self).__init__(tpl_data=tpl_data)
+
+    def generate(self):
+        self._tpl_data = {
+            'zones': [],
+            'items': [],
+            'feedback': self.gen_feedback(
+                start=_(self.START_FEEDBACK),
+                finish=_(self.FINISH_FEEDBACK)
+            ),
+            'thumbnail': self.THUMBNAIL_PATH,
+            'template_type': self.TYPE_ID
+        }
+        return self._tpl_data
+
+
 class _ZoneTemplateDefinitions(object):
     """Definitions of zone templates used in drag and drop zone tab
     """
-    ALL_SUPPORTED_TEMPLATES = [TriangleTemplate.TYPE_ID, RectangleTemplate.TYPE_ID]
+    ALL_SUPPORTED_TEMPLATES = [
+        TriangleTemplate.TYPE_ID,
+        RectangleTemplate.TYPE_ID,
+        NoBackgroundTemplate.TYPE_ID,
+        CustomTemplate.TYPE_ID
+    ]
 
     def __init__(self):
         """Assemble predefined templates into dict object.
         """
         self._predefined_templates = {
             TriangleTemplate.TYPE_ID: TriangleTemplate().generate(),
-            RectangleTemplate.TYPE_ID: RectangleTemplate().generate()
+            RectangleTemplate.TYPE_ID: RectangleTemplate().generate(),
+            NoBackgroundTemplate.TYPE_ID: NoBackgroundTemplate().generate(),
+            CustomTemplate.TYPE_ID: CustomTemplate().generate()
         }
 
     def get_predefined_template_by_type(self, tpl_id):
         """Return template by type id
         """
-        if tpl_type not in ZoneTemplate.ALL_SUPPORTED_TEMPLATES or tpl_type not in self._predefined_templates:
-            raise NotImplementedError('Got invalid template type value : {}'.format(tpl_type))
+        if tpl_id not in _ZoneTemplateDefinitions.ALL_SUPPORTED_TEMPLATES or tpl_id not in self._predefined_templates:
+            raise NotImplementedError('Got invalid template type value : {}'.format(tpl_id))
 
         return self._predefined_templates[tpl_id]
 
@@ -387,7 +440,13 @@ class _ZoneTemplateDefinitions(object):
             @return:                                templates summary info. list
             @rtype:                                 list
         """
-        return [{'type_id': type_id, 'thumbnail': runtime_local_resource_url(xblock, tpl_data['thumbnail'])} for type_id, tpl_data in self._predefined_templates.items()]
+        tpl_summaries = []
+        for type_id, tpl_data in self._predefined_templates.items():
+            tpl_summaries.append({
+                'type_id': type_id,
+                'thumbnail': runtime_local_resource_url(xblock, tpl_data['thumbnail'])
+            })
+        return tpl_summaries
 
 
 ZONE_TPL_DEFINITIONS = _ZoneTemplateDefinitions()

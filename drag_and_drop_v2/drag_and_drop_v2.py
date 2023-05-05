@@ -12,12 +12,14 @@ from pipeline_mako.helpers.studiofrontend import load_sfe_i18n_messages
 
 from xblock.core import XBlock
 from xblock.exceptions import JsonHandlerError
-from xblock.fields import Scope, String, Dict, Float, Boolean, Integer
+from xblock.fields import Scope, String, Dict, Float, Boolean, Integer, List
 from xblock.fragment import Fragment
 from xblock.scorable import ScorableXBlockMixin, Score
 from xblockutils.resources import ResourceLoader
 from xblockutils.settings import XBlockWithSettingsMixin, ThemableXBlockMixin
 from xmodule.modulestore.django import modulestore
+from contentstore.views.assets import delete_asset
+from opaque_keys.edx.keys import AssetKey, CourseKey
 
 from .utils import (
     _, DummyTranslationService, FeedbackMessage, FeedbackMessages,
@@ -27,6 +29,7 @@ from .utils import (
 from .default_data import DEFAULT_DATA
 from .tabs_header import TabsHeader
 from .zone_template import ZonesDefinition, ZONE_TPL_DEFINITIONS
+
 
 
 loader = ResourceLoader(__name__)
@@ -194,6 +197,27 @@ class DragAndDropBlock(
         help=_("Keeps maximum score achieved by student as a raw value between 0 and 1."),
         scope=Scope.user_state,
         default=0,
+        enforce_type=True,
+    )
+
+    type_id = Integer(
+        help=_("Background index of pyramid, rectangles, blank, custom"),
+        scope=Scope.settings,
+        default=0,
+        enforce_type=True,
+    )
+
+    background_asset_id = String(
+        help=_("Background image asset id from upload background file"),
+        scope=Scope.settings,
+        default='',
+        enforce_type=True,
+    )
+
+    background_thumbnail_url = String(
+        help=_("Background image thumbnail url from upload background file"),
+        scope=Scope.settings,
+        default='',
         enforce_type=True,
     )
 
@@ -366,6 +390,9 @@ class DragAndDropBlock(
             'fields': self.fields,
             'self': self,
             'data': urllib.quote(json.dumps(self.data)),
+            'type_id': self.type_id if self.type_id else 0,
+            'background_asset_id': self.background_asset_id,
+            'background_thumbnail_url': self.background_thumbnail_url,
             'tpl_summaries': ZONE_TPL_DEFINITIONS.get_templates_summary(self, self.runtime.local_resource_url),
             ### For editImageModal rendering
             'common_min_css': get_storage_url('/common/js/vendor/learningtribes-studio-frontend/dist/common.min.css'),
@@ -411,11 +438,55 @@ class DragAndDropBlock(
 
         fragment.initialize_js('DragAndDropEditBlock', {
             'data': self.data,
+            'type_id': self.type_id,
+            'tpl_summaries': ZONE_TPL_DEFINITIONS.get_templates_summary(self, self.runtime.local_resource_url),
+            'background_asset_id': self.background_asset_id,
+            'background_thumbnail_url': self.background_thumbnail_url,
             'target_img_expanded_url': self.target_img_expanded_url,
             'default_background_image_url': self.default_background_image_url,
         })
 
         return fragment
+
+    @XBlock.json_handler
+    def background_check(self, request_data, suffix=''):
+        def _get_block_id(xblock):
+            """Return unique ID of this block. Useful for HTML ID attributes.
+                Works both in LMS/Studio and workbench runtimes:
+                - In LMS/Studio, use the location.html_id method.
+                - In the workbench, use the usage_id.
+            """
+            return xblock.location.html_id() if hasattr(xblock, 'location') else unicode(xblock.scope_ids.usage_id)
+
+        xblock_id = _get_block_id(self)
+        xblocks = modulestore().get_items(self.course_id, qualifiers={'category': 'drag-and-drop-v2'})
+
+        asset_id = request_data['asset_id']
+
+        for xblock in xblocks:
+            other_xblock_id = _get_block_id(xblock)
+            other_xblock_asset_id = getattr(xblock, 'background_asset_id', '')
+            # print('other_xblock_id %s' % other_xblock_id)
+            # print('asset_id %s' % asset_id)
+            # print('other_xblock_asset_id %s' % other_xblock_asset_id)
+            if other_xblock_id != xblock_id:
+                if other_xblock_asset_id == asset_id:
+                    return {
+                        'result': 'success',
+                    }
+
+        course_key = CourseKey.from_string('{}'.format(self.course_id))
+        asset_key = AssetKey.from_string(asset_id) if asset_id else None
+
+        delete_asset(course_key, asset_key)
+        logging.info('Auto deleted unused asset: {file_name}, asset_key: {asset_key}, '
+                     'course_id: {course_id}'.format(file_name=asset_key.name,
+                                                     asset_key=asset_key,
+                                                     course_id=course_key))
+
+        return {
+            'result': 'success',
+        }
 
     @XBlock.json_handler
     def studio_submit(self, submissions, suffix=''):
@@ -449,6 +520,12 @@ class DragAndDropBlock(
                 self.data['feedback']['start'] = feedback['start']
             if 'finish' in feedback:
                 self.data['feedback']['finish'] = feedback['finish']
+        if 'type_id' in submissions:
+            self.type_id = submissions['type_id']
+        if 'background_asset_id' in submissions:
+            self.background_asset_id = submissions['background_asset_id']
+        if 'background_thumbnail_url' in submissions:
+            self.background_thumbnail_url = submissions['background_thumbnail_url']
 
         return {
             'result': 'success',

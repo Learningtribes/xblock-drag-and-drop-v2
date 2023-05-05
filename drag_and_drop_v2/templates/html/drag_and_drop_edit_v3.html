@@ -102,13 +102,29 @@
                     <script type="text/javascript" src="{{ assets_min_js }}"></script>
                     <ul class="supported-template-patterns">
                         {% for tpl_summary in tpl_summaries %}
-                        <li class="pattern-item">
-                            <img class="pattern-image" id="{{ tpl_summary.type_id }}" src="{{ tpl_summary.thumbnail }}"/>
-                        </li>
-                        {% endfor %}
-                        <li class="pattern-item" id="id-pattern-no-background">
+                        {% if tpl_summary.type_id != 3 or background_asset_id %}
+                        <li class="pattern-item" id="background-type-{{ tpl_summary.type_id }}">
+                             <div id="item-selected-circle-{{ tpl_summary.type_id }}" class="item-selected-circle">
+                                <svg width="11" height="8" viewBox="0 0 11 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10.3898 0.360161C10.5375 0.505474 10.5375 0.744536 10.3898 0.889849L4.01484 7.26485C3.86953 7.4125 3.63047 7.4125 3.48516 7.26485L0.109828 3.88985C-0.0366094 3.74454 -0.0366094 3.50547 0.109828 3.36016C0.256172 3.21251 0.493594 3.21251 0.640078 3.36016L3.75 6.47032L9.86016 0.360161C10.0055 0.213442 10.2445 0.213442 10.3898 0.360161Z" fill="white"/>
+                                </svg>
+                            </div>
+                            <div id="item-select-circle-{{ tpl_summary.type_id }}" class="item-select-circle">
+                                <svg width="8" height="2" viewBox="0 0 8 2" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M0.166667 0.4375H7.83333C7.92542 0.4375 8 0.521406 8 0.625V1.375C8 1.47859 7.92542 1.5625 7.83333 1.5625H0.166667C0.0745831 1.5625 0 1.47859 0 1.375V0.625C0 0.521406 0.0745831 0.4375 0.166667 0.4375Z" fill="white"/>
+                                </svg>
+                            </div>
+                            {% if tpl_summary.type_id == 0 or tpl_summary.type_id == 1 %}
+                            <div class="pattern-image" id="{{ tpl_summary.type_id }}" style="background-image: url('{{ tpl_summary.thumbnail }}')"></div>
+                            {% elif tpl_summary.type_id == 2 %}
                             <div class="pattern-no-background">{% trans "No background (Zone only)" %}</div>
+                            {% elif tpl_summary.type_id == 3 %}
+                            <div class="pattern-image" id="id-background-thumbnail" style="background-image: url('{{ background_thumbnail_url }}')"></div>
+                            {% endif %}
                         </li>
+                        {% endif %}
+                        {% endfor %}
+
                     </ul>
                 </div>
             </section>
