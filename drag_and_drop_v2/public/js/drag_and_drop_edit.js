@@ -265,20 +265,24 @@ function DragAndDropEditBlock(runtime, element, params) {
                     var pageFrame = $(".xblock--drag-and-drop--editor");
                     var existing_left_rect = document.getElementById('id_two_rect_template_left');
                     var existing_right_rect = document.getElementById('id_two_rect_template_right');
+                    var existing_zones_bk_image = document.getElementById('id_zones_background_image');
                     var canvas_element = $('#id_author_canvas')[0];
 
-                    if ('1' === tabId) {
+                    if ('1' === tabId) {    // Background Image tab
                         pageFrame.height('750px');
                         $('#id_xblock_save_button').className = 'action-item hidden';
                         $('#id_xblock_save_and_continue_button').className = 'action-item ';
 
+                        if (existing_zones_bk_image !== null) {
+                            existing_zones_bk_image.remove();
+                        }
                         if (existing_left_rect !== null) {
                             existing_left_rect.remove();
                         }
-                        if (existing_right_rect != null) {
+                        if (existing_right_rect !== null) {
                             existing_right_rect.remove();
                         }
-                    } else if ('2' === tabId) {
+                    } else if ('2' === tabId) { // Zones design tab
                         pageFrame.height('876px');
                         $('#id_xblock_save_button').className = 'action-item hidden';
                         $('#id_xblock_save_and_continue_button').className = 'action-item ';
@@ -286,10 +290,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                         if (_fn.type_id === 0) {           // Triangle template
                             _fn.tpl_summaries.forEach(function(tpl_summary) {
                                 if (tpl_summary.type_id === 0) {
-                                     var triangle_bk_image = document.createElement('img');
-                                     triangle_bk_image.setAttribute('class', 'target-img');
-                                     triangle_bk_image.setAttribute('src', tpl_summary.zones_background_image);
-                                     canvas_element.appendChild(triangle_bk_image);
+                                    var triangle_bk_image = document.createElement('img');
+                                    triangle_bk_image.setAttribute('id', 'id_zones_background_image');
+                                    triangle_bk_image.setAttribute('class', 'target-img');
+                                    triangle_bk_image.setAttribute('src', tpl_summary.zones_background_image);
+                                    canvas_element.appendChild(triangle_bk_image);
                                 }
                             })
                         } else if (_fn.type_id === 1) {    // Two rectangle template
@@ -305,9 +310,27 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 canvas_element.appendChild(left_rect);
                                 canvas_element.appendChild(right_rect);
                             }
+                        } else if (_fn.type_id === 3) {     // Custom Background template
+                            var custom_bk_image = document.createElement('img');
+                            custom_bk_image.setAttribute('id', 'id_zones_background_image');
+                            custom_bk_image.setAttribute('class', 'target-img');
+                            custom_bk_image.setAttribute('src', _fn.data.targetImg);  // paste uploaded image into background
+                            canvas_element.appendChild(custom_bk_image);
                         }
 
-                    } else if ('3' === tabId) {
+                        // Initialize from predefined templates
+                        if (_fn.build.form.zone.zoneObjects.length === 0 && _fn.data.zones.length === 0) {
+                            params.predefined_templates.forEach(function(tpl_data) {
+                                if (tpl_data.template_type === _fn.type_id) {
+                                    // generate zones data with predefined template data
+                                    _fn.build.form.zone.generateZones(tpl_data.zones);
+                                    // Create existing zones
+                                    _fn.build.recoverZonesFromStorage();
+                                }
+                            })
+                        }
+
+                    } else if ('3' === tabId) { // Item design tab
                         $('#id_xblock_save_button').removeClass('hidden');
                         var bt = $('#id_xblock_save_and_continue_button');
                         if (!bt.hasClass('hidden')) {

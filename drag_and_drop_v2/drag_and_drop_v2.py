@@ -424,6 +424,7 @@ class DragAndDropBlock(
             'data': self.data,
             'type_id': self.type_id,
             'tpl_summaries': ZONE_TPL_DEFINITIONS.get_templates_summary(self, self.runtime.local_resource_url),
+            'predefined_templates': ZONE_TPL_DEFINITIONS.predefined_templates,
             'target_img_expanded_url': self.target_img_expanded_url,
             'pyramid_background_image_url': self.pyramid_background_image_url,
         })

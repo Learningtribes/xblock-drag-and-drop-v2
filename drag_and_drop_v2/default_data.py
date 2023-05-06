@@ -33,104 +33,14 @@ ITEM_NO_ZONE_NAME = _("I don't belong anywhere")
 START_FEEDBACK = _("Drag the items onto the image above.")
 FINISH_FEEDBACK = _("Good work! You have completed this drag and drop problem.")
 
+
 DEFAULT_DATA = {
-    "targetImgDescription": TARGET_IMG_DESCRIPTION,
-    "zones": [
-        {
-            "uid": TOP_ZONE_ID,
-            "title": TOP_ZONE_TITLE,
-            "description": TOP_ZONE_DESCRIPTION,
-            "x": 160,
-            "y": 30,
-            "width": 196,
-            "height": 178,
-            "align": "center"
-        },
-        {
-            "uid": MIDDLE_ZONE_ID,
-            "title": MIDDLE_ZONE_TITLE,
-            "description": MIDDLE_ZONE_DESCRIPTION,
-            "x": 86,
-            "y": 210,
-            "width": 340,
-            "height": 138,
-            "align": "center"
-        },
-        {
-            "uid": BOTTOM_ZONE_ID,
-            "title": BOTTOM_ZONE_TITLE,
-            "description": BOTTOM_ZONE_DESCRIPTION,
-            "x": 15,
-            "y": 350,
-            "width": 485,
-            "height": 135,
-            "align": "center"
-        }
-    ],
-    "items": [
-        {
-            "displayName": ITEM_TOP_ZONE_NAME,
-            "feedback": {
-                "incorrect": ITEM_INCORRECT_FEEDBACK,
-                "correct": ITEM_CORRECT_FEEDBACK.format(zone=TOP_ZONE_TITLE)
-            },
-            "zones": [
-                TOP_ZONE_ID
-            ],
-            "imageURL": "",
-            "id": 0,
-        },
-        {
-            "displayName": ITEM_MIDDLE_ZONE_NAME,
-            "feedback": {
-                "incorrect": ITEM_INCORRECT_FEEDBACK,
-                "correct": ITEM_CORRECT_FEEDBACK.format(zone=MIDDLE_ZONE_TITLE)
-            },
-            "zones": [
-                MIDDLE_ZONE_ID
-            ],
-            "imageURL": "",
-            "id": 1,
-        },
-        {
-            "displayName": ITEM_BOTTOM_ZONE_NAME,
-            "feedback": {
-                "incorrect": ITEM_INCORRECT_FEEDBACK,
-                "correct": ITEM_CORRECT_FEEDBACK.format(zone=BOTTOM_ZONE_TITLE)
-            },
-            "zones": [
-                BOTTOM_ZONE_ID
-            ],
-            "imageURL": "",
-            "id": 2,
-        },
-        {
-            "displayName": ITEM_ANY_ZONE_NAME,
-            "feedback": {
-                "incorrect": "",
-                "correct": ITEM_ANY_ZONE_FEEDBACK
-            },
-            "zones": [
-                TOP_ZONE_ID,
-                BOTTOM_ZONE_ID,
-                MIDDLE_ZONE_ID
-            ],
-            "imageURL": "",
-            "id": 3
-        },
-        {
-            "displayName": ITEM_NO_ZONE_NAME,
-            "feedback": {
-                "incorrect": ITEM_NO_ZONE_FEEDBACK,
-                "correct": ""
-            },
-            "zones": [],
-            "imageURL": "",
-            "id": 4,
-        },
-    ],
-    "feedback": {
-        "start": START_FEEDBACK,
-        "finish": FINISH_FEEDBACK,
+    'template_type': None,
+    'targetImgDescription': '',
+    'zones': [],
+    'items': [],
+    'feedback': {
+        'start': '',
+        'finish': '',
     },
 }

@@ -418,19 +418,18 @@ class _ZoneTemplateDefinitions(object):
             CustomTemplate.TYPE_ID: CustomTemplate().generate()
         }
 
-    def get_predefined_template_by_type(self, tpl_id):
-        """Return template by type id
+    @property
+    def predefined_templates(self):
+        """Return templates data
         """
-        if tpl_id not in _ZoneTemplateDefinitions.ALL_SUPPORTED_TEMPLATES or tpl_id not in self._predefined_templates:
-            raise NotImplementedError('Got invalid template type value : {}'.format(tpl_id))
-
-        return self._predefined_templates[tpl_id]
+        return self._predefined_templates.values()
 
     def __iter__(self):
         return iter(self._predefined_templates.values())
 
     def get_templates_summary(self, xblock, runtime_local_resource_url):
-        """
+        """Get templates' summary info for html rendering
+
             @param xblock:                          xblock instance
             @type xblock:                           XBlock derived class
             @param runtime_local_resource_url:      method `local_resource_url` of runtime instance
