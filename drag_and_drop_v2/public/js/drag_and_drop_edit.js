@@ -269,9 +269,15 @@ function DragAndDropEditBlock(runtime, element, params) {
                             existing_right_rect.remove();
                         }
                     } else if ('2' === tabId) { // Zones design tab
-                        pageFrame.height('876px');
+                        if (_fn.type_id === 1) {        // Two rectangle template set larger height size
+                            pageFrame.height('876px');
+                        } else {
+                            pageFrame.height('826px');
+                        }
                         $('#id_xblock_save_button').className = 'action-item hidden';
                         $('#id_xblock_save_and_continue_button').className = 'action-item ';
+
+                        document.getElementById('id_switcher_rectangles_border').style = 'display: none';
 
                         if (_fn.type_id === 0) {           // Triangle template
                             _fn.tpl_summaries.forEach(function(tpl_summary) {
@@ -295,6 +301,8 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                                 canvas_element.appendChild(left_rect);
                                 canvas_element.appendChild(right_rect);
+
+                                document.getElementById('id_switcher_rectangles_border').style = 'display: block';
                             }
                         } else if (_fn.type_id === 3) {     // Custom Background template
                             var custom_bk_image = document.createElement('img');

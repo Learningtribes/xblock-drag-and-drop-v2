@@ -230,17 +230,32 @@
 
 .xblock--drag-and-drop--editor .zones_settings {
     border-top: 1px solid #DCDCDC;
+    display: flex;
+    flex-direction: column;
 }
 
 .xblock--drag-and-drop--editor .zones_settings .setting_flag {
     font-size: 14px;
     font-weight: 700;
     line-height: 19.07px;
-    margin: 20px 20px 20px 30px;
+    margin: 10px 20px 10px 10px;
+    display: flex !important;
+}
+
+.xblock--drag-and-drop--editor .zones_settings .setting_flag .switcher-wrapper {
+    width: 50px;
 }
 
 .xblock--drag-and-drop--editor .zones_settings .setting_flag input[type=checkbox] {
     display: none;
+}
+
+.xblock--drag-and-drop--editor .zones_settings .setting_flag .switcher_text {
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 29px;
+    margin-left: 32px;
+    width: 100%;
 }
 
 .xblock--drag-and-drop--editor .items {
