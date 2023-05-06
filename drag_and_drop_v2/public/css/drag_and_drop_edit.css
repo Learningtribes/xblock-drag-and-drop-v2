@@ -207,6 +207,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
+    border-radius: 10px;
 }
 
 .xblock--drag-and-drop--editor .tab-content .drag_drop_area .resizable_box .zone_title {

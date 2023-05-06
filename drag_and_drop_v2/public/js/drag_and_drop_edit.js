@@ -658,6 +658,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             let minW = oldZone.width || 200;
                             let minH = oldZone.height || 100;
                             let size = oldZone.size || 20;
+                            let is_resizing = false;    // true: allow resizing zone | false: allow moving zone
 
                             element.setAttribute('id', zone_uid);
                             element.setAttribute( 'class', 'resizable_box' );
@@ -671,6 +672,37 @@ function DragAndDropEditBlock(runtime, element, params) {
                             new_div_title.appendChild(title_icon_container);
                             element.appendChild(new_div_title);
                             $('#id_author_canvas')[0].appendChild(element);
+
+                            // Support moving Resizable Box
+                            var isDown = false;
+                            var offset = [0, 0];
+                            element.addEventListener('mousedown', function(e) {
+                                is_resizing = false;
+                                isDown = true;
+                                offset = [
+                                    element.offsetLeft - e.clientX,
+                                    element.offsetTop - e.clientY
+                                ];
+                            }, true);
+
+                            document.addEventListener('mouseup', function() {
+                                isDown = false;
+                            }, true);
+
+                            document.addEventListener('mousemove', function(event) {
+                                if (is_resizing) {
+                                    return;
+                                }
+                                event.preventDefault();
+                                if (isDown) {
+                                    mousePosition = {
+                                        x : event.clientX,
+                                        y : event.clientY
+                                    };
+                                    element.style.left = (mousePosition.x + offset[0]) + 'px';
+                                    element.style.top  = (mousePosition.y + offset[1]) + 'px';
+                                }
+                            }, true);
 
                             // We add new record into list if creating a new zone
                             if (oldZone.uid === undefined) {
@@ -792,8 +824,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                             corner4.style.cursor = 'se-resize';
                             corner4.style.border = '1px solid #000000';
 
-                            corner4.addEventListener('mousedown',resizeXPositive())
-                            corner4.addEventListener('mousedown',resizeYPositive())
+                            corner4.addEventListener('mousedown', resizeXPositive())
+                            corner4.addEventListener('mousedown', resizeYPositive())
 
                             element.appendChild(corner4);
 
@@ -816,6 +848,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             function resizeXPositive() {
                                 let offsetX
                                 function dragMouseDown(e) {
+                                    is_resizing = true;     // Flag: disable event handler of container
                                     if(e.button !== 0) return
                                     e = e || window.event;
                                     e.preventDefault();
@@ -844,6 +877,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             function resizeYPositive() {
                                 let offsetY
                                 function dragMouseDown(e) {
+                                    is_resizing = true;     // Flag: disable event handler of container
                                     if(e.button !== 0) return
                                     e = e || window.event;
                                     e.preventDefault();
@@ -876,6 +910,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 let startW
                                 let maxX
                                 function dragMouseDown(e) {
+                                    is_resizing = true;     // Flag: disable event handler of container
                                     if(e.button !== 0) return
                                     e = e || window.event;
                                     e.preventDefault();
@@ -914,6 +949,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 let startH
                                 let maxY
                                 function dragMouseDown(e) {
+                                    is_resizing = true;     // Flag: disable event handler of container
                                     if(e.button !== 0) return
                                     e = e || window.event;
                                     e.preventDefault();
