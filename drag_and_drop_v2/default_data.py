@@ -34,7 +34,7 @@ START_FEEDBACK = _("Drag the items onto the image above.")
 FINISH_FEEDBACK = _("Good work! You have completed this drag and drop problem.")
 
 
-DEFAULT_DATA = {
+DEFAULT_EMPTY_DATA = {
     'template_type': None,
     'targetImgDescription': '',
     'zones': [],

@@ -438,13 +438,17 @@ class _ZoneTemplateDefinitions(object):
             @rtype:                                 list
         """
         tpl_summaries = []
+
         for type_id, tpl_data in self._predefined_templates.items():
-            tpl_summaries.append({
-                'type_id': type_id,
-                'thumbnail': runtime_local_resource_url(xblock, tpl_data['thumbnail']) if tpl_data['thumbnail'] else '',
-                # Get background image from attribute `targetImg` of Field `data` :
-                'zones_background_image': xblock.target_img_expanded_url
-            })
+            tpl_summaries.append(
+                {
+                    'type_id': type_id,
+                    'thumbnail': runtime_local_resource_url(xblock, tpl_data['thumbnail']) if tpl_data['thumbnail'] else '',
+                    # Set background image for Triangle template only. Because other template are not predefined background image
+                    'zones_background_image': xblock.pyramid_background_image_url if type_id == TriangleTemplate.TYPE_ID else None
+                }
+            )
+
         return tpl_summaries
 
 

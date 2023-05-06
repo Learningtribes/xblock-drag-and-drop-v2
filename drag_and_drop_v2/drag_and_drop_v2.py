@@ -26,7 +26,7 @@ from .utils import (
     ItemStats, StateMigration, Constants, get_storage_url,
     make_state_from_attempt, get_max_items_per_zone, present_feedback
 )
-from .default_data import DEFAULT_DATA
+from .default_data import DEFAULT_EMPTY_DATA
 from .tabs_header import TabsHeader
 from .zone_template import ZonesDefinition, ZONE_TPL_DEFINITIONS
 
@@ -162,7 +162,7 @@ class DragAndDropBlock(
             "when configuring the problem."
         ),
         scope=Scope.content,
-        default=DEFAULT_DATA,
+        default=DEFAULT_EMPTY_DATA,
         enforce_type=True,
     )
 
