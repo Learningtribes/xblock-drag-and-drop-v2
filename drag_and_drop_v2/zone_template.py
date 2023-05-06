@@ -355,7 +355,7 @@ class RectangleTemplate(ZonesDefinition):
 
 
 class NoBackgroundTemplate(ZonesDefinition):
-    """Predefined rectangle template
+    """Predefined No background template
     """
     TYPE_ID = 2
 
@@ -377,7 +377,7 @@ class NoBackgroundTemplate(ZonesDefinition):
 
 
 class CustomTemplate(ZonesDefinition):
-    """Predefined rectangle template
+    """Predefined custom template
     """
     TYPE_ID = 3
 
