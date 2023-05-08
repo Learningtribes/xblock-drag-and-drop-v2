@@ -64,7 +64,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                 init: function() {
                     _fn.data = params.data;
 
-                    _fn.type_id = params.type_id;
+                    _fn.zone_tab_used_tpl_id = undefined;       // activated template id in Zone Tab
+                    _fn.type_id = params.type_id;               // selected template id in Background Tab
                     _fn.tpl_summaries = params.tpl_summaries;
                     _fn.background_index = params.background_index;
 
@@ -106,9 +107,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                     if (LearningTribes && LearningTribes.Switcher) {
                         new LearningTribes.Switcher($('.display-labels-form .switcher-wrapper')[0], _fn.data.displayLabels,function(checked){
                             _fn.data.displayLabels=checked;
+                            _fn.build.refreshZonesSettings();
                         })
                         new LearningTribes.Switcher($('.display-borders-form .switcher-wrapper')[0], _fn.data.displayBorders,function(checked){
                             _fn.data.displayBorders=checked;
+                            _fn.build.refreshZonesSettings();
                         })
 
                     }
@@ -207,6 +210,27 @@ function DragAndDropEditBlock(runtime, element, params) {
                         });
                     }
                     return params;
+                },
+
+                refreshZonesSettings: function() {
+                    if (_fn.data.displayBorders === true && _fn.type_id === 1) {
+                        // Affect Two rectangle template only
+                        document.getElementById('id_two_rect_template_left').style.display = 'block';
+                        document.getElementById('id_two_rect_template_right').style.display = 'block';
+                    } else if (_fn.type_id === 1) {
+                        document.getElementById('id_two_rect_template_left').style.display = 'none';
+                        document.getElementById('id_two_rect_template_right').style.display = 'none';
+                    }
+
+                    if (_fn.data.displayLabels === true) {
+                        if ($('.zone_title').hasClass('hidden')) {
+                            $('.zone_title').removeClass('hidden')
+                        }
+                    } else {
+                        if (!$('.zone_title').hasClass('hidden')) {
+                            $('.zone_title').addClass('hidden');
+                        }
+                    }
                 },
 
                 changeBackgroundType: function(type_id) {
@@ -312,17 +336,20 @@ function DragAndDropEditBlock(runtime, element, params) {
                             canvas_element.appendChild(custom_bk_image);
                         }
 
-                        // Initialize from predefined templates
-                        if (_fn.build.form.zone.zoneObjects.length === 0 && _fn.data.zones.length === 0) {
-                            params.predefined_templates.forEach(function(tpl_data) {
-                                if (tpl_data.template_type === _fn.type_id) {
-                                    // generate zones data with predefined template data
-                                    _fn.build.form.zone.generateZones(tpl_data.zones);
-                                    // Create existing zones
-                                    _fn.build.recoverZonesFromStorage();
-                                }
-                            })
+                        var removed_unused_zones_flag = false;  // Should be false if the `Zones Tab` is empty.
+                        if (_fn.zone_tab_used_tpl_id !== undefined && _fn.type_id !== _fn.zone_tab_used_tpl_id) {
+                            removed_unused_zones_flag = true;
                         }
+                        _fn.zone_tab_used_tpl_id = _fn.type_id;
+                        // Initialize from predefined templates when zones design tab is empty
+                        params.predefined_templates.forEach(function(tpl_data) {
+                            if (tpl_data.template_type === _fn.type_id) {
+                                // generate zones data with predefined template data
+                                _fn.build.form.zone.generateZones(tpl_data.zones, removed_unused_zones_flag);
+                                // Create existing zones
+                                _fn.build.recoverZonesFromStorage();
+                            }
+                        })
 
                     } else if ('3' === tabId) { // Item design tab
                         $('#id_xblock_save_button').removeClass('hidden');
@@ -401,10 +428,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                             '.target-image-form .background-auto button',
                             _fn.build.form.zone.generateBackgroundAndZones
                         )
-                        .on('click', '.display-labels-form input', function(e) {
+                        .on('click', '.display-labels-form', function(e) {
                             _fn.data.displayLabels = $('.display-labels-form input', element).is(':checked');
                         })
-                        .on('click', '.display-borders-form input', function(e) {
+                        .on('click', '.display-borders-form', function(e) {
                             _fn.data.displayBorders = $('.display-borders-form input', element).is(':checked');
                         })
                         .on('click', '#id_add_zone_bt', function(e) {
@@ -621,9 +648,15 @@ function DragAndDropEditBlock(runtime, element, params) {
                             });
                             return 'data:image/svg+xml;' + data_uri_params + ',' + encodeURIComponent(svg);
                         },
-                        generateZones: function(zones) {
-                            // First remove all existing zones.
-                            _fn.build.form.zone.zoneObjects = [];
+                        generateZones: function(zones, removed_unused_zones_flag = undefined) {
+                            if (removed_unused_zones_flag === true) {
+                                // Remove unused zones
+                                // To do:
+                            } else {
+                                // Remove all existing zones
+                                _fn.build.form.zone.zoneObjects = [];
+                            }
+
                             // Now generate new zones.
                             zones.forEach(function(zone) {
                                 _fn.build.form.zone.add({
