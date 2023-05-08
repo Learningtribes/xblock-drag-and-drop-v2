@@ -193,9 +193,9 @@ class TriangleTemplate(ZonesDefinition):
     TYPE_ID = 0
     THUMBNAIL_PATH = 'public/img/triangle.png'
 
-    _TOP_ZONE_ID = "top"
-    _MIDDLE_ZONE_ID = "middle"
-    _BOTTOM_ZONE_ID = "bottom"
+    _TOP_ZONE_ID = "triangle_tpl_top"
+    _MIDDLE_ZONE_ID = "triangle_tpl_middle"
+    _BOTTOM_ZONE_ID = "triangle_tpl_bottom"
     _TOP_ZONE_TITLE = _("The Top Zone")
     _MIDDLE_ZONE_TITLE = _("The Middle Zone")
     _BOTTOM_ZONE_TITLE = _("The Bottom Zone")
@@ -277,9 +277,9 @@ class RectangleTemplate(ZonesDefinition):
     TYPE_ID = 1
     THUMBNAIL_PATH = 'public/img/hat.png'
 
-    _TOP_ZONE_ID = "top"
-    _MIDDLE_ZONE_ID = "middle"
-    _BOTTOM_ZONE_ID = "bottom"
+    _TOP_ZONE_ID = "two_rectangle_tpl_top"
+    _MIDDLE_ZONE_ID = "two_rectangle_tpl_middle"
+    _BOTTOM_ZONE_ID = "two_rectangle_tpl_bottom"
     _TOP_ZONE_TITLE = _("The Top Zone")
     _MIDDLE_ZONE_TITLE = _("The Middle Zone")
     _BOTTOM_ZONE_TITLE = _("The Bottom Zone")

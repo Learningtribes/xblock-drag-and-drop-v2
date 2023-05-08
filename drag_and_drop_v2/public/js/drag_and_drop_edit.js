@@ -1056,6 +1056,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                     },
                     item: {
                         count: 0,
+                        itemObjects: [],
                         add: function(itemData) {
                             var $form = _fn.build.$el.items.form,
                                 tpl = _fn.tpl.itemInput,
