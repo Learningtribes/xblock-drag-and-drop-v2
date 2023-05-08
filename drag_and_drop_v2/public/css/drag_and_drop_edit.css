@@ -57,9 +57,7 @@
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns {
 	border: 0;
 	margin: 3px;
-	display: block;
 	font-size: 0;
-    width: 95%;
     display: flex;
     justify-content: left;
     flex-flow: row nowrap;
@@ -75,7 +73,11 @@
     border-radius: 5px;
 	background-color: white;
     cursor: pointer;
-    margin: 5px 15px 0px 0px;
+    position: relative;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item:not(:last-child) {
+    margin-right: 15px;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item .pattern-image {
@@ -350,8 +352,8 @@
 
 .xblock--drag-and-drop--editor .background-image-tab .pattern-item .item-select-circle {
     float: left;
-    position: relative;
-    left: 195px;
+    position: absolute;
+    left: 95%;
     top: -10px;
     background-color:#A3A3A3;
     color:#FFF;
@@ -369,8 +371,8 @@
 
 .xblock--drag-and-drop--editor .background-image-tab .pattern-item .item-selected-circle {
     float: left;
-    position: relative;
-    left: 195px;
+    position: absolute;
+    left: 95%;
     top: -10px;
     background-color:#29CB97;
     color:#FFF;
