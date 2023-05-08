@@ -160,7 +160,15 @@
 
             <section id="3" class="tab items-tab hidden">
                 <div class="tab-content">
+                    <div class="drag-drop-tip">
+                        {% trans "Add your Answers and attribute the correct zones for each." %}
+                    </div>
                     <form class="item-styles-form">
+                        <div class="tab-content">
+                            <div class="drag_drop_area" id="id_preview_canvas">
+                            </div>
+                        </div>
+
                         <label class="h4">
                             <span>{% trans fields.item_background_color.display_name %}</span>
                             <input class="item-background-color"

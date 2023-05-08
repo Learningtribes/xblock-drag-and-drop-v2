@@ -64,8 +64,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                 init: function() {
                     _fn.data = params.data;
 
-                    _fn.zone_tab_used_tpl_id = undefined;       // activated template id in Zone Tab
-                    _fn.type_id = params.type_id;               // selected template id in Background Tab
+                    _fn.zone_tab_used_tpl_id = _fn.data.template_type;  // activated template id in Zone Tab
+                    _fn.type_id = params.type_id;                       // selected template id in Background Tab
                     _fn.tpl_summaries = params.tpl_summaries;
                     _fn.background_index = params.background_index;
 
@@ -270,19 +270,25 @@ function DragAndDropEditBlock(runtime, element, params) {
                     }
                 },
 
-                selectTabPage: function(tabId) {
-                    var $tabPages = $(".supported-setting-tags section");
-                    var pageFrame = $(".xblock--drag-and-drop--editor");
-                    var existing_left_rect = document.getElementById('id_two_rect_template_left');
-                    var existing_right_rect = document.getElementById('id_two_rect_template_right');
-                    var existing_zones_bk_image = document.getElementById('id_zones_background_image');
-                    var canvas_element = $('#id_author_canvas')[0];
+                renderTemplateZonesAreaBackgroud: function(canvas_element, tabId,
+                    id_two_rect_template_left='id_two_rect_template_left',
+                    id_two_rect_template_right='id_two_rect_template_right',
+                    id_zones_background_image='id_zones_background_image'
+                ) {
+                    // This method is used by ZoneTab & AnswerTab
+                    if ('3' === tabId) {
+                        id_two_rect_template_left = 'id_two_rect_template_left_in_itemtab';
+                        id_two_rect_template_right = 'id_two_rect_template_right_in_itemtab';
+                        id_zones_background_image = 'id_zones_background_image_in_itemtab';
+                    }
 
-                    if ('1' === tabId) {    // Background Image tab
-                        pageFrame.height('750px');
-                        $('#id_xblock_save_button').className = 'action-item hidden';
-                        $('#id_xblock_save_and_continue_button').className = 'action-item ';
+                    var existing_left_rect = document.getElementById(id_two_rect_template_left);
+                    var existing_right_rect = document.getElementById(id_two_rect_template_right);
+                    var existing_zones_bk_image = document.getElementById(id_zones_background_image);
 
+                    // Whether new template has been selected OR AnswerTab selected :
+                    if (_fn.type_id !== _fn.zone_tab_used_tpl_id || '3' === tabId) {
+                        // Remove existing background if exist and new template has been selected
                         if (existing_zones_bk_image !== null) {
                             existing_zones_bk_image.remove();
                         }
@@ -292,22 +298,13 @@ function DragAndDropEditBlock(runtime, element, params) {
                         if (existing_right_rect !== null) {
                             existing_right_rect.remove();
                         }
-                    } else if ('2' === tabId) { // Zones design tab
-                        if (_fn.type_id === 1) {        // Two rectangle template set larger height size
-                            pageFrame.height('876px');
-                        } else {
-                            pageFrame.height('826px');
-                        }
-                        $('#id_xblock_save_button').className = 'action-item hidden';
-                        $('#id_xblock_save_and_continue_button').className = 'action-item ';
 
-                        document.getElementById('id_switcher_rectangles_border').style = 'display: none';
-
+                        // Create new background
                         if (_fn.type_id === 0) {           // Triangle template
                             _fn.tpl_summaries.forEach(function(tpl_summary) {
                                 if (tpl_summary.type_id === 0) {
                                     var triangle_bk_image = document.createElement('img');
-                                    triangle_bk_image.setAttribute('id', 'id_zones_background_image');
+                                    triangle_bk_image.setAttribute('id', id_zones_background_image);
                                     triangle_bk_image.setAttribute('class', 'target-img');
                                     triangle_bk_image.setAttribute('src', tpl_summary.zones_background_image);
                                     canvas_element.appendChild(triangle_bk_image);
@@ -318,9 +315,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 let left_rect = document.createElement('div');
                                 let right_rect = document.createElement('div');
 
-                                left_rect.setAttribute('id', 'id_two_rect_template_left');
+                                left_rect.setAttribute('id', id_two_rect_template_left);
                                 left_rect.setAttribute('class', 'left resizable_box_container');
-                                right_rect.setAttribute('id', 'id_two_rect_template_right');
+                                right_rect.setAttribute('id', id_two_rect_template_right);
                                 right_rect.setAttribute('class', 'right resizable_box_container');
 
                                 canvas_element.appendChild(left_rect);
@@ -330,11 +327,40 @@ function DragAndDropEditBlock(runtime, element, params) {
                             }
                         } else if (_fn.type_id === 3) {     // Custom Background template
                             var custom_bk_image = document.createElement('img');
-                            custom_bk_image.setAttribute('id', 'id_zones_background_image');
+                            custom_bk_image.setAttribute('id', id_zones_background_image);
                             custom_bk_image.setAttribute('class', 'target-img');
                             custom_bk_image.setAttribute('src', _fn.data.targetImg);  // paste uploaded image into background
                             canvas_element.appendChild(custom_bk_image);
                         }
+                    }
+
+                },
+
+                selectTabPage: function(tabId) {
+                    var $tabPages = $(".supported-setting-tags section");
+                    var pageFrame = $(".xblock--drag-and-drop--editor");
+                    var canvas_element = $('#id_author_canvas')[0];
+
+                    if ('1' === tabId) {    // Background Image tab
+                        pageFrame.height('750px');
+
+                        $('#id_xblock_save_button').className = 'action-item hidden';
+                        $('#id_xblock_save_and_continue_button').className = 'action-item ';
+
+                    } else if ('2' === tabId) { // Zones design tab
+                        if (_fn.type_id === 1) {        // Two rectangle template set larger height size
+                            pageFrame.height('876px');
+                        } else if (_fn.type_id === 3) {
+                            pageFrame.height('876px');
+                        } else {
+                            pageFrame.height('826px');
+                        }
+                        $('#id_xblock_save_button').className = 'action-item hidden';
+                        $('#id_xblock_save_and_continue_button').className = 'action-item ';
+
+                        document.getElementById('id_switcher_rectangles_border').style = 'display: none';
+
+                        _fn.build.renderTemplateZonesAreaBackgroud(canvas_element, tabId);
 
                         var removed_unused_zones_flag = false;  // Should be false if the `Zones Tab` is empty.
                         if (_fn.zone_tab_used_tpl_id !== undefined && _fn.type_id !== _fn.zone_tab_used_tpl_id) {
@@ -357,6 +383,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                         if (!bt.hasClass('hidden')) {
                             bt.addClass('hidden')
                         }
+
+                        var canvas_element = $('#id_preview_canvas')[0];
+                        _fn.build.renderTemplateZonesAreaBackgroud(canvas_element, tabId);
 
                     } else {
                         pageFrame.height('100%');

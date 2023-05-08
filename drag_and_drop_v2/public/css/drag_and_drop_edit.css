@@ -473,6 +473,10 @@
     font-size: 12px;
 }
 
+.xblock--drag-and-drop--editor .items-tab .drag-drop-tip {
+    margin: 10px 0 0 10px;
+}
+
 .xblock--drag-and-drop--editor .item-styles-form,
 .xblock--drag-and-drop--editor .items-form {
     margin-bottom: 30px;
