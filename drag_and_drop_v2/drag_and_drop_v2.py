@@ -31,7 +31,6 @@ from .tabs_header import TabsHeader
 from .zone_template import ZonesDefinition, ZONE_TPL_DEFINITIONS
 
 
-
 loader = ResourceLoader(__name__)
 logger = logging.getLogger(__name__)
 
@@ -376,7 +375,7 @@ class DragAndDropBlock(
             'fields': self.fields,
             'self': self,
             'data': urllib.quote(json.dumps(self.data)),
-            'type_id': self.type_id if self.type_id else 0,
+            'type_id': self.type_id,
             'tpl_summaries': ZONE_TPL_DEFINITIONS.get_templates_summary(self, self.runtime.local_resource_url),
             ### For editImageModal rendering
             'common_min_css': get_storage_url('/common/js/vendor/learningtribes-studio-frontend/dist/common.min.css'),
@@ -449,9 +448,10 @@ class DragAndDropBlock(
         for xblock in xblocks:
             other_xblock_id = _get_block_id(xblock)
             data = getattr(xblock, 'data', '')
-            other_xblock_asset_id = getattr(data, 'targetImg', '')
+            other_xblock_asset_id = data['targetImg'] if 'targetImg' in data else None
+
             if other_xblock_id != xblock_id:
-                if other_xblock_asset_id == asset_id:
+                if other_xblock_asset_id and other_xblock_asset_id[1:] == asset_id:
                     return {
                         'result': 'success',
                     }

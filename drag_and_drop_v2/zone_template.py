@@ -277,16 +277,14 @@ class RectangleTemplate(ZonesDefinition):
     TYPE_ID = 1
     THUMBNAIL_PATH = 'public/img/hat.png'
 
-    _TOP_ZONE_ID = "two_rectangle_tpl_top"
-    _MIDDLE_ZONE_ID = "two_rectangle_tpl_middle"
-    _BOTTOM_ZONE_ID = "two_rectangle_tpl_bottom"
-    _TOP_ZONE_TITLE = _("The Top Zone")
-    _MIDDLE_ZONE_TITLE = _("The Middle Zone")
-    _BOTTOM_ZONE_TITLE = _("The Bottom Zone")
+    _LEFT_ZONE_ID = "two_rectangle_tpl_left"
+    _RIGHT_ZONE_ID = "two_rectangle_tpl_right"
 
-    _ITEM_TOP_ZONE_NAME = _("Goes to the top")
-    _ITEM_MIDDLE_ZONE_NAME = _("Goes to the middle")
-    _ITEM_BOTTOM_ZONE_NAME = _("Goes to the bottom")
+    _LEFT_ZONE_TITLE = _("The Left Zone")
+    _RIGHT_ZONE_TITLE = _("The Right Zone")
+
+    _ITEM_LEFT_ZONE_NAME = _("Goes to the left")
+    _ITEM_RIGHT_ZONE_NAME = _("Goes to the right")
     _ITEM_ANY_ZONE_NAME = _("Goes anywhere")
     _ITEM_NO_ZONE_NAME = _("I don't belong anywhere")
 
@@ -308,7 +306,7 @@ class RectangleTemplate(ZonesDefinition):
         if self._tpl_data is None:
             return super(RectangleTemplate, self).get_valid_zone_uids()
 
-        return [RectangleTemplate._TOP_ZONE_ID, RectangleTemplate._MIDDLE_ZONE_ID, RectangleTemplate._BOTTOM_ZONE_ID]
+        return [RectangleTemplate._LEFT_ZONE_ID, RectangleTemplate._RIGHT_ZONE_ID]
 
     def get_zone_info_by_uid(self, uid):
         """Query & Return zone summary information by `zone uid`. if user has stored zoned definitions in MongoDB
@@ -317,12 +315,10 @@ class RectangleTemplate(ZonesDefinition):
         if self._tpl_data is not None:
             return super(RectangleTemplate, self).get_zone_info_by_uid(uid)
 
-        if uid == RectangleTemplate._TOP_ZONE_ID:
-            return {'title': RectangleTemplate._TOP_ZONE_TITLE, 'description': None}
-        elif uid == RectangleTemplate._MIDDLE_ZONE_ID:
-            return {'title': RectangleTemplate._MIDDLE_ZONE_ID, 'description': None}
-        elif uid == RectangleTemplate._BOTTOM_ZONE_ID:
-            return {'title': RectangleTemplate._BOTTOM_ZONE_ID, 'description': None}
+        if uid == RectangleTemplate._LEFT_ZONE_ID:
+            return {'title': RectangleTemplate._LEFT_ZONE_TITLE, 'description': None}
+        elif uid == RectangleTemplate._RIGHT_ZONE_ID:
+            return {'title': RectangleTemplate._RIGHT_ZONE_TITLE, 'description': None}
 
         raise KeyError('Invalid zone uid : {}'.format(uid))
 
@@ -332,15 +328,13 @@ class RectangleTemplate(ZonesDefinition):
 
         self._tpl_data = {
             'zones': [
-                self.gen_zone_settings(uid=self._TOP_ZONE_ID, title=self._TOP_ZONE_TITLE, description=None, x=160, y=30, width=196, height=178, align='center'),
-                self.gen_zone_settings(uid=self._MIDDLE_ZONE_ID, title=self._MIDDLE_ZONE_TITLE, description=None, x=86, y=210, width=340, height=138, align='center'),
-                self.gen_zone_settings(uid=self._BOTTOM_ZONE_ID, title=self._BOTTOM_ZONE_TITLE, description=None, x=15, y=350, width=485, height=135, align='center')
+                self.gen_zone_settings(uid=self._LEFT_ZONE_ID, title=self._LEFT_ZONE_TITLE, description=None, x=100, y=100, width=400, height=400, align='center'),
+                self.gen_zone_settings(uid=self._RIGHT_ZONE_ID, title=self._RIGHT_ZONE_TITLE, description=None, x=500, y=100, width=400, height=400, align='center'),
             ],
             'items': [
-                self.gen_item_settings(id=0, display_name=self._ITEM_TOP_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._TOP_ZONE_TITLE), related_zones=self._TOP_ZONE_ID, image_url=''),
-                self.gen_item_settings(id=1, display_name=self._ITEM_MIDDLE_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._MIDDLE_ZONE_TITLE), related_zones=self._MIDDLE_ZONE_ID, image_url=''),
-                self.gen_item_settings(id=2, display_name=self._ITEM_BOTTOM_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._BOTTOM_ZONE_TITLE), related_zones=self._BOTTOM_ZONE_ID, image_url=''),
-                self.gen_item_settings(id=3, display_name=self._ITEM_ANY_ZONE_NAME, incorrect_feedback='', correct_feedback=self._ITEM_ANY_ZONE_FEEDBACK, related_zones=[self._TOP_ZONE_ID, self._BOTTOM_ZONE_ID, self._MIDDLE_ZONE_ID], image_url=''),
+                self.gen_item_settings(id=0, display_name=self._ITEM_LEFT_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._LEFT_ZONE_TITLE), related_zones=self._LEFT_ZONE_ID, image_url=''),
+                self.gen_item_settings(id=1, display_name=self._ITEM_RIGHT_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._RIGHT_ZONE_TITLE), related_zones=self._RIGHT_ZONE_TITLE, image_url=''),
+                self.gen_item_settings(id=3, display_name=self._ITEM_ANY_ZONE_NAME, incorrect_feedback='', correct_feedback=self._ITEM_ANY_ZONE_FEEDBACK, related_zones=[self._LEFT_ZONE_ID, self._RIGHT_ZONE_ID], image_url=''),
                 self.gen_item_settings(id=4, display_name=self._ITEM_NO_ZONE_NAME, incorrect_feedback=self._ITEM_NO_ZONE_FEEDBACK, correct_feedback='', related_zones=[], image_url='')
             ],
             'feedback': self.gen_feedback(
@@ -354,13 +348,13 @@ class RectangleTemplate(ZonesDefinition):
         return self._tpl_data
 
 
-class NoBackgroundTemplate(ZonesDefinition):
+class BlankTemplate(ZonesDefinition):
     """Predefined No background template
     """
     TYPE_ID = 2
 
     def __init__(self, tpl_data=None):
-        super(NoBackgroundTemplate, self).__init__(tpl_data=tpl_data)
+        super(BlankTemplate, self).__init__(tpl_data=tpl_data)
 
     def generate(self):
         self._tpl_data = {
@@ -404,7 +398,7 @@ class _ZoneTemplateDefinitions(object):
     ALL_SUPPORTED_TEMPLATES = [
         TriangleTemplate.TYPE_ID,
         RectangleTemplate.TYPE_ID,
-        NoBackgroundTemplate.TYPE_ID,
+        BlankTemplate.TYPE_ID,
         CustomTemplate.TYPE_ID
     ]
 
@@ -414,7 +408,7 @@ class _ZoneTemplateDefinitions(object):
         self._predefined_templates = {
             TriangleTemplate.TYPE_ID: TriangleTemplate().generate(),
             RectangleTemplate.TYPE_ID: RectangleTemplate().generate(),
-            NoBackgroundTemplate.TYPE_ID: NoBackgroundTemplate().generate(),
+            BlankTemplate.TYPE_ID: BlankTemplate().generate(),
             CustomTemplate.TYPE_ID: CustomTemplate().generate()
         }
 
@@ -445,10 +439,10 @@ class _ZoneTemplateDefinitions(object):
                     'type_id': type_id,
                     'thumbnail': runtime_local_resource_url(xblock, tpl_data['thumbnail']) if tpl_data['thumbnail'] else '',
                     # Set background image for Triangle template only. Because other template are not predefined background image
-                    'zones_background_image': xblock.pyramid_background_image_url if type_id == TriangleTemplate.TYPE_ID else None
+                    'zones_background_image': xblock.pyramid_background_image_url if type_id == TriangleTemplate.TYPE_ID else None,
+                    'zones': tpl_data['zones']
                 }
             )
-
         return tpl_summaries
 
 

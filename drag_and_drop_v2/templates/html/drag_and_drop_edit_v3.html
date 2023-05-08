@@ -169,45 +169,15 @@
                             </div>
                         </div>
 
-                        <label class="h4">
-                            <span>{% trans fields.item_background_color.display_name %}</span>
-                            <input class="item-background-color"
-                                   value="{{ self.item_background_color }}"
-                                   aria-describedby="item-background-color-description-{{id_suffix}}">
-                            <span class="question-mark-wrapper" data-title="{% trans fields.item_background_color.help %}"></span>
-                        </label>
-                        <div id="item-background-color-description-{{id_suffix}}" class="form-help">
-                          {% trans fields.item_background_color.help %}
-                        </div>
-                        <label class="h4">
-                            <span>{% trans fields.item_text_color.display_name %}</span>
-                            <input class="item-text-color"
-                                   value="{{ self.item_text_color}}"
-                                   aria-describedby="item-text-color-description-{{id_suffix}}">
-                            <span class="question-mark-wrapper" data-title="{% trans fields.item_text_color.help %}"></span>
-                        </label>
-                        <div id="item-text-color-description-{{id_suffix}}" class="form-help">
-                          {% trans fields.item_text_color.help %}
-                        </div>
-                        <label class="h4">
-                            <span>{% trans fields.max_items_per_zone.display_name %}</span>
-                            <input type="number" min="1" step="1" class="max-items-per-zone"
-                                   value="{{ self.max_items_per_zone|unlocalize }}"
-                                   aria-describedby="max-items-per-zone-description-{{id_suffix}}">
-                            <span class="question-mark-wrapper" data-title="{% trans fields.max_items_per_zone.help %}"></span>
-                        </label>
-                        <div id="max-items-per-zone-description-{{id_suffix}}" class="form-help">
-                          {% trans fields.max_items_per_zone.help %}
+                        <div class="answers_collection" id="id_answers_collection">
+                            <div class="answer_item">
+                                <div class="handler_style"><i class="fa-solid fa-grip-dots-vertical" style="color: #1D1D1D;"></i></div>
+                                <div class="answer_text">Answer 1</div>
+                                <div class="hidden">zones</div>
+                                <div class="dropdown_menu"><i class="fa-solid fa-caret-down" style="color: #1D1D1D;"></i></div>
+                            </div>
                         </div>
                     </form>
-                </div>
-                <div class="tab-content">
-                    <h4>{% trans "Item definitions" %}</h4>
-                    <form class="items-form"></form>
-                    <button class="btn add-item add-element">
-                        <span class="icon fal fa-plus" aria-hidden="true"></span>
-                        {% trans "Add an item" %}
-                    </button>
                 </div>
             </section>
 

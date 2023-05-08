@@ -57,9 +57,7 @@
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns {
 	border: 0;
 	margin: 3px;
-	display: block;
 	font-size: 0;
-    width: 95%;
     display: flex;
     justify-content: left;
     flex-flow: row nowrap;
@@ -75,7 +73,11 @@
     border-radius: 5px;
 	background-color: white;
     cursor: pointer;
-    margin: 5px 15px 0px 0px;
+    position: relative;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item:not(:last-child) {
+    margin-right: 15px;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item .pattern-image {
@@ -177,7 +179,7 @@
     margin-left: 10px;
 }
 
-.xblock--drag-and-drop--editor .tab-content .drag_drop_area {
+.xblock--drag-and-drop--editor .zones-tab .tab-content .drag_drop_area {
     display: flex;
     width: 920px;
     height: 523px;
@@ -200,7 +202,7 @@
     left: 500px;
 }
 
-.xblock--drag-and-drop--editor .tab-content .drag_drop_area .resizable_box {
+.xblock--drag-and-drop--editor .zones-tab .tab-content .drag_drop_area .resizable_box {
     position: absolute;
     border: 1px solid #1D1D1D;
     margin: 3px;
@@ -211,7 +213,7 @@
     border-radius: 10px;
 }
 
-.xblock--drag-and-drop--editor .tab-content .drag_drop_area .resizable_box .zone_title {
+.xblock--drag-and-drop--editor .zones-tab .tab-content .drag_drop_area .resizable_box .zone_title {
     font-size: 14px;
     font-weight: 700;
     border: 1px solid black;
@@ -220,7 +222,7 @@
     position: relative;
 }
 
-.xblock--drag-and-drop--editor .tab-content .drag_drop_area .resizable_box .zone_title .title_edit_button {
+.xblock--drag-and-drop--editor .zones-tab .tab-content .drag_drop_area .resizable_box .zone_title .title_edit_button {
     width: 20px;
     height: 20px;
     position: absolute;
@@ -350,8 +352,8 @@
 
 .xblock--drag-and-drop--editor .background-image-tab .pattern-item .item-select-circle {
     float: left;
-    position: relative;
-    left: 195px;
+    position: absolute;
+    left: 95%;
     top: -10px;
     background-color:#A3A3A3;
     color:#FFF;
@@ -369,8 +371,8 @@
 
 .xblock--drag-and-drop--editor .background-image-tab .pattern-item .item-selected-circle {
     float: left;
-    position: relative;
-    left: 195px;
+    position: absolute;
+    left: 95%;
     top: -10px;
     background-color:#29CB97;
     color:#FFF;
@@ -473,8 +475,56 @@
     font-size: 12px;
 }
 
+.xblock--drag-and-drop--editor .items-tab .tab-content .drag_drop_area {
+    display: flex;
+    width: 920px;
+    height: 523px;
+    margin: 15px 0px 15px 0px;
+}
+
 .xblock--drag-and-drop--editor .items-tab .drag-drop-tip {
     margin: 10px 0 0 10px;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection {
+    opacity: 0.5;
+    border: 2px dashed #727272;
+    border-radius: 4px;
+    margin: 20px 0px 0px 0px;
+    width: 912px;
+    height: 277px;
+    box-sizing: border-box;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .answer_item {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 16px;
+    margin: 12px;
+    width: fit-content;
+    height: 35px;
+    background: #FAFAFA;
+    border: 1px solid #1D1D1D;
+    border-radius: 4px;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .handler_style {
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .answer_text {
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 19px;
+    color: #1D1D1D;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .dropdown_menu {
+    cursor: pointer;
+    margin-left: 5px;
 }
 
 .xblock--drag-and-drop--editor .item-styles-form,

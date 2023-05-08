@@ -23,6 +23,7 @@ function DragAndDropEditBlock(runtime, element, params) {
 
     var $element = $(element);
 
+    const BLANK_TEMPLATE_TYPE = 2;
     const CUSTOM_TEMPLATE_TYPE = 3;
 
     var dragAndDrop = (function($) {
@@ -64,12 +65,12 @@ function DragAndDropEditBlock(runtime, element, params) {
                 init: function() {
                     _fn.data = params.data;
 
+                    _fn.selected_tab_id = undefined;
                     _fn.zone_tab_used_tpl_id = _fn.data.template_type;  // activated template id in Zone Tab
                     _fn.type_id = params.type_id;                       // selected template id in Background Tab
                     _fn.tpl_summaries = params.tpl_summaries;
-                    _fn.background_index = params.background_index;
 
-                    _fn.build.changeBackgroundType(_fn.type_id);
+                    _fn.build.changeBackgroundSelect();
 
                     // Compile templates
                     _fn.tpl.init();
@@ -116,7 +117,131 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                     }
                 },
+                backgroundTemplateChoose: function(e) {
+                    e.preventDefault();
 
+                    const type_id = parseInt(e.currentTarget.id.replace('background-type-', ''));
+                    if (type_id !== CUSTOM_TEMPLATE_TYPE) {
+                        _fn.build.changeBackgroundType(type_id);
+                    }
+                },
+                changeBackgroundType: function(type_id, onConfirmHandler) {
+                    if (type_id === undefined || type_id === _fn.type_id) {
+                        return;
+                    }
+
+                    if (_fn.type_id === BLANK_TEMPLATE_TYPE && type_id === CUSTOM_TEMPLATE_TYPE ||
+                        _fn.type_id === CUSTOM_TEMPLATE_TYPE && type_id === BLANK_TEMPLATE_TYPE) {
+                        // keep zones
+                        _fn.type_id = parseInt(type_id)
+
+                        if (type_id === CUSTOM_TEMPLATE_TYPE) {
+                            if (onConfirmHandler) {
+                                onConfirmHandler.apply(this);
+                            }
+                        }
+
+                        _fn.build.changeBackgroundSelect()
+
+                    } else {
+                        runtime.notify('confirm', {
+                            title: gettext('Change background?'),
+                            message: gettext('The unused zones and answers will be deleted. Are you sure you want to continue?'),
+                            actionLabel: gettext('Yes, delete the unused zones'),
+                            operation: function () {
+                                _fn.build.changeBackgroundConfirmHandler(type_id, onConfirmHandler);
+                            },
+                            onCancelCallback: function () {}
+                        })
+                    }
+                },
+                changeBackgroundConfirmHandler(type_id, onConfirmHandler) {
+                    // find used zones
+                    const usedZones = [];
+                    for (var itemIndex=0;itemIndex<_fn.data.items.length;itemIndex++) {
+                        const currentItem = _fn.data.items[itemIndex];
+                        usedZones.concat(currentItem.zones);
+                    }
+
+                    $('#id_author_canvas').empty();
+
+                    if (usedZones.length > 0) {
+                        if (type_id === BLANK_TEMPLATE_TYPE || type_id === CUSTOM_TEMPLATE_TYPE) {
+                            // at least one zone is used, keep all zones
+                        } else {
+                            // we keep the used zones, delete unused zones
+                            var distinctUsedZones = Array.from(new Set(usedZones));
+                            for (var zoneIndex=0;zoneIndex<_fn.data.zones.length;zoneIndex++) {
+                                const zoneData = _fn.data.zones[zoneIndex];
+                                if (!distinctUsedZones.includes(zoneData.title)) {
+                                    _fn.data.zones.splice(zoneIndex);
+                                }
+                            }
+                        }
+                    } else {
+                        // on zone is used, delete zones
+                        _fn.data.zones = [];
+                    }
+
+                    // custom => any need check and delete unused background file
+                    if (type_id !== _fn.type_id && _fn.type_id === CUSTOM_TEMPLATE_TYPE) {
+                        const oldAssetId = _fn.data.targetImg.substring(_fn.data.targetImg.lastIndexOf('/') + 1);
+                        if (oldAssetId) {
+                            _fn.build.form.background_check(oldAssetId)
+                        }
+                    }
+
+                    _fn.type_id = parseInt(type_id)
+
+                    if (onConfirmHandler) {
+                        onConfirmHandler.apply(this);
+                    }
+
+                    _fn.build.changeBackgroundSelect()
+
+                    // create zones from pyramid or rectangles template
+                    params.predefined_templates.forEach(function(tpl_data) {
+                        if (tpl_data.template_type === _fn.type_id) {
+                            // generate zones data with predefined template data
+                            _fn.build.form.zone.generateZones(tpl_data.zones);
+                            // Create existing zones
+                            _fn.build.recoverZonesFromStorage();
+                        }
+                    })
+
+                    return true;
+                },
+                changeBackgroundSelect() {
+                    if (_fn.type_id === BLANK_TEMPLATE_TYPE) {
+                        _fn.data.targetImg = "";
+                        $('#id-background-thumbnail').css('display', 'none');
+                    } else if (_fn.type_id === CUSTOM_TEMPLATE_TYPE) {
+                        $('#id-background-thumbnail')
+                            .css("display", "")
+                            .css("background-image", "url('" + _fn.data.targetImg + "')");
+                    } else {
+                        _fn.data.targetImg = "";
+                        $('#id-background-thumbnail').css('display', 'none');
+                    }
+
+                    for (var i = 0; i < params.tpl_summaries.length; i++) {
+                        const selecedObj = $("#item-selected-circle-" + i.toString());
+                        const selectObj = $("#item-select-circle-" + i.toString());
+                        const patternItemCustomBackground = $("#background-type-" + CUSTOM_TEMPLATE_TYPE.toString())
+                        if (_fn.type_id === parseInt(params.tpl_summaries[i].type_id)) {
+                            selectObj.css('display', 'none');
+                            selecedObj.css('display', '');
+                            if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE) {
+                                patternItemCustomBackground.css('display', 'none');
+                            } else {
+                                patternItemCustomBackground.css('display', '')
+                            }
+                        } else {
+                            selectObj.css('display', '');
+                            selecedObj.css('display', 'none');
+                        }
+                    }
+                },
                 onBackgroundUploadSuccessHandler(e) {
                     // old asset to delete
                     const oldAssetId = _fn.data.targetImg.substring(_fn.data.targetImg.lastIndexOf('/') + 1);
@@ -124,17 +249,12 @@ function DragAndDropEditBlock(runtime, element, params) {
                     const newBlockId = newXblockAsset.id.toString();
 
                     if (oldAssetId !== newBlockId) {
-                        // custom => custom need check and delete unused background file
-                        if (_fn.type_id === CUSTOM_TEMPLATE_TYPE && oldAssetId) {
-                            _fn.build.form.background_check(oldAssetId)
-                        }
-                        _fn.data.targetImg = newXblockAsset.url;
+                        _fn.build.changeBackgroundType(CUSTOM_TEMPLATE_TYPE, function() {
+                            _fn.data.targetImg = newXblockAsset.url;
+                            _fn.build.form.submit(continue_mode=true);
+                        })
 
-                        _fn.build.changeBackgroundType(CUSTOM_TEMPLATE_TYPE)
-
-                        _fn.build.form.submit(continue_mode=true);
-
-                        console.log('uploadAssetsSuccessEvent: ', _fn.data.targetImg)
+                        console.log('uploadAssetsSuccessEvent: ', _fn.data.targetImg);
                     }
                 },
 
@@ -175,14 +295,16 @@ function DragAndDropEditBlock(runtime, element, params) {
                     zone_tab.find('.autozone-size-height').val(image_params.zone_height || 200);
                 },
 
-                recoverZonesFromStorage: function() {
+                recoverZonesFromStorage: function(id_zones_canvas='#id_author_canvas') {
                     _fn.build.form.zone.zoneObjects.forEach(function(zoneObj) {
                         _fn.build.form.zone.makeResizableZone(
                             {
                                 uid: zoneObj.uid, title: zoneObj.title,
                                 x: zoneObj.x, y: zoneObj.y, width: zoneObj.width, height: zoneObj.height,
                                 align: zoneObj.align, description: zoneObj.description
-                            });
+                                },
+                            id_zones_canvas
+                        );
                     });
 
                 },
@@ -306,7 +428,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     var triangle_bk_image = document.createElement('img');
                                     triangle_bk_image.setAttribute('id', id_zones_background_image);
                                     triangle_bk_image.setAttribute('class', 'target-img');
-                                    triangle_bk_image.setAttribute('src', tpl_summary.zones_background_image);
+                                    triangle_bk_image.setAttribute('src', tpl_summary.thumbnail);
                                     canvas_element.appendChild(triangle_bk_image);
                                 }
                             })
@@ -351,7 +473,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         if (_fn.type_id === 1) {        // Two rectangle template set larger height size
                             pageFrame.height('876px');
                         } else if (_fn.type_id === 3) {
-                            pageFrame.height('876px');
+                            pageFrame.height('1024px');
                         } else {
                             pageFrame.height('826px');
                         }
@@ -367,15 +489,18 @@ function DragAndDropEditBlock(runtime, element, params) {
                             removed_unused_zones_flag = true;
                         }
                         _fn.zone_tab_used_tpl_id = _fn.type_id;
-                        // Initialize from predefined templates when zones design tab is empty
-                        params.predefined_templates.forEach(function(tpl_data) {
-                            if (tpl_data.template_type === _fn.type_id) {
-                                // generate zones data with predefined template data
-                                _fn.build.form.zone.generateZones(tpl_data.zones, removed_unused_zones_flag);
-                                // Create existing zones
-                                _fn.build.recoverZonesFromStorage();
-                            }
-                        })
+
+                        if (_fn.selected_tab_id !== '3') {
+                            // Initialize from predefined templates when zones design tab is empty
+                            params.predefined_templates.forEach(function (tpl_data) {
+                                if (tpl_data.template_type === _fn.type_id) {
+                                    // generate zones data with predefined template data
+                                    _fn.build.form.zone.generateZones(tpl_data.zones, removed_unused_zones_flag);
+                                    // Create existing zones on ZoneTab
+                                    _fn.build.recoverZonesFromStorage();
+                                }
+                            })
+                        }
 
                     } else if ('3' === tabId) { // Item design tab
                         $('#id_xblock_save_button').removeClass('hidden');
@@ -386,12 +511,15 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                         var canvas_element = $('#id_preview_canvas')[0];
                         _fn.build.renderTemplateZonesAreaBackgroud(canvas_element, tabId);
-
+                        // Create zones on AnswerTab
+                        _fn.build.recoverZonesFromStorage('#id_preview_canvas');
                     } else {
                         pageFrame.height('100%');
                         $('#id_xblock_save_button').className = 'action-item hidden';
                         $('#id_xblock_save_and_continue_button').className = 'action-item ';
                     }
+
+                    _fn.selected_tab_id = tabId;
 
                     $tabPages.each(function () {
                         var pg = $(this);
@@ -440,7 +568,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         .on('change', '.problem-mode', _fn.build.form.problem.toggleAssessmentSettings);
 
                     $backgroundChoose.templates
-                        .on('click', '.pattern-item', _fn.build.form.backgroundChoose.backgroundTemplateChoose);
+                        .on('click', '.pattern-item', _fn.build.backgroundTemplateChoose);
 
                     $zoneTab
                         .on('change', '.background-image-type input', _fn.build.form.zone.toggleAutozoneSettings)
@@ -494,13 +622,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 $assessmentSettings.hide();
                             }
                         }
-                    },
-                    backgroundChoose: {
-                      backgroundTemplateChoose: function(e) {
-                          e.preventDefault();
-                          const type_id = parseInt(e.currentTarget.id.replace('background-type-', ''));
-                          _fn.build.changeBackgroundType(type_id);
-                      }
                     },
                     zone: {
                         totalZonesCreated: 0, // This counter is used for HTML IDs. Never decremented.
@@ -713,7 +834,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             _fn.data.displayLabels = true;
                             $('.display-labels-form input', element).prop('checked', true);
                         },
-                        makeResizableZone: function(oldZone) {
+                        makeResizableZone: function(oldZone, id_zones_canvas='#id_author_canvas') {
                             // Generating new zone (uid / title) if not specifying `uid` or `title` in `OldZone` .
                             let element = document.createElement('div');
                             let new_div_title = document.createElement('div');
@@ -741,7 +862,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             title_icon_container.appendChild(title_edit_icon);
                             new_div_title.appendChild(title_icon_container);
                             element.appendChild(new_div_title);
-                            $('#id_author_canvas')[0].appendChild(element);
+                            $(id_zones_canvas)[0].appendChild(element);
 
                             // Support moving Resizable Box
                             var isDown = false;
