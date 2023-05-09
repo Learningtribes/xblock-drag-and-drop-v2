@@ -119,9 +119,12 @@ function DragAndDropEditBlock(runtime, element, params) {
                     }
                 },
                 backgroundTemplateChoose: function(e) {
+                    /**
+                     * Handle select background
+                     */
                     e.preventDefault();
 
-                    if (event.target.matches('#item-delete-circle-3') || event.target.matches('#item-delete-circle-3 svg')) {
+                    if (e.target.matches('#item-delete-circle-3') || e.target.matches('#item-delete-circle-3 svg')) {
                         runtime.notify('confirm', {
                             title: gettext('Delete background?'),
                             message: gettext('The custom background will be deleted. Are you sure you want to continue?'),
@@ -144,13 +147,18 @@ function DragAndDropEditBlock(runtime, element, params) {
                     }
                 },
                 changeBackgroundType: function(type_id, onConfirmHandler) {
+                    /**
+                     * Handle background change with confirmation check
+                     * user select a different background
+                     * custom background uploaded
+                     */
                     if (type_id === undefined || type_id === _fn.type_id) {
                         return;
                     }
 
                     if (_fn.type_id === BLANK_TEMPLATE_TYPE && type_id === CUSTOM_TEMPLATE_TYPE ||
                         _fn.type_id === CUSTOM_TEMPLATE_TYPE && type_id === BLANK_TEMPLATE_TYPE) {
-                        // keep zones
+                        // BLANK <=> CUSTOM keep zones with no confirmation
                         _fn.type_id = parseInt(type_id)
 
                         if (type_id === CUSTOM_TEMPLATE_TYPE) {
@@ -162,6 +170,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         _fn.build.changeBackgroundSelect()
 
                     } else {
+                        // confirmation with zones will be deleted information
                         runtime.notify('confirm', {
                             title: gettext('Change background?'),
                             message: gettext('The unused zones and answers will be deleted. Are you sure you want to continue?'),
@@ -174,6 +183,12 @@ function DragAndDropEditBlock(runtime, element, params) {
                     }
                 },
                 changeBackgroundConfirmHandler(type_id, onConfirmHandler) {
+                    /**
+                     * Handle check zones usage with answers
+                     * Clean zones canvas for render
+                     * Check and delete unused custom background asset
+                     *
+                     */
                     // find used zones
                     const usedZones = [];
                     for (var itemIndex=0;itemIndex<_fn.data.items.length;itemIndex++) {
@@ -187,7 +202,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         if (type_id === BLANK_TEMPLATE_TYPE || type_id === CUSTOM_TEMPLATE_TYPE) {
                             // at least one zone is used, keep all zones
                         } else {
-                            // we keep the used zones, delete unused zones
+                            // keep the used zones, delete unused zones
                             var distinctUsedZones = Array.from(new Set(usedZones));
                             for (var zoneIndex=0;zoneIndex<_fn.data.zones.length;zoneIndex++) {
                                 const zoneData = _fn.data.zones[zoneIndex];
@@ -201,7 +216,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         _fn.data.zones = [];
                     }
 
-                    // custom => any need check and delete unused background file
+                    // custom => any need check and delete unused background asset
                     if (type_id !== _fn.type_id && _fn.type_id === CUSTOM_TEMPLATE_TYPE) {
                         const oldAssetId = _fn.data.targetImg.substring(_fn.data.targetImg.lastIndexOf('/') + 1);
                         if (oldAssetId) {
@@ -209,9 +224,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                         }
                     }
 
+                    // set the new type_id
                     _fn.type_id = parseInt(type_id)
 
                     if (onConfirmHandler) {
+                        // receive asset url from uploaded image asset detail
                         onConfirmHandler.apply(this);
                     }
 
@@ -230,20 +247,29 @@ function DragAndDropEditBlock(runtime, element, params) {
                     return true;
                 },
                 changeBackgroundSelect() {
+                    /**
+                     * Changing the background based on user selection
+                     * Checks for the type of template selected and updates the background image accordingly
+                     */
                     if (_fn.type_id === BLANK_TEMPLATE_TYPE) {
+                        // BLANK
+                        // clean background image
                         _fn.data.targetImg = "";
                     } else if (_fn.type_id === CUSTOM_TEMPLATE_TYPE) {
+                        // CUSTOM
+                        // set background image as custom_background
                         $('#id-background-thumbnail')
-                            .css("display", "")
                             .css("background-image", "url('" + _fn.custom_background + "')");
                     } else {
+                        // PYRAMID RECTANGLE clean background image use template default background
                         _fn.data.targetImg = "";
                     }
 
+                    // Handle the display of selected and delete circles
                     for (var i = 0; i < params.tpl_summaries.length; i++) {
+                        // Delete circle appears when the custom background is not selected
                         const selecedObj = $("#item-selected-circle-" + i.toString());
                         const deleteCircleObj = $("#item-delete-circle-" + i.toString());
-
                         if (parseInt(params.tpl_summaries[i].type_id) === CUSTOM_TEMPLATE_TYPE &&
                             _fn.type_id !== CUSTOM_TEMPLATE_TYPE &&
                             _fn.custom_background) {
@@ -252,20 +278,29 @@ function DragAndDropEditBlock(runtime, element, params) {
                             deleteCircleObj.css('display', 'none');
                         }
 
-                        const patternItemCustomBackground = $("#background-type-" + CUSTOM_TEMPLATE_TYPE.toString());
+                        // Handle the display of selected circles
+                        // Selected circle appears when the background is selected
                         if (_fn.type_id === parseInt(params.tpl_summaries[i].type_id)) {
                             selecedObj.css('display', '');
-                            if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE && !_fn.custom_background) {
-                                patternItemCustomBackground.css('display', 'none');
-                            } else {
-                                patternItemCustomBackground.css('display', '')
-                            }
                         } else {
                             selecedObj.css('display', 'none');
                         }
                     }
+
+                    // Handle the display of custom background
+                    const patternItemCustomBackground = $("#background-type-" + CUSTOM_TEMPLATE_TYPE.toString());
+                    if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE && !_fn.custom_background) {
+                        patternItemCustomBackground.css('display', 'none');
+                    } else {
+                        patternItemCustomBackground.css('display', '')
+                    }
                 },
                 onBackgroundUploadSuccessHandler(e) {
+                    /**
+                     * Handle the uploaded custom background
+                     * Set the asset url to background and custom_background from uploaded image file
+                     * Save xblock directly
+                     */
                     // old asset to delete
                     const oldAssetId = _fn.data.targetImg.substring(_fn.data.targetImg.lastIndexOf('/') + 1);
                     const newXblockAsset = e.detail.asset;
@@ -378,44 +413,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                         }
                     }
                 },
-
-                changeBackgroundType: function(type_id) {
-                    if (type_id === undefined) {
-                        return;
-                    }
-                    // custom => any need check and delete unused background file
-                    if (type_id !== _fn.type_id && _fn.type_id === CUSTOM_TEMPLATE_TYPE) {
-                        const oldAssetId = _fn.data.targetImg.substring(_fn.data.targetImg.lastIndexOf('/') + 1);
-                        if (oldAssetId) {
-                            _fn.build.form.background_check(oldAssetId)
-                        }
-                    }
-                    _fn.type_id = parseInt(type_id)
-
-                    if (_fn.type_id === CUSTOM_TEMPLATE_TYPE) {
-                        $('#id-background-thumbnail')
-                            .css("display", "")
-                            .css("background-image", "url('" + _fn.data.targetImg + "')");
-                    } else {
-                        $('#id-background-thumbnail').css("display", "none");
-                    }
-
-                    for (var i = 0; i < params.tpl_summaries.length; i++) {
-                        const selecedObj = $("#item-selected-circle-" + i.toString());
-                        const selectObj = $("#item-select-circle-" + i.toString());
-                        if (_fn.type_id === parseInt(params.tpl_summaries[i].type_id)) {
-                            selectObj.css('display', 'none');
-                            selecedObj.css('display', '');
-                            if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE) {
-                                _fn.data.targetImg = params.tpl_summaries[i].thumbnail
-                            }
-                        } else {
-                            selectObj.css('display', '');
-                            selecedObj.css('display', 'none');
-                        }
-                    }
-                },
-
                 renderTemplateZonesAreaBackgroud: function(canvas_element, tabId,
                     id_two_rect_template_left='id_two_rect_template_left',
                     id_two_rect_template_right='id_two_rect_template_right',
@@ -1309,6 +1306,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                         },
                     },
                     background_check(oldAssetId) {
+                        /**
+                         * Handle check and delete unused custom background asset
+                         */
                         const data = {
                             asset_id: oldAssetId
                         }
