@@ -475,22 +475,46 @@
     font-size: 12px;
 }
 
+.xblock--drag-and-drop--editor .items-tab .tab-content {
+    width: 96%;
+    margin-left: 30px;
+    height: 490px;
+}
+
 .xblock--drag-and-drop--editor .items-tab .tab-content .drag_drop_area {
     display: flex;
     width: 920px;
     height: 523px;
     margin: 15px 0px 15px 0px;
+    transform: scale(0.8) translate(-50px, -50px);
 }
 
 .xblock--drag-and-drop--editor .items-tab .drag-drop-tip {
     margin: 10px 0 0 10px;
 }
 
+.xblock--drag-and-drop--editor .items-tab .readonly_zone_box {
+    position: absolute;
+    border: 1px solid #1D1D1D;
+    margin: 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.xblock--drag-and-drop--editor .items-tab .readonly_zone_box .readonly_zone_title {
+    font-size: 14px;
+    font-weight: 700;
+    position: relative;
+}
+
 .xblock--drag-and-drop--editor .items-tab .answers_collection {
     opacity: 0.5;
     border: 2px dashed #727272;
     border-radius: 4px;
-    margin: 20px 0px 0px 0px;
+    margin: 0px;
     width: 912px;
     height: 277px;
     box-sizing: border-box;

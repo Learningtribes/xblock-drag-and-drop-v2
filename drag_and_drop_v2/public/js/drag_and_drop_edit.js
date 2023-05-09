@@ -297,14 +297,13 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                 recoverZonesFromStorage: function(id_zones_canvas='#id_author_canvas') {
                     _fn.build.form.zone.zoneObjects.forEach(function(zoneObj) {
-                        _fn.build.form.zone.makeResizableZone(
-                            {
-                                uid: zoneObj.uid, title: zoneObj.title,
-                                x: zoneObj.x, y: zoneObj.y, width: zoneObj.width, height: zoneObj.height,
-                                align: zoneObj.align, description: zoneObj.description
-                                },
-                            id_zones_canvas
-                        );
+                        if ('#id_author_canvas' === id_zones_canvas) {
+                            // Create resizable zones on Author Canvas ( `ZoneTab` )
+                            _fn.build.form.zone.makeResizableZone(zoneObj, id_zones_canvas);
+                        } else {
+                            // Create readonly zones on `AnswerTab`
+                            _fn.build.form.zone.makeReadonlyZone(zoneObj, id_zones_canvas);
+                        }
                     });
 
                 },
@@ -472,11 +471,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                     } else if ('2' === tabId) { // Zones design tab
                         if (_fn.type_id === 1) {        // Two rectangle template set larger height size
                             pageFrame.height('876px');
-                        } else if (_fn.type_id === 3) {
-                            pageFrame.height('1024px');
                         } else {
                             pageFrame.height('826px');
                         }
+
                         $('#id_xblock_save_button').className = 'action-item hidden';
                         $('#id_xblock_save_and_continue_button').className = 'action-item ';
 
@@ -503,6 +501,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                         }
 
                     } else if ('3' === tabId) { // Item design tab
+                        pageFrame.height('976px');
+
                         $('#id_xblock_save_button').removeClass('hidden');
                         var bt = $('#id_xblock_save_and_continue_button');
                         if (!bt.hasClass('hidden')) {
@@ -833,6 +833,23 @@ function DragAndDropEditBlock(runtime, element, params) {
                             // Make sure "Display label names on the image" is checked.
                             _fn.data.displayLabels = true;
                             $('.display-labels-form input', element).prop('checked', true);
+                        },
+                        makeReadonlyZone: function(oldZone, id_zones_canvas='#id_preview_canvas') {
+                            let element = document.createElement('div');
+                            let new_div_title = document.createElement('div');
+                            let zone_left = (oldZone.x || 0);
+                            let zone_top = (oldZone.y || 0) * 0.8 - (50 * 2);   // Need a better way
+                            let minW = oldZone.width || 200;
+                            let minH = oldZone.height || 100;
+
+                            element.setAttribute('id', oldZone.uid);
+                            element.setAttribute( 'class', 'readonly_zone_box' );
+                            element.setAttribute('style',`width:${minW}px; height:${minH}px; left:${zone_left}px; top:${zone_top}px`);
+                            new_div_title.setAttribute('class', 'readonly_zone_title');
+                            new_div_title.innerText = oldZone.title;
+
+                            element.appendChild(new_div_title);
+                            $(id_zones_canvas)[0].appendChild(element);
                         },
                         makeResizableZone: function(oldZone, id_zones_canvas='#id_author_canvas') {
                             // Generating new zone (uid / title) if not specifying `uid` or `title` in `OldZone` .
