@@ -206,6 +206,13 @@ class DragAndDropBlock(
         enforce_type=True,
     )
 
+    custom_background = String(
+        help=_("Background image of custom"),
+        scope=Scope.settings,
+        default=None,
+        enforce_type=True,
+    )
+
     block_settings_key = 'drag-and-drop-v2'
 
     @property
@@ -422,6 +429,7 @@ class DragAndDropBlock(
         fragment.initialize_js('DragAndDropEditBlock', {
             'data': self.data,
             'type_id': self.type_id,
+            'custom_background': self.custom_background,
             'tpl_summaries': ZONE_TPL_DEFINITIONS.get_templates_summary(self, self.runtime.local_resource_url),
             'predefined_templates': ZONE_TPL_DEFINITIONS.predefined_templates,
             'target_img_expanded_url': self.target_img_expanded_url,
@@ -503,6 +511,8 @@ class DragAndDropBlock(
                 self.data['feedback']['finish'] = feedback['finish']
         if 'type_id' in submissions:
             self.type_id = submissions['type_id']
+        if 'custom_background' in submissions:
+            self.custom_background = submissions['custom_background']
 
         return {
             'result': 'success',

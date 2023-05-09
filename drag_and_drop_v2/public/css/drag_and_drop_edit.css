@@ -350,7 +350,7 @@
     margin: 10px 0 0 10px;
 }
 
-.xblock--drag-and-drop--editor .background-image-tab .pattern-item .item-select-circle {
+.xblock--drag-and-drop--editor .background-image-tab .pattern-item .item-delete-circle {
     float: left;
     position: absolute;
     left: 95%;
@@ -365,7 +365,7 @@
     text-align:center;
 }
 
-.xblock--drag-and-drop--editor .background-image-tab .pattern-item .item-select-circle svg {
+.xblock--drag-and-drop--editor .background-image-tab .pattern-item .item-delete-circle svg {
     padding-top: 0;
 }
 
