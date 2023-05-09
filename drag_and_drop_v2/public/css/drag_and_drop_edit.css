@@ -512,13 +512,16 @@
 
 .xblock--drag-and-drop--editor .items-tab .answers_collection {
     display: flex;
+    align-content: flex-start;
     opacity: 0.5;
     border: 2px dashed #727272;
     border-radius: 4px;
     margin: 0px;
     width: 912px;
-    height: 277px;
+    height: 290px;
     box-sizing: border-box;
+    flex-wrap: wrap;
+    padding: 2px 12px 12px 12px;
 }
 
 .xblock--drag-and-drop--editor .items-tab .answers_collection .answer_item {
@@ -527,7 +530,7 @@
     flex-direction: row;
     align-items: center;
     padding: 8px 16px;
-    margin: 12px;
+    margin: 12px 12px 0px 0px;
     width: fit-content;
     height: 35px;
     background: #FAFAFA;
@@ -554,7 +557,11 @@
     color: #1D1D1D;
 }
 
-.xblock--drag-and-drop--editor .items-tab .answers_collection .dropdown_menu {
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones {
+
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .answer_zones_dropdown_menu {
     cursor: pointer;
     margin-left: 5px;
 }

@@ -534,9 +534,16 @@ function DragAndDropEditBlock(runtime, element, params) {
                         }
 
                         var canvas_element = $('#id_preview_canvas')[0];
+                        // Render Preview Background
                         _fn.build.renderTemplateZonesAreaBackgroud(canvas_element, tabId);
                         // Create zones on AnswerTab
                         _fn.build.recoverZonesFromStorage('#id_preview_canvas');
+                        // Render existing Answers
+                        _fn.build.form.zone.zoneObjects.itemObjects = _fn.data.items;
+                        _fn.build.form.zone.zoneObjects.itemObjects.forEach(function(answer_obj) {
+                            _fn.build.form.item.createAnswerItem(answer_obj);
+                        });
+
                     } else {
                         pageFrame.height('100%');
                         $('#id_xblock_save_button').className = 'action-item hidden';
@@ -566,8 +573,6 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                     const $backgroundChoose = _fn.build.$el.backgroundChoose;
 
-                    var self = this;
-
                     $element.find('.supported-setting-tags-nav > li').bind('click', function() {
                         $(this).addClass('active-section');
                         $(this).siblings().each( function (i, obj) {
@@ -587,6 +592,14 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                         _fn.build.form.submit(continue_mode=true);
                     });
+
+                    $element.find('.add_answer_button').bind('click', function() {
+                        _fn.build.form.item.createAnswerItem();
+                    });
+
+                    $element.find('.answer_zones_dropdown_menu').bind('click', function(){
+
+                    })
 
                     $fbkTab
                         .on('change', '.problem-mode', _fn.build.form.problem.toggleAssessmentSettings);
@@ -1248,6 +1261,42 @@ function DragAndDropEditBlock(runtime, element, params) {
                     item: {
                         count: 0,
                         itemObjects: [],
+
+                        createAnswerItem: function(oldItem = {}) {
+                            let answer_element = document.createElement('div');
+                            let handle_el = document.createElement('div');
+                            let handle_icon = document.createElement('i');
+                            let answer_text = document.createElement('div');
+                            let linked_zones = document.createElement('div');
+                            let dropdown_btn = document.createElement('div');
+                            let dropdown_icon = document.createElement('i');
+
+                            let item_title = oldItem.displayName || ('Answer ' + (1 + $('.answer_item').length));
+
+                            // Answer Card
+                            answer_element.setAttribute('class', 'answer_item');
+                            // Card Icon
+                            handle_el.setAttribute('class', 'handler_style');
+                            handle_icon.setAttribute('class', 'fa-solid fa-grip-dots-vertical');
+                            handle_icon.setAttribute('style', 'color: #1D1D1D;');
+                            handle_el.appendChild(handle_icon);
+                            answer_element.appendChild(handle_el);
+                            // Answer description
+                            answer_text.setAttribute('class', 'answer_text');
+                            answer_text.innerText = item_title;
+                            answer_element.appendChild(answer_text);
+                            // Selected Zones of this answer
+                            linked_zones.setAttribute('class', 'selected_zones hidden');
+                            answer_element.appendChild(linked_zones);
+                            // Dropdown menu of zones
+                            dropdown_btn.setAttribute('class', 'answer_zones_dropdown_menu');
+                            dropdown_icon.setAttribute('class', 'fa-solid fa-caret-down');
+                            dropdown_icon.setAttribute('style', 'color: #1D1D1D;');
+                            dropdown_btn.appendChild(dropdown_icon);
+                            answer_element.appendChild(dropdown_btn);
+
+                            $('#id_answers_collection')[0].insertBefore(answer_element, document.getElementById('id_add_answer_item_btn'));
+                        },
                         add: function(itemData) {
                             var $form = _fn.build.$el.items.form,
                                 tpl = _fn.tpl.itemInput,
