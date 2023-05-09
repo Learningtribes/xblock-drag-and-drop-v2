@@ -511,6 +511,7 @@
 }
 
 .xblock--drag-and-drop--editor .items-tab .answers_collection {
+    display: flex;
     opacity: 0.5;
     border: 2px dashed #727272;
     border-radius: 4px;
@@ -532,6 +533,13 @@
     background: #FAFAFA;
     border: 1px solid #1D1D1D;
     border-radius: 4px;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .add_answer_button {
+    margin: 12px 12px 12px 5px;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
 }
 
 .xblock--drag-and-drop--editor .items-tab .answers_collection .handler_style {

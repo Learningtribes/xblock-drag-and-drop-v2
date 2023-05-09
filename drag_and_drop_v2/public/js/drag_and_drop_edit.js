@@ -838,7 +838,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             let element = document.createElement('div');
                             let new_div_title = document.createElement('div');
                             let zone_left = (oldZone.x || 0);
-                            let zone_top = (oldZone.y || 0) * 0.8 - (50 * 2);   // Need a better way
+                            let zone_top = (oldZone.y || 0) * 0.8 - (50 * 2);   // Need updating with a better way
                             let minW = oldZone.width || 200;
                             let minH = oldZone.height || 100;
 
