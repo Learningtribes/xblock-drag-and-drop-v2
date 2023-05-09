@@ -1504,38 +1504,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                     },
                     submit: function(continue_mode=false) {
                         // save all
-                        var items = [],
-                            $form = _fn.build.$el.items.form.find('.item');
-
-                        $form.each(function(i, el) {
-                            var $el = $(el),
-                                name = $el.find('.item-text').val(),
-                                imageURL = $el.find('.item-image-url').val(),
-                                imageDescription = $el.find('.item-image-description').val(),
-                                selectedZones = $el.find('.zone-checkbox:checked');
-
-                            if (name.length > 0 || imageURL.length > 0) {
-                                var data = {
-                                    displayName: name,
-                                    zones: $.map(selectedZones, function(checkbox){
-                                        return checkbox.value;
-                                    }),
-                                    id: i,
-                                    feedback: {
-                                        correct: $el.find('.success-feedback').val(),
-                                        incorrect: $el.find('.error-feedback').val()
-                                    },
-                                    imageURL: imageURL,
-                                    imageDescription: imageDescription,
-                                };
-                                // Optional preferred width as a percentage of the bg image's width:
-                                var widthPercent = $el.find('.item-width').val();
-                                if (widthPercent && +widthPercent > 0) { data.widthPercent = widthPercent; }
-
-                                items.push(data);
-                            }
-                        });
-
                         _fn.data.items = _fn.build.form.item.itemObjects;
                         _fn.data.zones = _fn.build.form.zone.zoneObjects;
 
