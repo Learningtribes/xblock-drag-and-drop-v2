@@ -196,7 +196,14 @@ function DragAndDropEditBlock(runtime, element, params) {
                         usedZones.concat(currentItem.zones);
                     }
 
-                    $('#id_author_canvas').empty();
+                    if (_fn.build.form.zone.zoneObjects.length > 0) {
+                        console.log(_fn.data.zones, _fn.build.form.zone.zoneObjects)
+                        _fn.data.zones = _fn.build.form.zone.zoneObjects;
+                        // Remove all existing zones
+                        _fn.build.form.zone.zoneObjects = [];
+                        // clean zones objects container
+                        $('#id_author_canvas').empty();
+                    }
 
                     if (usedZones.length > 0) {
                         if (type_id === BLANK_TEMPLATE_TYPE || type_id === CUSTOM_TEMPLATE_TYPE) {
@@ -233,6 +240,13 @@ function DragAndDropEditBlock(runtime, element, params) {
                     }
 
                     _fn.build.changeBackgroundSelect()
+
+                    if (_fn.data.zones.length > 0) {
+                        // generate zones data with predefined template data
+                        _fn.build.form.zone.generateZones(tpl_data.zones);
+                        // Create existing zones
+                        _fn.build.recoverZonesFromStorage();
+                    }
 
                     // create zones from pyramid or rectangles template
                     params.predefined_templates.forEach(function(tpl_data) {
@@ -509,17 +523,17 @@ function DragAndDropEditBlock(runtime, element, params) {
                         }
                         _fn.zone_tab_used_tpl_id = _fn.type_id;
 
-                        if (_fn.selected_tab_id !== '3') {
-                            // Initialize from predefined templates when zones design tab is empty
-                            params.predefined_templates.forEach(function (tpl_data) {
-                                if (tpl_data.template_type === _fn.type_id) {
-                                    // generate zones data with predefined template data
-                                    _fn.build.form.zone.generateZones(tpl_data.zones, removed_unused_zones_flag);
-                                    // Create existing zones on ZoneTab
-                                    _fn.build.recoverZonesFromStorage();
-                                }
-                            })
-                        }
+                        // if (_fn.selected_tab_id !== '3') {
+                        //     // Initialize from predefined templates when zones design tab is empty
+                        //     params.predefined_templates.forEach(function (tpl_data) {
+                        //         if (tpl_data.template_type === _fn.type_id) {
+                        //             // generate zones data with predefined template data
+                        //             _fn.build.form.zone.generateZones(tpl_data.zones, removed_unused_zones_flag);
+                        //             // Create existing zones on ZoneTab
+                        //             _fn.build.recoverZonesFromStorage();
+                        //         }
+                        //     })
+                        // }
 
                     } else if ('3' === tabId) { // Item design tab
                         pageFrame.height('976px');
@@ -953,6 +967,7 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                             document.addEventListener('mouseup', function() {
                                 isDown = false;
+                                update_zones_data(element)
                             }, true);
 
                             document.addEventListener('mousemove', function(event) {
@@ -1103,6 +1118,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     if (zoneObj.uid === zone_uid) {
                                         zoneObj.x = pos.left;
                                         zoneObj.y = pos.top;
+                                        zoneObj.width = resizable_rect.offsetWidth;
+                                        zoneObj.height = resizable_rect.offsetHeight;
                                     }
                                 });
                             }
