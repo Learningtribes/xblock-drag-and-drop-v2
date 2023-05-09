@@ -68,6 +68,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                     _fn.selected_tab_id = undefined;
                     _fn.zone_tab_used_tpl_id = _fn.data.template_type;  // activated template id in Zone Tab
                     _fn.type_id = params.type_id;                       // selected template id in Background Tab
+                    _fn.custom_background = params.custom_background;   // uploaded custom background image
                     _fn.tpl_summaries = params.tpl_summaries;
 
                     _fn.build.changeBackgroundSelect();
@@ -120,9 +121,26 @@ function DragAndDropEditBlock(runtime, element, params) {
                 backgroundTemplateChoose: function(e) {
                     e.preventDefault();
 
-                    const type_id = parseInt(e.currentTarget.id.replace('background-type-', ''));
-                    if (type_id !== CUSTOM_TEMPLATE_TYPE) {
-                        _fn.build.changeBackgroundType(type_id);
+                    if (event.target.matches('#item-delete-circle-3') || event.target.matches('#item-delete-circle-3 svg')) {
+                        runtime.notify('confirm', {
+                            title: gettext('Delete background?'),
+                            message: gettext('The custom background will be deleted. Are you sure you want to continue?'),
+                            actionLabel: gettext('Yes, delete the background'),
+                            operation: function () {
+                                _fn.custom_background = '';
+                                const patternItemCustomBackground = $("#background-type-" + CUSTOM_TEMPLATE_TYPE.toString());
+                                patternItemCustomBackground.css('display', 'none');
+                            },
+                            onCancelCallback: function () {}
+                        })
+                    } else {
+                        const type_id = parseInt(e.currentTarget.id.replace('background-type-', ''));
+                        if (type_id !== CUSTOM_TEMPLATE_TYPE) {
+                            _fn.build.changeBackgroundType(type_id);
+                        } else if (_fn.custom_background) {
+                            _fn.data.targetImg = _fn.custom_background;
+                            _fn.build.changeBackgroundType(type_id);
+                        }
                     }
                 },
                 changeBackgroundType: function(type_id, onConfirmHandler) {
@@ -214,30 +232,35 @@ function DragAndDropEditBlock(runtime, element, params) {
                 changeBackgroundSelect() {
                     if (_fn.type_id === BLANK_TEMPLATE_TYPE) {
                         _fn.data.targetImg = "";
-                        $('#id-background-thumbnail').css('display', 'none');
                     } else if (_fn.type_id === CUSTOM_TEMPLATE_TYPE) {
                         $('#id-background-thumbnail')
                             .css("display", "")
-                            .css("background-image", "url('" + _fn.data.targetImg + "')");
+                            .css("background-image", "url('" + _fn.custom_background + "')");
                     } else {
                         _fn.data.targetImg = "";
-                        $('#id-background-thumbnail').css('display', 'none');
                     }
 
                     for (var i = 0; i < params.tpl_summaries.length; i++) {
                         const selecedObj = $("#item-selected-circle-" + i.toString());
-                        const selectObj = $("#item-select-circle-" + i.toString());
-                        const patternItemCustomBackground = $("#background-type-" + CUSTOM_TEMPLATE_TYPE.toString())
+                        const deleteCircleObj = $("#item-delete-circle-" + i.toString());
+
+                        if (parseInt(params.tpl_summaries[i].type_id) === CUSTOM_TEMPLATE_TYPE &&
+                            _fn.type_id !== CUSTOM_TEMPLATE_TYPE &&
+                            _fn.custom_background) {
+                            deleteCircleObj.css('display', '');
+                        } else {
+                            deleteCircleObj.css('display', 'none');
+                        }
+
+                        const patternItemCustomBackground = $("#background-type-" + CUSTOM_TEMPLATE_TYPE.toString());
                         if (_fn.type_id === parseInt(params.tpl_summaries[i].type_id)) {
-                            selectObj.css('display', 'none');
                             selecedObj.css('display', '');
-                            if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE) {
+                            if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE && !_fn.custom_background) {
                                 patternItemCustomBackground.css('display', 'none');
                             } else {
                                 patternItemCustomBackground.css('display', '')
                             }
                         } else {
-                            selectObj.css('display', '');
                             selecedObj.css('display', 'none');
                         }
                     }
@@ -251,6 +274,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                     if (oldAssetId !== newBlockId) {
                         _fn.build.changeBackgroundType(CUSTOM_TEMPLATE_TYPE, function() {
                             _fn.data.targetImg = newXblockAsset.url;
+                            _fn.custom_background = newXblockAsset.url;
                             _fn.build.form.submit(continue_mode=true);
                         })
 
@@ -1354,6 +1378,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 'finish': $element.find('.final-feedback').val()
                             },
                             'type_id': parseInt(_fn.type_id),
+                            'custom_background': _fn.custom_background,
                             'data': _fn.data,
                         };
 
