@@ -567,9 +567,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                     // For creating answer items dynamiclly, we rebind event for these new items.
 
                     $element.find('.option_checkbox').bind('click', function(e) {
-                        e.preventDefault();
-
-                        console.info(e);
+                        let answerItemId = e.currentTarget.getAttribute('answer_item_id');
+                        _fn.build.form.item.updateAnswerToZone(
+                            parseInt(answerItemId), e.currentTarget.value, e.currentTarget.checked);
                     })
 
                     $element.find('.delete_answer_button').bind('click', function(e) {
@@ -607,12 +607,20 @@ function DragAndDropEditBlock(runtime, element, params) {
                         _fn.build.form.submit(continue_mode=true);
                     });
 
+                    $element.find('.save-button').bind('click', function(e) {
+                        e.preventDefault();
+
+                        _fn.build.form.submit(continue_mode=false);
+                    })
+
                     $element.find('.add_answer_button').bind('click', function(e) {
                         e.preventDefault();
 
                         _fn.build.form.item.createAnswerItem();
                         _fn.build.rebind_events_for_answers_tab();
                     });
+
+                    _fn.build.rebind_events_for_answers_tab();  // Run event binding for existing Answer Cards
 
                     $fbkTab
                         .on('change', '.problem-mode', _fn.build.form.problem.toggleAssessmentSettings);
@@ -1276,7 +1284,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         itemObjects: [],
 
                         createAnswerItem: function(oldItem = {}) {
-                            let answer_element = document.createElement('div');
+                            let answer_element = document.createElement('div'); // Answer Item Card
                             let options_menu = document.createElement('div');
                             let options_list = document.createElement('ul');
                             let handle_el = document.createElement('div');
@@ -1287,6 +1295,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                             let dropdown_icon = document.createElement('i');
 
                             let item_title = oldItem.displayName || ('Answer ' + (1 + $('.answer_item').length));
+                            let item_uid = oldItem.id || (1 + $('.answer_item').length);
+                            let item_zones = oldItem.zones || [];
 
                             // Options Menu
                             options_menu.setAttribute('class', 'answer_zones_dropdown_content');
@@ -1297,6 +1307,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 option_checkbox.setAttribute('class', 'option_checkbox');
                                 option_checkbox.setAttribute('type', 'checkbox');
                                 option_checkbox.setAttribute('value', zoneObj.uid);
+                                option_checkbox.setAttribute('answer_item_id', item_uid);
+                                if (item_zones.includes(zoneObj.uid)) {
+                                    option_checkbox.setAttribute('checked', 'checked');
+                                }
                                 option_zone.appendChild(option_checkbox);
                                 let option_display_name = document.createElement('span');
                                 option_display_name.setAttribute('class', 'option_display_name');
@@ -1319,6 +1333,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                             handle_el.appendChild(handle_icon);
                             answer_element.appendChild(handle_el);
                             // Answer description
+                            let id_answer_name = 'id_answer_name__' + item_uid;
+                            answer_text.setAttribute('id', id_answer_name)
                             answer_text.setAttribute('class', 'answer_text');
                             answer_text.innerText = item_title;
                             answer_element.appendChild(answer_text);
@@ -1333,6 +1349,44 @@ function DragAndDropEditBlock(runtime, element, params) {
                             answer_element.appendChild(dropdown_btn);
                             // Insert this New Answer Item into Collection
                             $('#id_answers_collection')[0].insertBefore(answer_element, document.getElementById('id_add_answer_item_btn'));
+                        },
+                        updateAnswerToZone: function(answerItemId, zoneId, addOrRemoveFlag) {
+                            let updated_flag = false;
+
+                            _fn.build.form.item.itemObjects.forEach(function(item) {
+                                if (item.id === answerItemId) {
+                                    updated_flag = true;
+
+                                    if (addOrRemoveFlag === true) {
+                                        // Link zone uid
+                                        if (!item.zones.includes(zoneId)) {
+                                            item.zones.push(zoneId);
+                                        }
+                                    } else {
+                                        // Unlink zone uid
+                                        if (item.zones.includes(zoneId)) {
+                                            item.zones.splice(item.zones.indexOf(zoneId), 1);
+                                        }
+                                    }
+                                }
+                            });
+
+                            if (updated_flag === false && addOrRemoveFlag === true) {
+                                var name_el_id = 'id_answer_name__' + answerItemId;
+
+                                var data = {
+                                    displayName: document.getElementById(name_el_id).innerText || ('Answer ' + (1 + $('.answer_item').length)),
+                                    zones: [zoneId],
+                                    id: answerItemId,
+                                    feedback: {
+                                        correct: '', incorrect: ''
+                                    },
+                                    imageURL: 'imageURL',
+                                    imageDescription: 'imageDescription',
+                                };
+
+                                _fn.build.form.item.itemObjects.push(data);
+                            }
                         },
                         add: function(itemData) {
                             var $form = _fn.build.$el.items.form,
@@ -1465,7 +1519,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             }
                         });
 
-                        _fn.data.items = items;
+                        _fn.data.items = _fn.build.form.item.itemObjects;
                         _fn.data.zones = _fn.build.form.zone.zoneObjects;
 
                         var data = {
