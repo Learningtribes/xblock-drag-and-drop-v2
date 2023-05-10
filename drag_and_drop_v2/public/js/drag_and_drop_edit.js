@@ -543,8 +543,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                         // Create zones on AnswerTab
                         _fn.build.recoverZonesFromStorage('#id_preview_canvas');
                         // Render existing Answers
-                        _fn.build.form.zone.zoneObjects.itemObjects = _fn.data.items;
-                        _fn.build.form.zone.zoneObjects.itemObjects.forEach(function(answer_obj) {
+                        _fn.build.form.item.itemObjects = _fn.data.items;
+                        _fn.build.form.item.itemObjects.forEach(function(answer_obj) {
                             _fn.build.form.item.createAnswerItem(answer_obj);
                         });
 
@@ -1348,8 +1348,26 @@ function DragAndDropEditBlock(runtime, element, params) {
                             answer_text.setAttribute('class', 'answer_text');
                             answer_text.innerText = item_title;
                             answer_element.appendChild(answer_text);
-                            // Selected Zones of this answer
-                            linked_zones.setAttribute('class', 'selected_zones hidden');
+                            // Colored Selected Zones Bar of this answer
+                            let item_used_zones_titles = [];
+                            _fn.build.form.zone.zoneObjects.forEach(function(zoneObj){
+                                if (item_zones.includes(zoneObj.uid)) {
+                                    item_used_zones_titles.push(zoneObj.title);
+                                }
+                            });
+                            var id_answer_colored_zones = 'id_answer_colored_zones__' + item_uid; // answer colored zones list: ID Format: `id_answer_colored_zones__` + item_id
+                            linked_zones.setAttribute('id', id_answer_colored_zones);
+                            if (item_used_zones_titles.length === 0) {
+                                linked_zones.setAttribute('class', 'selected_zones hidden');
+                            } else {
+                                linked_zones.setAttribute('class', 'selected_zones');
+                                item_used_zones_titles.forEach(function(zone_title) {
+                                    let colored_used_zone_title = document.createElement('div');
+                                    colored_used_zone_title.setAttribute('class', 'colored_name');
+                                    colored_used_zone_title.innerText = zone_title;
+                                    linked_zones.appendChild(colored_used_zone_title);
+                                })
+                            }
                             answer_element.appendChild(linked_zones);
                             // Dropdown menu of zones
                             dropdown_btn.setAttribute('class', 'answer_zones_dropdown_menu');
@@ -1361,7 +1379,19 @@ function DragAndDropEditBlock(runtime, element, params) {
                             $('#id_answers_collection')[0].insertBefore(answer_element, document.getElementById('id_add_answer_item_btn'));
                         },
                         updateAnswerToZone: function(answerItemId, zoneId, addOrRemoveFlag) {
+                            // Adding/Removing related zones to a Answer Card + Rendering Colored zones bar in the Answer Card
                             let updated_flag = false;
+                            let zone_title = undefined;
+                            var colored_zones_bar = $('#id_answer_colored_zones__' + answerItemId);
+
+                            _fn.build.form.zone.zoneObjects.forEach(function(zone) {
+                                if (zone.uid == zoneId) {
+                                    zone_title = zone.title;
+                                }
+                            })
+                            if (zone_title === undefined) {
+                                return;
+                            }
 
                             _fn.build.form.item.itemObjects.forEach(function(item) {
                                 if (item.id === answerItemId) {
@@ -1370,32 +1400,50 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     if (addOrRemoveFlag === true) {
                                         // Link zone uid
                                         if (!item.zones.includes(zoneId)) {
+                                            // add to data
                                             item.zones.push(zoneId);
+                                            // add to UI
+                                            colored_zones_bar.append($(`<div class="colored_name">${zone_title}</div>`));
                                         }
                                     } else {
                                         // Unlink zone uid
                                         if (item.zones.includes(zoneId)) {
+                                            // remove from data
                                             item.zones.splice(item.zones.indexOf(zoneId), 1);
+                                            // remove from UI
+                                            colored_zones_bar.children('.colored_name').each(function(colored_name_el) {
+                                                console.info(colored_name_el);
+                                            });
+                                            // hide colored zone names bar if need
+                                            if (colored_zones_bar.children('.colored_name').length === 0) {
+                                                if (!colored_zones_bar.hasClass('hidden')) {
+                                                    colored_zones_bar.addClass('hidden');
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             });
 
                             if (updated_flag === false && addOrRemoveFlag === true) {
-                                var name_el_id = 'id_answer_name__' + answerItemId;
+                                var name_el_id = 'id_answer_name__' + answerItemId; // answer name element Format: `id_answer_name__` + item_id
 
+                                // add to data
                                 var data = {
                                     displayName: document.getElementById(name_el_id).innerText || ('Answer ' + (1 + $('.answer_item').length)),
                                     zones: [zoneId],
                                     id: answerItemId,
-                                    feedback: {
-                                        correct: '', incorrect: ''
-                                    },
+                                    feedback: {correct: '', incorrect: ''},
                                     imageURL: 'imageURL',
                                     imageDescription: 'imageDescription',
                                 };
-
                                 _fn.build.form.item.itemObjects.push(data);
+                                // add to UI
+                                colored_zones_bar.append($(`<div class="colored_name">${zone_title}</div>`));
+                                // show colored zone names bar
+                                if (colored_zones_bar.hasClass('hidden')) {
+                                    colored_zones_bar.removeClass('hidden');
+                                }
                             }
                         },
                         add: function(itemData) {
