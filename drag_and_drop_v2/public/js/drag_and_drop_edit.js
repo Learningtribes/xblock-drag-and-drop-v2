@@ -432,28 +432,16 @@ function DragAndDropEditBlock(runtime, element, params) {
                     id_zones_background_image='id_zones_background_image'
                 ) {
                     // This method is used by ZoneTab & AnswerTab
+                    canvas_element.empty(); // clean all element in the Canvas
+                    // For AnswerTab, we have another named id set
                     if ('3' === tabId) {
                         id_two_rect_template_left = 'id_two_rect_template_left_in_itemtab';
                         id_two_rect_template_right = 'id_two_rect_template_right_in_itemtab';
                         id_zones_background_image = 'id_zones_background_image_in_itemtab';
                     }
 
-                    var existing_left_rect = document.getElementById(id_two_rect_template_left);
-                    var existing_right_rect = document.getElementById(id_two_rect_template_right);
-                    var existing_zones_bk_image = document.getElementById(id_zones_background_image);
-
                     // Whether new template has been selected OR AnswerTab selected :
                     if (_fn.type_id !== _fn.zone_tab_used_tpl_id || '3' === tabId) {
-                        // Remove existing background if exist and new template has been selected
-                        if (existing_zones_bk_image !== null) {
-                            existing_zones_bk_image.remove();
-                        }
-                        if (existing_left_rect !== null) {
-                            existing_left_rect.remove();
-                        }
-                        if (existing_right_rect !== null) {
-                            existing_right_rect.remove();
-                        }
 
                         // Create new background
                         if (_fn.type_id === 0) {           // Triangle template
@@ -463,30 +451,31 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     triangle_bk_image.setAttribute('id', id_zones_background_image);
                                     triangle_bk_image.setAttribute('class', 'target-img');
                                     triangle_bk_image.setAttribute('src', tpl_summary.thumbnail);
-                                    canvas_element.appendChild(triangle_bk_image);
+                                    canvas_element.append(triangle_bk_image);
                                 }
-                            })
+                            });
                         } else if (_fn.type_id === 1) {    // Two rectangle template
-                            if (existing_left_rect === null) {
-                                let left_rect = document.createElement('div');
-                                let right_rect = document.createElement('div');
+                            let left_rect = document.createElement('div');
+                            let right_rect = document.createElement('div');
 
-                                left_rect.setAttribute('id', id_two_rect_template_left);
-                                left_rect.setAttribute('class', 'left resizable_box_container');
-                                right_rect.setAttribute('id', id_two_rect_template_right);
-                                right_rect.setAttribute('class', 'right resizable_box_container');
+                            left_rect.setAttribute('id', id_two_rect_template_left);
+                            left_rect.setAttribute('class', 'left resizable_box_container');
+                            right_rect.setAttribute('id', id_two_rect_template_right);
+                            right_rect.setAttribute('class', 'right resizable_box_container');
 
-                                canvas_element.appendChild(left_rect);
-                                canvas_element.appendChild(right_rect);
+                            canvas_element.append(left_rect);
+                            canvas_element.append(right_rect);
 
-                                document.getElementById('id_switcher_rectangles_border').style = 'display: block';
-                            }
+                            document.getElementById('id_switcher_rectangles_border').style = 'display: block';
+
                         } else if (_fn.type_id === 3) {     // Custom Background template
                             var custom_bk_image = document.createElement('img');
+
                             custom_bk_image.setAttribute('id', id_zones_background_image);
                             custom_bk_image.setAttribute('class', 'target-img');
                             custom_bk_image.setAttribute('src', _fn.data.targetImg);  // paste uploaded image into background
-                            canvas_element.appendChild(custom_bk_image);
+
+                            canvas_element.append(custom_bk_image);
                         }
                     }
 
@@ -495,7 +484,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                 selectTabPage: function(tabId) {
                     var $tabPages = $(".supported-setting-tags section");
                     var pageFrame = $(".xblock--drag-and-drop--editor");
-                    var canvas_element = $('#id_author_canvas')[0];
+                    var canvas_element = $('#id_author_canvas');
+
+                    if (tabId === _fn.selected_tab_id) {
+                        return;     // Forbid multiple drawing on Tab
+                    }
 
                     if ('1' === tabId) {    // Background Image tab
                         pageFrame.height('750px');
@@ -544,7 +537,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             bt.addClass('hidden')
                         }
 
-                        var canvas_element = $('#id_preview_canvas')[0];
+                        var canvas_element = $('#id_preview_canvas');
                         // Render Preview Background
                         _fn.build.renderTemplateZonesAreaBackgroud(canvas_element, tabId);
                         // Create zones on AnswerTab
@@ -561,7 +554,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         $('#id_xblock_save_and_continue_button').className = 'action-item ';
                     }
 
-                    _fn.selected_tab_id = tabId;
+                    _fn.selected_tab_id = tabId;    // Assign current selected tab ID
 
                     $tabPages.each(function () {
                         var pg = $(this);
