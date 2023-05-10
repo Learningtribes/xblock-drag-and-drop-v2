@@ -557,6 +557,11 @@
     color: #1D1D1D;
 }
 
+.xblock--drag-and-drop--editor .items-tab .answers_collection .answer_editor {
+    width: 120px;
+    height: 28px;
+}
+
 .xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones {
     display: flex;
 }
