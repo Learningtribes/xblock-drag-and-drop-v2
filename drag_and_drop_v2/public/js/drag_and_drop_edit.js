@@ -541,11 +541,15 @@ function DragAndDropEditBlock(runtime, element, params) {
                         // Create zones on AnswerTab
                         _fn.build.recoverZonesFromStorage(ID_PREVIEW_CANVAS);
 
+                        // Remove all existing Answer Cards
+                        $('.answers_collection .answer_item').remove();
                         // Render existing Answers
                         _fn.build.form.item.itemObjects = _fn.data.items;
                         _fn.build.form.item.itemObjects.forEach(function(answer_obj) {
                             _fn.build.form.item.createAnswerItem(answer_obj);
                         });
+                        // Rebind events to Answers Cards
+                        _fn.build.rebind_events_for_answers_tab();
 
                     } else {
                         pageFrame.height('100%');
@@ -1369,8 +1373,7 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                             // Options Menu
                             _fn.build.form.zone.zoneObjects.forEach(function(zoneObj){
-                                let option_zone = document.createElement('li');
-                                option_zone.setAttribute('id', zoneObj.uid);
+                                let option_zone = $(`<li id="${zoneObj.uid}" class="dropdown_item"></li>`);
                                 let option_checkbox = document.createElement('input');
                                 option_checkbox.setAttribute('class', 'option_checkbox');
                                 option_checkbox.setAttribute('type', 'checkbox');
@@ -1379,16 +1382,18 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 if (item_zones.includes(zoneObj.uid)) {
                                     option_checkbox.setAttribute('checked', 'checked');
                                 }
-                                option_zone.appendChild(option_checkbox);
+                                option_zone.append(option_checkbox);
                                 let option_display_name = document.createElement('span');
                                 option_display_name.setAttribute('class', 'option_display_name');
                                 option_display_name.innerText = zoneObj.title;
-                                option_zone.appendChild(option_display_name);
+                                option_zone.append(option_display_name);
                                 options_list.append(option_zone);
                             });
                             options_list.append($(`<li data-item_id="${item_uid}" class="delete_answer_button">Delete the Answer</li>`));
                             options_menu.append(options_list);
-                            answer_element.append(options_menu);
+                            let menu_container = $('<div></div>');
+                            menu_container.append(options_menu);
+                            answer_element.append(menu_container);
                             // Card Icon
                             handle_el.append(handle_icon);
                             answer_element.append(handle_el);
