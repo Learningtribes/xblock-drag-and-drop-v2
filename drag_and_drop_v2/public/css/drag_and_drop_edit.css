@@ -558,7 +558,117 @@
 }
 
 .xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones {
+    display: flex;
+}
 
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name {
+    margin: 0px 0px 0px 3px;
+    padding: 6px 5px 6px 5px;
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+    border-radius: 4px;
+    line-height: 12px;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(1) {
+    background-color: #DEF4FF;
+    color: #00476A;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(2) {
+    background-color: #F4E4FF;
+    color: #7D19C9;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(3) {
+    background-color: #56CF8833;
+    color: #56CF88;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(4) {
+    background-color: #FF776F33;
+    color: #FF776F;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(5) {
+    background-color: #FFC70033;
+    color: #FFC700;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(6) {
+    background-color: #0057D933;
+    color: #0057D9;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(7) {
+    background-color: #B8D31233;
+    color: #B8D312;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(8) {
+    background-color: #CD00DF33;
+    color: #CD00DF;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(9) {
+    background-color: #CD4A0033;
+    color: #CD4A00;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(10) {
+    background-color: #00A19433;
+    color: #00A194;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(11) {
+    background-color: #DEF4FF;
+    color: #00476A;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(12) {
+    background-color: #F4E4FF;
+    color: #7D19C9;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(13) {
+    background-color: #56CF8833;
+    color: #56CF88;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(14) {
+    background-color: #FF776F33;
+    color: #FF776F;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(15) {
+    background-color: #FFC70033;
+    color: #FFC700;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(16) {
+    background-color: #0057D933;
+    color: #0057D9;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(17) {
+    background-color: #B8D31233;
+    color: #B8D312;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(18) {
+    background-color: #CD00DF33;
+    color: #CD00DF;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(19) {
+    background-color: #CD4A0033;
+    color: #CD4A00;
+}
+
+.xblock--drag-and-drop--editor .items-tab .answers_collection .selected_zones .colored_name:nth-of-type(20) {
+    background-color: #00A19433;
+    color: #00A194;
 }
 
 .xblock--drag-and-drop--editor .items-tab .answers_collection .answer_zones_dropdown_menu {
