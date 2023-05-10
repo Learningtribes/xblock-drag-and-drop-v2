@@ -577,12 +577,24 @@ function DragAndDropEditBlock(runtime, element, params) {
                         let answerItemId = e.currentTarget.getAttribute('answer_item_id');
                         _fn.build.form.item.updateAnswerToZone(
                             parseInt(answerItemId), e.currentTarget.value, e.currentTarget.checked);
-                    })
+                    });
 
                     $element.find('.delete_answer_button').bind('click', function(e) {
                         e.preventDefault();
 
-                        console.info(e);
+                        let answer_item_id = parseInt(e.currentTarget.getAttribute('data-item_id'));
+                        let answer_card = $('#id_answer_card__' + answer_item_id);
+
+                        // remove this answer item from data
+                        for (var i = 0; i <_fn.build.form.item.itemObjects.length; i++) {
+                            let item = _fn.build.form.item.itemObjects[i];
+                            if (item.id === answer_item_id) {
+                                _fn.build.form.item.itemObjects.splice(i, 1);
+                                break;
+                            }
+                        }
+                        // remove from UI
+                        answer_card.remove();
                     });
 
                 },
@@ -1294,22 +1306,23 @@ function DragAndDropEditBlock(runtime, element, params) {
                         itemObjects: [],
 
                         createAnswerItem: function(oldItem = {}) {
-                            let answer_element = document.createElement('div'); // Answer Item Card
-                            let options_menu = document.createElement('div');
-                            let options_list = document.createElement('ul');
-                            let handle_el = document.createElement('div');
-                            let handle_icon = document.createElement('i');
-                            let answer_text = document.createElement('div');
-                            let linked_zones = document.createElement('div');
-                            let dropdown_btn = document.createElement('div');
-                            let dropdown_icon = document.createElement('i');
-
                             let item_title = oldItem.displayName || ('Answer ' + (1 + $('.answer_item').length));
                             let item_uid = oldItem.id || (1 + $('.answer_item').length);
                             let item_zones = oldItem.zones || [];
+                            let id_answer_name = 'id_answer_name__' + item_uid;
+                            let id_answer_colored_zones = 'id_answer_colored_zones__' + item_uid;
+
+                            let answer_element = $(`<div id="id_answer_card__${item_uid}" class="answer_item"></div>`); // Answer Item Card
+                            let options_menu = $('<div class="answer_zones_dropdown_content"></div>');
+                            let options_list = $('<ul></ul>');
+                            let handle_el = $('<div class="handler_style"></div>');
+                            let handle_icon = $('<i class="fa-solid fa-grip-dots-vertical" style="color: #1D1D1D"></i>');
+                            let answer_text = $(`<div class="answer_text" id="${id_answer_name}">${item_title}</div>`);
+                            let linked_zones = $(`<div class="selected_zones" id="${id_answer_colored_zones}"></div>`);
+                            let dropdown_btn = $('<div class="answer_zones_dropdown_menu"></div>');
+                            let dropdown_icon = $('<i class="fa-solid fa-caret-down" style="color: #1D1D1D"></i>');
 
                             // Options Menu
-                            options_menu.setAttribute('class', 'answer_zones_dropdown_content');
                             _fn.build.form.zone.zoneObjects.forEach(function(zoneObj){
                                 let option_zone = document.createElement('li');
                                 option_zone.setAttribute('id', zoneObj.uid);
@@ -1326,28 +1339,16 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 option_display_name.setAttribute('class', 'option_display_name');
                                 option_display_name.innerText = zoneObj.title;
                                 option_zone.appendChild(option_display_name);
-                                options_list.appendChild(option_zone);
+                                options_list.append(option_zone);
                             });
-                            let option_delete = document.createElement('li');
-                            option_delete.setAttribute('class', 'delete_answer_button');
-                            option_delete.innerText = 'Delete the Answer';
-                            options_list.appendChild(option_delete);
-                            options_menu.appendChild(options_list);
-                            answer_element.appendChild(options_menu);
-                            // Answer Card
-                            answer_element.setAttribute('class', 'answer_item');
+                            options_list.append($(`<li data-item_id="${item_uid}" class="delete_answer_button">Delete the Answer</li>`));
+                            options_menu.append(options_list);
+                            answer_element.append(options_menu);
                             // Card Icon
-                            handle_el.setAttribute('class', 'handler_style');
-                            handle_icon.setAttribute('class', 'fa-solid fa-grip-dots-vertical');
-                            handle_icon.setAttribute('style', 'color: #1D1D1D;');
-                            handle_el.appendChild(handle_icon);
-                            answer_element.appendChild(handle_el);
+                            handle_el.append(handle_icon);
+                            answer_element.append(handle_el);
                             // Answer description
-                            let id_answer_name = 'id_answer_name__' + item_uid;
-                            answer_text.setAttribute('id', id_answer_name)
-                            answer_text.setAttribute('class', 'answer_text');
-                            answer_text.innerText = item_title;
-                            answer_element.appendChild(answer_text);
+                            answer_element.append(answer_text);
                             // Colored Selected Zones Bar of this answer
                             let item_used_zones_titles = [];
                             _fn.build.form.zone.zoneObjects.forEach(function(zoneObj){
@@ -1355,28 +1356,22 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     item_used_zones_titles.push(zoneObj.title);
                                 }
                             });
-                            var id_answer_colored_zones = 'id_answer_colored_zones__' + item_uid; // answer colored zones list: ID Format: `id_answer_colored_zones__` + item_id
-                            linked_zones.setAttribute('id', id_answer_colored_zones);
                             if (item_used_zones_titles.length === 0) {
-                                linked_zones.setAttribute('class', 'selected_zones hidden');
+                                linked_zones.addClass('hidden');
                             } else {
-                                linked_zones.setAttribute('class', 'selected_zones');
                                 item_used_zones_titles.forEach(function(zone_title) {
                                     let colored_used_zone_title = document.createElement('div');
                                     colored_used_zone_title.setAttribute('class', 'colored_name');
                                     colored_used_zone_title.innerText = zone_title;
-                                    linked_zones.appendChild(colored_used_zone_title);
+                                    linked_zones.append(colored_used_zone_title);
                                 })
                             }
-                            answer_element.appendChild(linked_zones);
+                            answer_element.append(linked_zones);
                             // Dropdown menu of zones
-                            dropdown_btn.setAttribute('class', 'answer_zones_dropdown_menu');
-                            dropdown_icon.setAttribute('class', 'fa-solid fa-caret-down');
-                            dropdown_icon.setAttribute('style', 'color: #1D1D1D;');
-                            dropdown_btn.appendChild(dropdown_icon);
-                            answer_element.appendChild(dropdown_btn);
+                            dropdown_btn.append(dropdown_icon);
+                            answer_element.append(dropdown_btn);
                             // Insert this New Answer Item into Collection
-                            $('#id_answers_collection')[0].insertBefore(answer_element, document.getElementById('id_add_answer_item_btn'));
+                            answer_element.insertBefore('#id_add_answer_item_btn');
                         },
                         updateAnswerToZone: function(answerItemId, zoneId, addOrRemoveFlag) {
                             // Adding/Removing related zones to a Answer Card + Rendering Colored zones bar in the Answer Card
@@ -1404,6 +1399,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                                             item.zones.push(zoneId);
                                             // add to UI
                                             colored_zones_bar.append($(`<div class="colored_name">${zone_title}</div>`));
+                                            // show colored zone names bar if need
+                                            if (colored_zones_bar.hasClass('hidden')) {
+                                                colored_zones_bar.removeClass('hidden');
+                                            }
                                         }
                                     } else {
                                         // Unlink zone uid
@@ -1411,8 +1410,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                                             // remove from data
                                             item.zones.splice(item.zones.indexOf(zoneId), 1);
                                             // remove from UI
-                                            colored_zones_bar.children('.colored_name').each(function(colored_name_el) {
-                                                console.info(colored_name_el);
+                                            colored_zones_bar.children('.colored_name').each(function(idx, colored_name_el) {
+                                                if (colored_name_el.innerText === zone_title) {
+                                                    colored_name_el.remove();
+                                                }
                                             });
                                             // hide colored zone names bar if need
                                             if (colored_zones_bar.children('.colored_name').length === 0) {
@@ -1428,7 +1429,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                             if (updated_flag === false && addOrRemoveFlag === true) {
                                 var name_el_id = 'id_answer_name__' + answerItemId; // answer name element Format: `id_answer_name__` + item_id
 
-                                // add to data
+                                // add New Item Object to data while link a zone with the Item at first time.
+                                // That also means that we don't add data into `itemObjects` for a just created Item linked with nothing of zones.
                                 var data = {
                                     displayName: document.getElementById(name_el_id).innerText || ('Answer ' + (1 + $('.answer_item').length)),
                                     zones: [zoneId],
