@@ -127,6 +127,13 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 _fn.custom_background = '';
                                 const patternItemCustomBackground = $("#background-type-" + CUSTOM_TEMPLATE_TYPE.toString());
                                 patternItemCustomBackground.css('display', 'none');
+
+                                if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE) {
+                                    const oldAssetId = _fn.data.targetImg.substring(_fn.data.targetImg.lastIndexOf('/') + 1);
+                                    if (oldAssetId) {
+                                        _fn.build.form.background_check(oldAssetId)
+                                    }
+                                }
                             },
                             onCancelCallback: function () {}
                         })
@@ -165,16 +172,17 @@ function DragAndDropEditBlock(runtime, element, params) {
                         _fn.build.changeBackgroundSelect()
 
                     } else {
+                        _fn.build.changeBackgroundConfirmHandler(type_id, onConfirmHandler);
                         // confirmation with zones will be deleted information
-                        runtime.notify('confirm', {
-                            title: gettext('Change background?'),
-                            message: gettext('The unused zones and answers will be deleted. Are you sure you want to continue?'),
-                            actionLabel: gettext('Yes, delete the unused zones'),
-                            operation: function () {
-                                _fn.build.changeBackgroundConfirmHandler(type_id, onConfirmHandler);
-                            },
-                            onCancelCallback: function () {}
-                        })
+                        // runtime.notify('confirm', {
+                        //     title: gettext('Change background?'),
+                        //     message: gettext('The unused zones and answers will be deleted. Are you sure you want to continue?'),
+                        //     actionLabel: gettext('Yes, delete the unused zones'),
+                        //     operation: function () {
+                        //         _fn.build.changeBackgroundConfirmHandler(type_id, onConfirmHandler);
+                        //     },
+                        //     onCancelCallback: function () {}
+                        // })
                     }
                 },
                 changeBackgroundConfirmHandler(type_id, onConfirmHandler) {
@@ -212,14 +220,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                     } else {
                         // on zone is used, delete zones
                         _fn.data.zones = [];
-                    }
-
-                    // custom => any need check and delete unused background asset
-                    if (type_id !== _fn.type_id && _fn.type_id === CUSTOM_TEMPLATE_TYPE) {
-                        const oldAssetId = _fn.data.targetImg.substring(_fn.data.targetImg.lastIndexOf('/') + 1);
-                        if (oldAssetId) {
-                            _fn.build.form.background_check(oldAssetId)
-                        }
                     }
 
                     // set the new type_id
@@ -299,10 +299,14 @@ function DragAndDropEditBlock(runtime, element, params) {
                     const newBlockId = newXblockAsset.id.toString();
 
                     if (oldAssetId !== newBlockId) {
+                        //
+                        _fn.build.form.background_check(oldAssetId)
+
                         _fn.build.changeBackgroundType(CUSTOM_TEMPLATE_TYPE, function() {
                             _fn.data.targetImg = newXblockAsset.url;
                             _fn.custom_background = newXblockAsset.url;
                             _fn.build.form.submit(continue_mode=true);
+
                         })
 
                         console.log('uploadAssetsSuccessEvent: ', _fn.data.targetImg);
