@@ -557,11 +557,15 @@ function DragAndDropEditBlock(runtime, element, params) {
                         // Create zones on AnswerTab
                         _fn.build.recoverZonesFromStorage(ID_PREVIEW_CANVAS);
 
+                        // Remove all existing Answer Cards
+                        $('.answers_collection .answer_item').remove();
                         // Render existing Answers
                         _fn.build.form.item.itemObjects = _fn.data.items;
                         _fn.build.form.item.itemObjects.forEach(function(answer_obj) {
                             _fn.build.form.item.createAnswerItem(answer_obj);
                         });
+                        // Rebind events to Answers Cards
+                        _fn.build.rebind_events_for_answers_tab();
 
                     } else {
                         pageFrame.height('100%');
@@ -636,6 +640,38 @@ function DragAndDropEditBlock(runtime, element, params) {
                         let answerItemId = e.currentTarget.getAttribute('answer_item_id');
                         _fn.build.form.item.updateAnswerToZone(
                             parseInt(answerItemId), e.currentTarget.value, e.currentTarget.checked);
+                    });
+
+                    $element.find('.answer_text').bind('click', function(e) {
+                        let answer_item_id = parseInt(e.currentTarget.getAttribute('data-item_id'));
+                        let answer_editor = $('#id_answer_editor__' + answer_item_id);
+
+                        if (answer_editor.hasClass('hidden')) {
+                            answer_editor.removeClass('hidden');
+                            e.currentTarget.setAttribute('class', 'answer_text hidden');
+                        }
+                    });
+
+                    $element.find('.answer_editor').bind('focusout', function(e) {
+                        let answer_item_id = parseInt(e.currentTarget.getAttribute('data-item_id'));
+                        let answer_text_el = $('#id_answer_name__' + answer_item_id);
+
+                        if (answer_text_el.hasClass('hidden')) {
+                            let new_answer_text = e.currentTarget.value;
+                            let old_answer_text = answer_text_el.text();
+
+                            old_answer_text = old_answer_text || ('Answer ' + (1 + $('.answer_item').length));
+                            answer_text_el.text(new_answer_text || old_answer_text); // replace with new answer text on UI
+                            // replacing in data
+                            _fn.build.form.item.itemObjects.forEach(function(item) {
+                                if (item.id === answer_item_id) {
+                                    item.displayName = new_answer_text || old_answer_text;
+                                }
+                            })
+
+                            answer_text_el.removeClass('hidden');
+                            e.currentTarget.setAttribute('class', 'answer_editor hidden');
+                        }
                     });
 
                     $element.find('.delete_answer_button').bind('click', function(e) {
@@ -1355,15 +1391,15 @@ function DragAndDropEditBlock(runtime, element, params) {
                             let options_list = $('<ul></ul>');
                             let handle_el = $('<div class="handler_style"></div>');
                             let handle_icon = $('<i class="fa-solid fa-grip-dots-vertical" style="color: #1D1D1D"></i>');
-                            let answer_text = $(`<div class="answer_text" id="${id_answer_name}">${item_title}</div>`);
+                            let answer_text = $(`<div class="answer_text" id="${id_answer_name}" data-item_id="${item_uid}">${item_title}</div>`);
+                            let answer_editor = $(`<input class="answer_editor hidden" data-item_id="${item_uid}" id="id_answer_editor__${item_uid}" type="text">`);
                             let linked_zones = $(`<div class="selected_zones" id="${id_answer_colored_zones}"></div>`);
                             let dropdown_btn = $('<div class="answer_zones_dropdown_menu"></div>');
                             let dropdown_icon = $('<i class="fa-solid fa-caret-down" style="color: #1D1D1D"></i>');
 
                             // Options Menu
                             _fn.build.form.zone.zoneObjects.forEach(function(zoneObj){
-                                let option_zone = document.createElement('li');
-                                option_zone.setAttribute('id', zoneObj.uid);
+                                let option_zone = $(`<li id="${zoneObj.uid}" class="dropdown_item"></li>`);
                                 let option_checkbox = document.createElement('input');
                                 option_checkbox.setAttribute('class', 'option_checkbox');
                                 option_checkbox.setAttribute('type', 'checkbox');
@@ -1372,21 +1408,24 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 if (item_zones.includes(zoneObj.uid)) {
                                     option_checkbox.setAttribute('checked', 'checked');
                                 }
-                                option_zone.appendChild(option_checkbox);
+                                option_zone.append(option_checkbox);
                                 let option_display_name = document.createElement('span');
                                 option_display_name.setAttribute('class', 'option_display_name');
                                 option_display_name.innerText = zoneObj.title;
-                                option_zone.appendChild(option_display_name);
+                                option_zone.append(option_display_name);
                                 options_list.append(option_zone);
                             });
                             options_list.append($(`<li data-item_id="${item_uid}" class="delete_answer_button">Delete the Answer</li>`));
                             options_menu.append(options_list);
-                            answer_element.append(options_menu);
+                            let menu_container = $('<div></div>');
+                            menu_container.append(options_menu);
+                            answer_element.append(menu_container);
                             // Card Icon
                             handle_el.append(handle_icon);
                             answer_element.append(handle_el);
                             // Answer description
                             answer_element.append(answer_text);
+                            answer_element.append(answer_editor);
                             // Colored Selected Zones Bar of this answer
                             let item_used_zones_titles = [];
                             _fn.build.form.zone.zoneObjects.forEach(function(zoneObj){
