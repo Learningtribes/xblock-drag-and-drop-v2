@@ -23,6 +23,8 @@ function DragAndDropEditBlock(runtime, element, params) {
 
     var $element = $(element);
 
+    const PYRAMID_TEMPLATE_TYPE = 0;
+    const RECTANGLE_TEMPLATE_TYPE = 1;
     const BLANK_TEMPLATE_TYPE = 2;
     const CUSTOM_TEMPLATE_TYPE = 3;
 
@@ -109,17 +111,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                             new LearningTribes.QuestionMark(wrapper)
                         })
                     }
-                    if (LearningTribes && LearningTribes.Switcher) {
-                        new LearningTribes.Switcher($('.display-labels-form .switcher-wrapper')[0], _fn.data.displayLabels,function(checked){
-                            _fn.data.displayLabels=checked;
-                            _fn.build.refreshZonesSettings();
-                        })
-                        new LearningTribes.Switcher($('.display-borders-form .switcher-wrapper')[0], _fn.data.displayBorders,function(checked){
-                            _fn.data.displayBorders=checked;
-                            _fn.build.refreshZonesSettings();
-                        })
-
-                    }
                 },
                 backgroundTemplateChoose: function(e) {
                     /**
@@ -162,7 +153,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                     if (_fn.type_id === BLANK_TEMPLATE_TYPE && type_id === CUSTOM_TEMPLATE_TYPE ||
                         _fn.type_id === CUSTOM_TEMPLATE_TYPE && type_id === BLANK_TEMPLATE_TYPE) {
                         // BLANK <=> CUSTOM keep zones with no confirmation
-                        _fn.type_id = parseInt(type_id)
+                        _fn.type_id = parseInt(type_id);
+                        _fn.build.updateSwitchers();
 
                         if (type_id === CUSTOM_TEMPLATE_TYPE) {
                             if (onConfirmHandler) {
@@ -231,7 +223,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                     }
 
                     // set the new type_id
-                    _fn.type_id = parseInt(type_id)
+                    _fn.type_id = parseInt(type_id);
+                    _fn.build.updateSwitchers();
 
                     if (onConfirmHandler) {
                         // receive asset url from uploaded image asset detail
@@ -315,9 +308,22 @@ function DragAndDropEditBlock(runtime, element, params) {
                         console.log('uploadAssetsSuccessEvent: ', _fn.data.targetImg);
                     }
                 },
-
                 onBackgroundGetAssetsSuccessHandler(e) {
 
+                },
+                updateSwitchers() {
+                    /**
+                     *
+                     */
+                    //
+                    if (_fn.type_id === BLANK_TEMPLATE_TYPE) {
+                        _fn.data.displayBorders = true;     // can't switch off
+                        $('#id_switcher_display_borders').css('display', 'none !important');
+                    } else {
+                        _fn.data.displayBorders = false;
+                        $('#id_switcher_display_borders').css('display', 'flex');
+                    }
+                    _fn.data.displayLabels = true
                 },
 
                 validate: function() {
@@ -392,13 +398,12 @@ function DragAndDropEditBlock(runtime, element, params) {
                 },
 
                 refreshZonesSettings: function() {
-                    if (_fn.data.displayBorders === true && _fn.type_id === 1) {
-                        // Affect Two rectangle template only
-                        document.getElementById('id_two_rect_template_left').style.display = 'block';
-                        document.getElementById('id_two_rect_template_right').style.display = 'block';
-                    } else if (_fn.type_id === 1) {
-                        document.getElementById('id_two_rect_template_left').style.display = 'none';
-                        document.getElementById('id_two_rect_template_right').style.display = 'none';
+                    if (_fn.data.displayBorders === true) {
+                        $('.resizable_box').removeClass('no-border');
+                    } else {
+                        if (!$('.resizable_box').hasClass('no-border')) {
+                            $('.resizable_box').addClass('no-border');
+                        }
                     }
 
                     if (_fn.data.displayLabels === true) {
@@ -426,7 +431,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                     }
 
                     // Whether new template has been selected OR AnswerTab selected :
-                    if (_fn.type_id !== _fn.zone_tab_used_tpl_id || '3' === tabId) {
+                    if (_fn.type_id !== _fn.zone_tab_used_tpl_id || '3' === tabId || '2' === tabId) {
 
                         // Create new background
                         if (_fn.type_id === 0) {           // Triangle template
@@ -452,8 +457,6 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                             canvas_element.append(left_rect);
                             canvas_element.append(right_rect);
-
-                            document.getElementById('id_switcher_rectangles_border').style = 'display: block';
 
                         } else if (_fn.type_id === 3) {     // Custom Background template
                             var custom_bk_image = document.createElement('img');
@@ -497,10 +500,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                         $('#id_xblock_save_and_continue_button').className = 'action-item ';
 
                     } else if ('2' === tabId) { // Zones design tab
-                        if (_fn.type_id === 1) {        // Two rectangle template set larger height size
-                            pageFrame.height('876px');
-                        } else {
+
+                        if (_fn.type_id === BLANK_TEMPLATE_TYPE) {
                             pageFrame.height('826px');
+                        } else {
+                            pageFrame.height('876px');
                         }
 
                         $('#id_xblock_save_and_continue_button').removeClass('hidden');
@@ -509,20 +513,32 @@ function DragAndDropEditBlock(runtime, element, params) {
                             bt.addClass('hidden');
                         }
 
-                        document.getElementById('id_switcher_rectangles_border').style = 'display: none';
-
                         _fn.build.renderTemplateZonesAreaBackgroud(canvas_element, tabId);
 
-                        var removed_unused_zones_flag = false;  // Should be false if the `Zones Tab` is empty.
-                        if (_fn.zone_tab_used_tpl_id !== undefined && _fn.type_id !== _fn.zone_tab_used_tpl_id) {
-                            removed_unused_zones_flag = true;
-                        }
+                        // var removed_unused_zones_flag = false;  // Should be false if the `Zones Tab` is empty.
+                        // if (_fn.zone_tab_used_tpl_id !== undefined && _fn.type_id !== _fn.zone_tab_used_tpl_id) {
+                        //     removed_unused_zones_flag = true;
+                        // }
                         _fn.zone_tab_used_tpl_id = _fn.type_id;
 
                         // generate zoneObjects from data.zones
                         _fn.build.generateZoneObjectsFromZones();
                         // Create existing zones
                         _fn.build.recoverZonesFromStorage();
+
+                        if (LearningTribes && LearningTribes.Switcher) {
+                            var displayBordersSwitcher = $('#id_switcher_display_borders').find('.switcher')[0];
+                            new LearningTribes.Switcher(displayBordersSwitcher, _fn.data.displayBorders, function(checked){
+                                _fn.data.displayBorders = checked
+                                _fn.build.refreshZonesSettings();
+                            });
+                            var displayLabelsSwitcher = $('#id_switcher_display_labels').find('.switcher')[0];
+                            new LearningTribes.Switcher(displayLabelsSwitcher, _fn.data.displayLabels, function(checked){
+                                _fn.data.displayLabels = checked
+                                _fn.build.refreshZonesSettings();
+                            });
+                            _fn.build.refreshZonesSettings();
+                        }
 
                     } else if ('3' === tabId) { // Item design tab
                         pageFrame.height('976px');
@@ -700,17 +716,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                         // .on('click', '.remove-zone', _fn.build.form.zone.remove)
                         // .on('input', '.zone-row input', _fn.build.form.zone.changedInputHandler)
                         // .on('change', '.zone-align-select', _fn.build.form.zone.changedInputHandler)
-                        // .on(
-                        //     'click',
-                        //     '.target-image-form .background-auto button',
-                        //     _fn.build.form.zone.generateBackgroundAndZones
-                        // )
-                        .on('click', '.display-labels-form', function(e) {
-                            _fn.data.displayLabels = $('.display-labels-form input', element).is(':checked');
-                        })
-                        .on('click', '.display-borders-form', function(e) {
-                            _fn.data.displayBorders = $('.display-borders-form input', element).is(':checked');
-                        })
                         .on('click', '#id_add_zone_bt', function(e) {
                             let canvas = $(ID_AUTHOR_CANVAS)[0];
                             let left = canvas.offsetWidth / 100 * 40;
@@ -938,22 +943,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 });
                             });
                         },
-                        generateBackgroundAndZones: function() {
-                            var params = _fn.build.form.zone.getAutozoneParams();
-                            if (!_fn.build.form.zone.validateAutozoneParams(params)) {
-                                return;
-                            }
-                            var autozone_data = _fn.build.form.zone.calculateAutozoneData(params);
-                            // Generate zones.
-                            _fn.build.form.zone.generateZones(autozone_data.zones);
-                            // Set background img src.
-                            var data_uri = _fn.build.form.zone.generateBackgroundDataUri(autozone_data, params);
-                            _fn.data.targetImg = data_uri;
-                            _fn.build.$el.targetImage.attr('src', data_uri);
-                            // Make sure "Display label names on the image" is checked.
-                            _fn.data.displayLabels = true;
-                            $('.display-labels-form input', element).prop('checked', true);
-                        },
                         makeReadonlyZone: function(oldZone, id_zones_canvas=ID_PREVIEW_CANVAS) {
                             let element = document.createElement('div');
                             let new_div_title = document.createElement('div');
@@ -989,7 +978,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                             let is_resizing = false;    // true: allow resizing zone | false: allow moving zone
 
                             element.setAttribute('id', zone_uid);
-                            element.setAttribute( 'class', 'resizable_box' );
+                            if (_fn.data.displayBorders !== true) {
+                                element.setAttribute('class', 'resizable_box no-border')
+                            } else {
+                                element.setAttribute( 'class', 'resizable_box' );
+                            }
                             element.setAttribute('style',`width:${minW}px; height:${minH}px; left:${zone_left}px; top:${zone_top}px`);
                             new_div_title.setAttribute('class', 'zone_title');
                             new_div_title.innerText = zone_title;

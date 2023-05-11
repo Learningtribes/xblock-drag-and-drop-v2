@@ -65,7 +65,7 @@ class DragAndDropBlock(
         display_name=_("Title"),
         help=_("The title of the drag and drop problem. The title is displayed to learners."),
         scope=Scope.settings,
-        default=_("Drag & Drop"),
+        default=_("Drag and Drop"),
         enforce_type=True,
     )
 

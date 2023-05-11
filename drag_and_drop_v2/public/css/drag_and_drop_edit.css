@@ -202,6 +202,10 @@
     left: 500px;
 }
 
+.xblock--drag-and-drop--editor .zones-tab .tab-content .drag_drop_area .no-border {
+    border: none !important;
+}
+
 .xblock--drag-and-drop--editor .zones-tab .tab-content .drag_drop_area .resizable_box {
     position: absolute;
     border: 1px solid #1D1D1D;
