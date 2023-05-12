@@ -115,10 +115,12 @@ function DragAndDropEditBlock(runtime, element, params) {
                 backgroundTemplateChoose: function(e) {
                     /**
                      * Handle select background
+                     * Handle delete custom background, call background_check after deleted background
                      */
                     e.preventDefault();
 
                     if (e.target.matches('#item-delete-circle-3') || e.target.matches('#item-delete-circle-3 svg')) {
+                        // delete custom background
                         runtime.notify('confirm', {
                             title: gettext('Delete background?'),
                             message: gettext('The custom background will be deleted. Are you sure you want to continue?'),
@@ -261,10 +263,11 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                     // Handle the display of selected and delete circles
                     for (var i = 0; i < params.tpl_summaries.length; i++) {
+                        const tpl_summary = params.tpl_summaries[i];
                         // Delete circle appears when the custom background is not selected
                         const selecedObj = $("#item-selected-circle-" + i.toString());
                         const deleteCircleObj = $("#item-delete-circle-" + i.toString());
-                        if (parseInt(params.tpl_summaries[i].type_id) === CUSTOM_TEMPLATE_TYPE && _fn.type_id !== CUSTOM_TEMPLATE_TYPE && _fn.custom_background) {
+                        if (parseInt(tpl_summary.type_id) === CUSTOM_TEMPLATE_TYPE && _fn.type_id !== CUSTOM_TEMPLATE_TYPE && _fn.custom_background) {
                             deleteCircleObj.css('display', '');
                         } else {
                             deleteCircleObj.css('display', 'none');
@@ -272,7 +275,7 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                         // Handle the display of selected circles
                         // Selected circle appears when the background is selected
-                        if (_fn.type_id === parseInt(params.tpl_summaries[i].type_id)) {
+                        if (_fn.type_id === parseInt(tpl_summary.type_id)) {
                             selecedObj.css('display', '');
                         } else {
                             selecedObj.css('display', 'none');
@@ -300,8 +303,9 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                     if (oldAssetId !== newBlockId) {
                         //
-                        _fn.build.form.background_check(oldAssetId)
-
+                        if (oldAssetId) {
+                            _fn.build.form.background_check(oldAssetId)
+                        }
                         _fn.build.changeBackgroundType(CUSTOM_TEMPLATE_TYPE, function() {
                             _fn.data.targetImg = newXblockAsset.url;
                             _fn.custom_background = newXblockAsset.url;
@@ -441,11 +445,15 @@ function DragAndDropEditBlock(runtime, element, params) {
                         if (_fn.type_id === 0) {           // Triangle template
                             _fn.tpl_summaries.forEach(function(tpl_summary) {
                                 if (tpl_summary.type_id === 0) {
-                                    var triangle_bk_image = document.createElement('img');
-                                    triangle_bk_image.setAttribute('id', id_zones_background_image);
-                                    triangle_bk_image.setAttribute('class', 'target-img');
-                                    triangle_bk_image.setAttribute('src', tpl_summary.thumbnail);
-                                    canvas_element.append(triangle_bk_image);
+                                    // var triangle_bk_image = document.createElement('img');
+                                    // triangle_bk_image.setAttribute('id', id_zones_background_image);
+                                    // triangle_bk_image.setAttribute('class', 'target-img');
+                                    // triangle_bk_image.setAttribute('src', tpl_summary.thumbnail);
+                                    // canvas_element.append(triangle_bk_image);
+
+                                    $('.zones-tab .tab-content .drag_drop_area')
+                                        .css("background-image", "url(" + tpl_summary.thumbnail + ")");
+
                                 }
                             });
                         } else if (_fn.type_id === 1) {    // Two rectangle template
@@ -463,13 +471,14 @@ function DragAndDropEditBlock(runtime, element, params) {
                             canvas_element.append(right_rect);
 
                         } else if (_fn.type_id === 3) {     // Custom Background template
-                            var custom_bk_image = document.createElement('img');
+                            // var custom_bk_image = document.createElement('img');
+                            // custom_bk_image.setAttribute('id', id_zones_background_image);
+                            // custom_bk_image.setAttribute('class', 'target-img');
+                            // custom_bk_image.setAttribute('src', _fn.data.targetImg);  // paste uploaded image into background
+                            // canvas_element.append(custom_bk_image);
 
-                            custom_bk_image.setAttribute('id', id_zones_background_image);
-                            custom_bk_image.setAttribute('class', 'target-img');
-                            custom_bk_image.setAttribute('src', _fn.data.targetImg);  // paste uploaded image into background
-
-                            canvas_element.append(custom_bk_image);
+                            $('.zones-tab .tab-content .drag_drop_area')
+                                .css("background-image", "url(" + _fn.data.targetImg + ")");    // paste uploaded image into background
                         }
                     }
 

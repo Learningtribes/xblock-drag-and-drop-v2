@@ -6,13 +6,11 @@
     width: 980px;
     height: calc(100% - 60px);
     position: absolute;
-    margin: 10px 30px 10px 0px;
+    margin: 15px 30px 15px 0px;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .supported-setting-tags-nav {
-	border: 0;
 	margin: 3px 3px 3px 30px;
-	display: block;
 	font-size: 0;
     border: 1px solid #DCDCDC;
     border-radius: 5px;
@@ -181,9 +179,11 @@
 
 .xblock--drag-and-drop--editor .zones-tab .tab-content .drag_drop_area {
     display: flex;
-    width: 920px;
+    width: 940px;
     height: 523px;
     margin: 15px 0px 15px 0px;
+    position: relative;
+    background-repeat: no-repeat;
 }
 
 .xblock--drag-and-drop--editor .tab-content .left {
@@ -191,7 +191,7 @@
     width: 465px;
     height: 500px;
     position: absolute;
-    left: 30px;
+    left: 0;
 }
 
 .xblock--drag-and-drop--editor .tab-content .right {
@@ -199,17 +199,17 @@
     width: 465px;
     height: 500px;
     position: absolute;
-    left: 500px;
+    left: 470px;
 }
 
 .xblock--drag-and-drop--editor .zones-tab .tab-content .drag_drop_area .no-border {
     border: none !important;
+    margin: 1px;
 }
 
 .xblock--drag-and-drop--editor .zones-tab .tab-content .drag_drop_area .resizable_box {
     position: absolute;
     border: 1px solid #1D1D1D;
-    margin: 3px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -244,7 +244,7 @@
     font-size: 14px;
     font-weight: 700;
     line-height: 19.07px;
-    margin: 10px 20px 10px 10px;
+    margin: 10px 20px 0 10px;
     display: flex !important;
 }
 
@@ -405,7 +405,7 @@
 .xblock--drag-and-drop--editor .zones-tab .zones-tips {
     font-size: 16px;
     font-weight: 400;
-    margin: 10px 0px 10px 0px;
+    margin: 15px 0 15px 0;
 }
 
 .xblock--drag-and-drop--editor .zones-tab .tab-content .controls {

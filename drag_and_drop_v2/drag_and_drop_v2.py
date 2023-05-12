@@ -467,15 +467,20 @@ class DragAndDropBlock(
         course_key = CourseKey.from_string('{}'.format(self.course_id))
         asset_key = AssetKey.from_string(asset_id) if asset_id else None
 
-        delete_asset(course_key, asset_key)
-        logging.info('Auto deleted unused asset: {file_name}, asset_key: {asset_key}, '
-                     'course_id: {course_id}'.format(file_name=asset_key.name,
-                                                     asset_key=asset_key,
-                                                     course_id=course_key))
-
-        return {
-            'result': 'success',
-        }
+        try:
+            delete_asset(course_key, asset_key)
+            logging.info('Deleted unused asset: {file_name}, asset_key: {asset_key}, '
+                         'course_id: {course_id}'.format(file_name=asset_key.name,
+                                                         asset_key=asset_key,
+                                                         course_id=course_key))
+            return {
+                'result': 'success',
+            }
+        except Exception as e:
+            print(e)
+            return {
+                'result': 'success',
+            }
 
     @XBlock.json_handler
     def studio_submit(self, submissions, suffix=''):
