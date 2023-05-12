@@ -526,6 +526,7 @@
     box-sizing: border-box;
     flex-wrap: wrap;
     padding: 2px 12px 12px 12px;
+    overflow-y: scroll;
 }
 
 .xblock--drag-and-drop--editor .items-tab .answers_collection .answer_item {

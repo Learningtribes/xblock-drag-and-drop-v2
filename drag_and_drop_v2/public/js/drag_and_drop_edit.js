@@ -612,6 +612,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                             // generate zoneObjects data from zones data
                             _fn.data.zones.forEach(function(zone) {
                                 _fn.build.form.zone.add({
+                                    uid: zone.uid,      // set `uid` field
+                                    title: zone.title,  // set `title` field
                                     width: zone.width,
                                     height: zone.height,
                                     x: zone.x,
@@ -818,19 +820,37 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 }
                             }
                         },
+                        generateNewZoneTitle: function() {
+                            /**
+                             * Guarantee generating a new unique Zone title.
+                             */
+                            for (var i = 1; true; i++) {
+                                var has_one = false;
+                                var new_unique_zone_title = "Zone " + i;
+                                _fn.build.form.zone.zoneObjects.forEach(function(zone) {
+                                    if (new_unique_zone_title === zone.title) {
+                                        has_one = true;
+                                    }
+                                })
+
+                                if (false === has_one) {
+                                    return new_unique_zone_title;
+                                }
+                            }
+
+                        },
                         add: function(oldZone) {
                             if (!oldZone) oldZone = {};
-                            var num = _fn.build.form.zone.zoneObjects.length + 1;
 
                             // Update zone obj
                             var zoneObj = {
-                                title: oldZone.title || 'Zone ' + num,
+                                title: oldZone.title || _fn.build.form.zone.generateNewZoneTitle(),
                                 description: oldZone.description,
                                 // uid: unique ID for this zone. For backwards compatibility,
                                 // this field cannot be called "id" and must inherit the "title"
                                 // property if no 'uid' value is present, since old versions of
                                 // this block used the title as the primary identifier.
-                                uid: oldZone.uid || oldZone.title || _fn.build.form.zone.generateUID(),
+                                uid: oldZone.uid || _fn.build.form.zone.generateUID(),  // Removed " || oldZone.title " from this line
                                 width: oldZone.width || 200,
                                 height: oldZone.height || 100,
                                 x: oldZone.x || 0,
@@ -841,13 +861,13 @@ function DragAndDropEditBlock(runtime, element, params) {
                             _fn.build.form.zone.zoneObjects.push(zoneObj);
                         },
                         generateUID: function() {
-                            // Generate a unique ID for a new zone.
-                            for (var i = 1; true; i++) {
-                                var uid = "zone-" + i;
-                                if (!_fn.build.form.zone.getZoneObjByUID(uid)) {
-                                    return uid;
-                                }
-                            }
+                            /**
+                             * @brief       Generating a `uuid` for a new zone.
+                             * @note        The previous of this method generating UID rely on the value of `_fn.build.form.zone.zoneObjects.length`.
+                             *              And this is not safe because the `length` of array may depened on the logic of code. ( For example: this
+                             *              array cleaned by some code, but the `uid_zone_{number}` will be still recovered from somewhere later`.
+                             */
+                            return Date.now().toString(36) + Math.random().toString(36);
                         },
                         remove: function(e) {
                             var $el = $(e.currentTarget).closest('.zone-row'),
@@ -1010,13 +1030,18 @@ function DragAndDropEditBlock(runtime, element, params) {
                             $(id_zones_canvas)[0].appendChild(element);
                         },
                         makeResizableZone: function(oldZone, id_zones_canvas=ID_AUTHOR_CANVAS) {
-                            // Generating new zone (uid / title) if not specifying `uid` or `title` in `OldZone` .
+                            /**
+                             * @brief                   Generating Zone on Page & adding zone record into Data. But if the `zone.uid`
+                             *                          exists already in cache. This method return before creating.
+                             * @dict    oldZone         zone object, if field `uid` doesn't exist in it. We generate a new uid and add this zone into data
+                             *                          Then draw this zone on the page.
+                             * @string  id_zones_canvas the element id where the new zones will be added on
+                             */
                             let element = document.createElement('div');
                             let new_div_title = document.createElement('div');
                             let title_edit_icon = document.createElement('i');
                             let title_icon_container = document.createElement('div');
-                            let num = _fn.build.form.zone.zoneObjects.length + 1;
-                            let zone_title = oldZone.title || 'Zone ' + num;
+                            let zone_title = oldZone.title || _fn.build.form.zone.generateNewZoneTitle();
                             let zone_uid = oldZone.uid || _fn.build.form.zone.generateUID();
                             let zone_align = oldZone.align || 'center';
                             let zone_left = oldZone.x || 0;

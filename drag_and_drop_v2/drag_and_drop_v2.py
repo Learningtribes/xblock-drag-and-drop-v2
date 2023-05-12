@@ -486,6 +486,31 @@ class DragAndDropBlock(
     def studio_submit(self, submissions, suffix=''):
         """Handles studio save.
         """
+        def _validate_zone_uids(zones_items_data):
+            if zones_items_data:
+                # Raise error if duplicated Zone UIDs exist in parameters of HTTP POST.
+                zones_uids = [zone['uid'] for zone in zones_items_data.get('zones', [])]
+                zones_uids_set = set(zones_uids)
+                if len(zones_uids) != len(zones_uids_set):
+                    return {
+                        'result': 'error',
+                        'messages': ['Duplicated zone uid in POST arguments']
+                    }
+                # Raise error if illegal zone uid related with items.
+                items_used_zones = {zone_uid for item in zones_items_data.get('items', []) for zone_uid in item['zones']}
+                if items_used_zones - zones_uids_set:
+                    return {
+                        'result': 'error',
+                        'messages': ['Illegal zone uid in item objects']
+                    }
+
+            return None
+
+        zones_items_data = submissions.get('data')
+        json_resp = _validate_zone_uids(zones_items_data)
+        if json_resp:
+            return json_resp
+
         if 'display_name' in submissions:
             self.display_name = submissions['display_name']
         if 'mode' in submissions:
@@ -506,8 +531,8 @@ class DragAndDropBlock(
             self.item_text_color = submissions['item_text_color']
         if 'max_items_per_zone' in submissions:
             self.max_items_per_zone = get_max_items_per_zone(submissions.get('max_items_per_zone', None))
-        if 'data' in submissions:
-            self.data = submissions['data']
+        if zones_items_data:
+            self.data = zones_items_data
         if 'feedback' in submissions:
             feedback = submissions['feedback']
             if 'start' in feedback:
