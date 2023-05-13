@@ -516,12 +516,7 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                         _fn.build.renderTemplateZonesAreaBackgroud(canvas_element, tabId);
 
-                        // var removed_unused_zones_flag = false;  // Should be false if the `Zones Tab` is empty.
-                        // if (_fn.zone_tab_used_tpl_id !== undefined && _fn.type_id !== _fn.zone_tab_used_tpl_id) {
-                        //     removed_unused_zones_flag = true;
-                        // }
                         _fn.zone_tab_used_tpl_id = _fn.type_id;
-
                         // generate zoneObjects from data.zones
                         _fn.build.generateZoneObjectsFromZones();
                         // Create existing zones
@@ -563,7 +558,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         // Render existing Answers
                         _fn.build.form.item.itemObjects = _fn.data.items;
                         _fn.build.form.item.itemObjects.forEach(function(answer_obj) {
-                            _fn.build.form.item.createAnswerItem(answer_obj);
+                            _fn.build.form.item.createAnswerItem(answer_obj, false);
                         });
                         // Rebind events to Answers Cards
                         _fn.build.rebind_events_for_answers_tab();
@@ -639,7 +634,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                 rebind_events_for_answers_tab: function() {
                     // For creating answer items dynamiclly, we rebind event for these new items.
 
-                    $element.find('.option_checkbox').bind('click', function(e) {
+                    $('input.option_checkbox').bind('click', function(e) {
                         let answerItemId = e.currentTarget.getAttribute('answer_item_id');
                         _fn.build.form.item.updateAnswerToZone(
                             parseInt(answerItemId), e.currentTarget.value, e.currentTarget.checked);
@@ -733,11 +728,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                     $element.find('.add_answer_button').bind('click', function(e) {
                         e.preventDefault();
 
-                        _fn.build.form.item.createAnswerItem();
+                        _fn.build.form.item.createAnswerItem({}, true);
                         _fn.build.rebind_events_for_answers_tab();
                     });
-
-                    _fn.build.rebind_events_for_answers_tab();  // Run event binding for existing Answer Cards
 
                     $fbkTab
                         .on('change', '.problem-mode', _fn.build.form.problem.toggleAssessmentSettings);
@@ -1405,7 +1398,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         count: 0,
                         itemObjects: [],
 
-                        createAnswerItem: function(oldItem = {}) {
+                        createAnswerItem: function(oldItem = {}, create_new_flag=false) {
                             let item_title = oldItem.displayName || ('Answer ' + (1 + $('.answer_item').length));
                             let item_uid = oldItem.id || (1 + $('.answer_item').length);
                             let item_zones = oldItem.zones || [];
@@ -1463,9 +1456,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 linked_zones.addClass('hidden');
                             } else {
                                 item_used_zones_titles.forEach(function(zone_title) {
-                                    let colored_used_zone_title = document.createElement('div');
-                                    colored_used_zone_title.setAttribute('class', 'colored_name');
-                                    colored_used_zone_title.innerText = zone_title;
+                                    let colored_used_zone_title = $(`<div class="colored_name">${zone_title}</div>`);
                                     linked_zones.append(colored_used_zone_title);
                                 })
                             }
@@ -1475,6 +1466,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                             answer_element.append(dropdown_btn);
                             // Insert this New Answer Item into Collection
                             answer_element.insertBefore('#id_add_answer_item_btn');
+
+                            if (create_new_flag) {
+                                // Add this new Answer Card into data
+                                _fn.build.form.item.updateAnswerToZone(item_uid, undefined, true);
+                            }
                         },
                         updateAnswerToZone: function(answerItemId, zoneId, addOrRemoveFlag) {
                             // Adding/Removing related zones to a Answer Card + Rendering Colored zones bar in the Answer Card
@@ -1482,72 +1478,77 @@ function DragAndDropEditBlock(runtime, element, params) {
                             let zone_title = undefined;
                             var colored_zones_bar = $('#id_answer_colored_zones__' + answerItemId);
 
-                            _fn.build.form.zone.zoneObjects.forEach(function(zone) {
-                                if (zone.uid == zoneId) {
-                                    zone_title = zone.title;
+                            if (zoneId !== undefined) {
+                                _fn.build.form.zone.zoneObjects.forEach(function (zone) {
+                                    if (zone.uid == zoneId) {
+                                        zone_title = zone.title;
+                                    }
+                                })
+                                if (zone_title === undefined) {
+                                    return;
                                 }
-                            })
-                            if (zone_title === undefined) {
-                                return;
-                            }
 
-                            _fn.build.form.item.itemObjects.forEach(function(item) {
-                                if (item.id === answerItemId) {
-                                    updated_flag = true;
+                                _fn.build.form.item.itemObjects.forEach(function (item) {
+                                    if (item.id === answerItemId) {
+                                        updated_flag = true;
 
-                                    if (addOrRemoveFlag === true) {
-                                        // Link zone uid
-                                        if (!item.zones.includes(zoneId)) {
-                                            // add to data
-                                            item.zones.push(zoneId);
-                                            // add to UI
-                                            colored_zones_bar.append($(`<div class="colored_name">${zone_title}</div>`));
-                                            // show colored zone names bar if need
-                                            if (colored_zones_bar.hasClass('hidden')) {
-                                                colored_zones_bar.removeClass('hidden');
-                                            }
-                                        }
-                                    } else {
-                                        // Unlink zone uid
-                                        if (item.zones.includes(zoneId)) {
-                                            // remove from data
-                                            item.zones.splice(item.zones.indexOf(zoneId), 1);
-                                            // remove from UI
-                                            colored_zones_bar.children('.colored_name').each(function(idx, colored_name_el) {
-                                                if (colored_name_el.innerText === zone_title) {
-                                                    colored_name_el.remove();
+                                        if (addOrRemoveFlag === true) {
+                                            // Link zone uid
+                                            if (!item.zones.includes(zoneId)) {
+                                                // add to data
+                                                item.zones.push(zoneId);
+                                                // add to UI
+                                                colored_zones_bar.append($(`<div class="colored_name">${zone_title}</div>`));
+                                                // show colored zone names bar if need
+                                                if (colored_zones_bar.hasClass('hidden')) {
+                                                    colored_zones_bar.removeClass('hidden');
                                                 }
-                                            });
-                                            // hide colored zone names bar if need
-                                            if (colored_zones_bar.children('.colored_name').length === 0) {
-                                                if (!colored_zones_bar.hasClass('hidden')) {
-                                                    colored_zones_bar.addClass('hidden');
+                                            }
+                                        } else {
+                                            // Unlink zone uid
+                                            if (item.zones.includes(zoneId)) {
+                                                // remove from data
+                                                item.zones.splice(item.zones.indexOf(zoneId), 1);
+                                                // remove from UI
+                                                colored_zones_bar.children('.colored_name').each(function (idx, colored_name_el) {
+                                                    if (colored_name_el.innerText === zone_title) {
+                                                        colored_name_el.remove();
+                                                    }
+                                                });
+                                                // hide colored zone names bar if need
+                                                if (colored_zones_bar.children('.colored_name').length === 0) {
+                                                    if (!colored_zones_bar.hasClass('hidden')) {
+                                                        colored_zones_bar.addClass('hidden');
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                }
-                            });
+                                });
+                            }
 
-                            if (updated_flag === false && addOrRemoveFlag === true) {
+                            if ((updated_flag === false && addOrRemoveFlag === true) || zoneId === undefined) {
                                 var name_el_id = 'id_answer_name__' + answerItemId; // answer name element Format: `id_answer_name__` + item_id
 
                                 // add New Item Object to data while link a zone with the Item at first time.
                                 // That also means that we don't add data into `itemObjects` for a just created Item linked with nothing of zones.
                                 var data = {
                                     displayName: document.getElementById(name_el_id).innerText || ('Answer ' + (1 + $('.answer_item').length)),
-                                    zones: [zoneId],
+                                    zones: zoneId === undefined ? [] : [zoneId],
                                     id: answerItemId,
                                     feedback: {correct: '', incorrect: ''},
                                     imageURL: 'imageURL',
                                     imageDescription: 'imageDescription',
                                 };
                                 _fn.build.form.item.itemObjects.push(data);
-                                // add to UI
-                                colored_zones_bar.append($(`<div class="colored_name">${zone_title}</div>`));
-                                // show colored zone names bar
-                                if (colored_zones_bar.hasClass('hidden')) {
-                                    colored_zones_bar.removeClass('hidden');
+
+                                if (zoneId !== undefined) {
+                                    // add to UI
+                                    colored_zones_bar.append($(`<div class="colored_name">${zone_title}</div>`));
+                                    // show colored zone names bar
+                                    if (colored_zones_bar.hasClass('hidden')) {
+                                        colored_zones_bar.removeClass('hidden');
+                                    }
                                 }
                             }
                         },
