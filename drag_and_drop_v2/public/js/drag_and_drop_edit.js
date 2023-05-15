@@ -591,8 +591,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                     // If we switches Tabs between ( "Background / Zones / Answer Tabs" ). And render "Zones/Items" in each Tabs of them by calling
                     // methods : `generateZoneObjectsFromZones()` + `recoverZonesFromZoneObjects()` .
                     if (_fn.selected_tab_id !== "0") {
-                        // get zones from other page and clean ZoneObjects
-                        _fn.build.getZonesFromZoneObjects();
+                        // don't get zones data from answers page, it doesn't change zones
+                        if (_fn.selected_tab_id !== "3") {
+                            // get zones from other page and clean ZoneObjects
+                            _fn.build.getZonesFromZoneObjects();
+                        }
                         _fn.build.form.zone.zoneObjects = [];
                         // get items from other page and clean ItemObjects
                         _fn.build.getItemsFromItemObjects();
