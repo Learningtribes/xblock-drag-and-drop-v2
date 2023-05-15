@@ -1141,6 +1141,8 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                             // Support moving Resizable Box
                             var isDown = false;
+                            var isEditTitle = false;
+                            var oldZoneTitleText = title_text.textContent;
                             var offset = [0, 0];
                             element.addEventListener('mousedown', function(e) {
                                 is_resizing = false;
@@ -1159,7 +1161,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             }, true);
 
                             document.addEventListener('mousemove', function(event) {
-                                if (is_resizing) {
+                                if (is_resizing || isEditTitle) {
                                     return;
                                 }
                                 event.preventDefault();
@@ -1175,6 +1177,7 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                             title_icon_container.addEventListener('click', function(e) {
                                 e.preventDefault();
+                                isEditTitle = true;
                                 title_text.contentEditable = 'true';
                                 title_text.style.backgroundColor = '#fff';
                                 title_text.focus();
@@ -1182,8 +1185,37 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                             title_text.addEventListener('focusout', function (e) {
                                 e.preventDefault();
-                                e.currentTarget.contentEditable = 'false';
-                                e.currentTarget.style.backgroundColor = "";
+                                const _titleText = e.currentTarget;
+                                isEditTitle = false;
+                                _titleText.contentEditable = 'false';
+                                _titleText.style.backgroundColor = "";
+
+                                if (oldZoneTitleText !== _titleText.textContent) {
+                                    var has_one = false;
+                                    var zoneObjects = _fn.build.form.zone.zoneObjects;
+                                    var zoneIndex = null;
+                                    for (var i=0;i<zoneObjects.length;i++) {
+                                        if (oldZoneTitleText === zoneObjects[i].title) {
+                                            // current editing zone index
+                                            zoneIndex = i;
+                                        }
+                                        if (_titleText.textContent === zoneObjects[i].title) {
+                                            // check new zone title existing
+                                            has_one = true;
+                                        }
+                                    }
+                                    if (false === has_one) {
+                                        if (zoneIndex !== null) {
+                                            // new zone tile to zoneObject title
+                                            if (oldZoneTitleText === zoneObjects[zoneIndex].title) {
+                                                zoneObjects[zoneIndex].title = _titleText.textContent;
+                                            }
+                                        }
+                                    } else {
+                                        // zone title duplicated revert changes
+                                        _titleText.textContent = oldZoneTitleText;
+                                    }
+                                }
                             });
 
                             // We add new record into list if creating a new zone
