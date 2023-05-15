@@ -333,7 +333,7 @@ class RectangleTemplate(ZonesDefinition):
             ],
             'items': [
                 self.gen_item_settings(id=0, display_name=self._ITEM_LEFT_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._LEFT_ZONE_TITLE), related_zones=self._LEFT_ZONE_ID, image_url=''),
-                self.gen_item_settings(id=1, display_name=self._ITEM_RIGHT_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._RIGHT_ZONE_TITLE), related_zones=self._RIGHT_ZONE_TITLE, image_url=''),
+                self.gen_item_settings(id=1, display_name=self._ITEM_RIGHT_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._RIGHT_ZONE_TITLE), related_zones=self._RIGHT_ZONE_ID, image_url=''),
                 self.gen_item_settings(id=3, display_name=self._ITEM_ANY_ZONE_NAME, incorrect_feedback='', correct_feedback=self._ITEM_ANY_ZONE_FEEDBACK, related_zones=[self._LEFT_ZONE_ID, self._RIGHT_ZONE_ID], image_url=''),
                 self.gen_item_settings(id=4, display_name=self._ITEM_NO_ZONE_NAME, incorrect_feedback=self._ITEM_NO_ZONE_FEEDBACK, correct_feedback='', related_zones=[], image_url='')
             ],

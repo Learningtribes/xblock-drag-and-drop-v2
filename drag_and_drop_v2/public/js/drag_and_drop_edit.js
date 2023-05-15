@@ -68,12 +68,13 @@ function DragAndDropEditBlock(runtime, element, params) {
                     zonesPreview: $('.drag-builder .target .zones-preview', element),
                 },
                 init: function() {
-                    _fn.data = params.data;
-
+                    _fn.data = params.data;                             // The latest saved version of "Zones + Items" data different
+                                                                        // with Editing version of them ( `_fn.build.form.zone.zoneObjects` + `_fn.build.form.item.itemObjects` )
                     _fn.selected_tab_id = undefined;
                     _fn.zone_tab_used_tpl_id = _fn.data.template_type;  // activated template id in Zone Tab
                     _fn.type_id = params.type_id;                       // selected template id in Background Tab
                     _fn.custom_background = params.custom_background;   // uploaded custom background image
+                    _fn.new_selected_tpl_data = undefined;              // new selected template sample data ( replaced duplicated data )
                     _fn.tpl_summaries = params.tpl_summaries;
 
                     _fn.build.changeBackgroundSelect();
@@ -103,7 +104,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                     // generate zoneObjects from data.zones
                     _fn.build.generateZoneObjectsFromZones();
                     // Create existing zones
-                    _fn.build.recoverZonesFromStorage();
+                    _fn.build.recoverZonesFromZoneObjects();
 
                     if (LearningTribes && LearningTribes.QuestionMark) {
                         $wrappers = $('.drag-builder .tab .tab-content .question-mark-wrapper')
@@ -187,6 +188,79 @@ function DragAndDropEditBlock(runtime, element, params) {
                         // })
                     }
                 },
+                generatePredefinedTemplateData: function(tpl_data) {
+                    // May get duplicated zone_uid/zone_title and item_id/item_title while adding template sample data into editor
+                    // So we have to convert these values into a new unique value as follow :
+                    let used_zone_uid_convertor = {};
+
+                    // Clone a new template sample data
+                    _fn.new_selected_tpl_data = JSON.parse(JSON.stringify(tpl_data));
+
+                    function generateDuplicatedTplZoneTitle(tpl_zone_title) {
+                        // Generate New Template Zone name like `The Top Zone (2)` if `The Top Zone` already used
+                        var count = 0;
+                        var has_duplicated = false;
+
+                        _fn.data.zones.forEach(function(zone) {
+                            if (zone.title.includes(tpl_zone_title)) {
+                                has_duplicated = true;
+                                count++;
+                            }
+                        });
+
+                        if (false === has_duplicated) {
+                            return tpl_zone_title;
+                        } else {
+                            return tpl_zone_title + ' (' + (1 + count) + ')';
+                        }
+                    };
+
+                    // Check duplicated zones in fields `zones` :
+                    _fn.new_selected_tpl_data.zones.forEach(function(tpl_zone) {
+                        // Assign new zone uids + titles for duplicated zones
+                        _fn.data.zones.forEach(function(saved_zone) {
+                            if (saved_zone.uid === tpl_zone.uid) {
+                                let new_uid = _fn.build.form.zone.generateUID();
+
+                                used_zone_uid_convertor[tpl_zone.uid] = new_uid;    // Saved mapping from old duplicated zone id ---> new zone id
+                                tpl_zone.uid = new_uid;
+                                if (tpl_zone.title === saved_zone.title) {
+                                    tpl_zone.title = generateDuplicatedTplZoneTitle(tpl_zone.title);
+                                }
+
+                            }
+                        });
+                    });
+                    // Check items :
+                    let item_ids_set = new Set();
+
+                    _fn.data.items.forEach(function(saved_item) {
+                        item_ids_set.add(saved_item.id);
+                    });
+                    _fn.new_selected_tpl_data.items.forEach(function(tpl_item) {
+                        item_ids_set.add(tpl_item.id);
+                    });
+                    for (var n = 0; n < _fn.new_selected_tpl_data.items.length; n++) {
+                        // Check duplicated item_ids in field `items` :
+                        for( var new_item_id = 1; true; new_item_id++) {
+                            if (item_ids_set.has(new_item_id)) {
+                                continue;
+                            }
+                            _fn.new_selected_tpl_data.items[n].id = new_item_id;
+                            item_ids_set.add(new_item_id);
+                            break;
+                        }
+                        // Check duplicated Related zone UIDs in fields `items` :
+                        for (var i = 0; i < _fn.new_selected_tpl_data.items[n].zones.length; i++) {
+                            var related_zone_uid = _fn.new_selected_tpl_data.items[n].zones[i];
+                            if (related_zone_uid in used_zone_uid_convertor) {
+                                _fn.new_selected_tpl_data.items[n].zones[i] = used_zone_uid_convertor[related_zone_uid];    // replace related zone it of item with new value
+                            }
+                        };
+
+                    };
+
+                },
                 changeBackgroundConfirmHandler(type_id, onConfirmHandler) {
                     /**
                      * Handle check zones usage with answers
@@ -233,15 +307,15 @@ function DragAndDropEditBlock(runtime, element, params) {
                         onConfirmHandler.apply(this);
                     }
 
-                    _fn.build.changeBackgroundSelect()
+                    _fn.build.changeBackgroundSelect();
 
                     // create zones from pyramid or rectangles template
                     params.predefined_templates.forEach(function(tpl_data) {
                         if (tpl_data.template_type === _fn.type_id) {
-                            // generate zones data with predefined template data
-                            _fn.data.zones = _fn.data.zones.concat(tpl_data.zones);
+                            // generate predefined template data, we will add them into data after user select Zones Tab
+                            _fn.build.generatePredefinedTemplateData(tpl_data);
                         }
-                    })
+                    });
 
                     return true;
                 },
@@ -367,7 +441,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                     zone_tab.find('.autozone-size-height').val(image_params.zone_height || 200);
                 },
 
-                recoverZonesFromStorage: function(id_zones_canvas=ID_AUTHOR_CANVAS) {
+                recoverZonesFromZoneObjects: function(id_zones_canvas=ID_AUTHOR_CANVAS) {
                     _fn.build.form.zone.zoneObjects.forEach(function(zoneObj) {
                         if (ID_AUTHOR_CANVAS === id_zones_canvas) {
                             // Create resizable zones on Author Canvas ( `ZoneTab` )
@@ -482,6 +556,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                         return;     // Forbid multiple drawing on Tab
                     }
 
+                    // We flush "zones/items" data from Cache( `...form.zone.ZoneObjects/item.itemObjects` ) to zone data holder( `_fn.data.zones/items` )
+                    // If we switches Tabs between ( "Background / Zones / Answer Tabs" ). And render "Zones/Items" in each Tabs of them by calling
+                    // methods : `generateZoneObjectsFromZones()` + `recoverZonesFromZoneObjects()` .
                     if (_fn.selected_tab_id !== "0") {
                         // get zones from other page and clean ZoneObjects
                         _fn.build.getZonesFromZoneObjects();
@@ -490,8 +567,18 @@ function DragAndDropEditBlock(runtime, element, params) {
                         _fn.build.getItemsFromItemObjects();
                         _fn.build.form.item.itemObjects = [];
 
+                        // Here, we clean zones areas in "Zone Tab" + "Answer Tab"
                         canvas_element.empty();
                         preview_canvas_element.empty();
+                    }
+
+                    // Update new selected template data into data ( `Zones` + `Answers` )
+                    if (tabId === "2" || tabId === "3") {
+                        if (_fn.new_selected_tpl_data !== undefined) {
+                            _fn.data.zones = _fn.data.zones.concat(_fn.new_selected_tpl_data.zones);
+                            _fn.data.items = _fn.data.items.concat(_fn.new_selected_tpl_data.items);
+                            _fn.new_selected_tpl_data = undefined;
+                        }
                     }
 
                     if ('1' === tabId) {    // Background Image tab
@@ -520,7 +607,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         // generate zoneObjects from data.zones
                         _fn.build.generateZoneObjectsFromZones();
                         // Create existing zones
-                        _fn.build.recoverZonesFromStorage();
+                        _fn.build.recoverZonesFromZoneObjects();
 
                         if (LearningTribes && LearningTribes.Switcher) {
                             var displayBordersSwitcher = $('#id_switcher_display_borders').find('.switcher')[0];
@@ -551,7 +638,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         // generate zoneObjects from data.zones
                         _fn.build.generateZoneObjectsFromZones();
                         // Create zones on AnswerTab
-                        _fn.build.recoverZonesFromStorage(ID_PREVIEW_CANVAS);
+                        _fn.build.recoverZonesFromZoneObjects(ID_PREVIEW_CANVAS);
 
                         // Remove all existing Answer Cards
                         $('.answers_collection .answer_item').remove();
@@ -587,24 +674,22 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                 generateZoneObjectsFromZones() {
                     /**
-                     * Handle create ZoneObjects from zones data
+                     * Handle creating `ZoneObjects` from zones data if `ZoneObjects` is empty.
                      */
                     if (_fn.build.form.zone.zoneObjects.length === 0) {
-                        // for empty zoneObjects, just to generate from zones
-                        if (_fn.data.zones.length > 0) {
-                            // generate zoneObjects data from zones data
-                            _fn.data.zones.forEach(function(zone) {
-                                _fn.build.form.zone.add({
-                                    uid: zone.uid,      // set `uid` field
-                                    title: zone.title,  // set `title` field
-                                    width: zone.width,
-                                    height: zone.height,
-                                    x: zone.x,
-                                    y: zone.y,
-                                    align: 'center'
-                                });
+                        // for empty zoneObjects, just to generate from zones data
+                        _fn.data.zones.forEach(function(zone) {
+                            _fn.build.form.zone.add({
+                                uid: zone.uid,      // set `uid` field
+                                title: zone.title,  // set `title` field
+                                width: zone.width,
+                                height: zone.height,
+                                x: zone.x,
+                                y: zone.y,
+                                align: 'center'
                             });
-                        }
+                        });
+
                     }
                 },
 
@@ -683,11 +768,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                             let item = _fn.build.form.item.itemObjects[i];
                             if (item.id === answer_item_id) {
                                 _fn.build.form.item.itemObjects.splice(i, 1);
+                                // remove from UI
+                                answer_card.remove();
                                 break;
                             }
                         }
-                        // remove from UI
-                        answer_card.remove();
                     });
 
                 },
@@ -781,8 +866,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                         }
                     },
                     zone: {
-                        totalZonesCreated: 0, // This counter is used for HTML IDs. Never decremented.
-                        zoneObjects: [],
+                        totalZonesCreated: 0,   // This counter is used for HTML IDs. Never decremented.
+                        zoneObjects: [],        // The Editing version of Zones
                         toggleAutozoneSettings: function(e) {
                             var element = _fn.build.$el.zones.tab;
                             var value = element.find('.background-image-type input:checked').val();
@@ -1374,6 +1459,14 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     if (_fn.build.form.zone.zoneObjects[array_index].uid == zone_uid) break;
                                 }
                                 _fn.build.form.zone.zoneObjects.splice(array_index, 1);
+
+                                // Remove related zones from Item in `_fn.data` if this zone is the removed one.
+                                for (var i = 0; i< _fn.data.items.length; i++) {
+                                    const item = _fn.data.items[i];
+                                    if (item.zones.includes(zone_uid)) {
+                                        item.zones.splice(item.zones.indexOf(zone_uid), 1);
+                                    }
+                                }
                             }
                         }
 
@@ -1396,11 +1489,29 @@ function DragAndDropEditBlock(runtime, element, params) {
                     },
                     item: {
                         count: 0,
-                        itemObjects: [],
+                        itemObjects: [],    // The Editing version of Answer
+
+                        grabAnswerId: function() {
+                            // Generate and return new unique Item ID
+                            for (var id = 1; true; id++) {
+                                var has_one = false;
+
+                                _fn.build.form.item.itemObjects.forEach(function(item) {
+                                    if (id === item.id) {
+                                        has_one = true;
+                                    }
+                                });
+
+                                if (false === has_one) {
+                                    return id;
+                                }
+                            }
+
+                        },
 
                         createAnswerItem: function(oldItem = {}, create_new_flag=false) {
-                            let item_title = oldItem.displayName || ('Answer ' + (1 + $('.answer_item').length));
-                            let item_uid = oldItem.id || (1 + $('.answer_item').length);
+                            let item_uid = oldItem.id || _fn.build.form.item.grabAnswerId();
+                            let item_title = oldItem.displayName || ('Answer ' + item_uid);
                             let item_zones = oldItem.zones || [];
                             let id_answer_name = 'id_answer_name__' + item_uid;
                             let id_answer_colored_zones = 'id_answer_colored_zones__' + item_uid;
