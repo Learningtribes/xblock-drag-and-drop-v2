@@ -813,11 +813,36 @@ function DragAndDropEditBlock(runtime, element, params) {
                     const $backgroundChoose = _fn.build.$el.backgroundChoose;
 
                     $element.find('.supported-setting-tags-nav > li').bind('click', function() {
+                        var tabObj = $(this);
+                        var tabID = tabObj.attr('id');
+
                         _fn.build.refreshTabsStatus();
 
-                        $(this).addClass('active-section');
+                        if (tabID === '2' && (_fn.data.zones === undefined || _fn.data.zones.length === 0)) {
+                            if (!tabObj.hasClass('disable-section-hightlight')) {
+                                tabObj.addClass('disable-section-hightlight');
+                            }
+                            setTimeout(function() {
+                                tabObj.removeClass('disable-section-hightlight');
+                            }, 500);
 
-                        _fn.build.selectTabPage($(this).attr('id'));
+                            return;
+                        }
+                        if (tabID === '3' && (
+                            _fn.data.zones === undefined || _fn.data.zones.length === 0 ||
+                            _fn.data.items === undefined || _fn.data.items.length === 0)) {
+                            if (!tabObj.hasClass('disable-section-hightlight')) {
+                                tabObj.addClass('disable-section-hightlight');
+                            }
+                            setTimeout(function() {
+                                tabObj.removeClass('disable-section-hightlight');
+                            }, 500);
+
+                            return;
+                        }
+
+                        $(this).addClass('active-section');
+                        _fn.build.selectTabPage(tabID);
 
                     });
 
