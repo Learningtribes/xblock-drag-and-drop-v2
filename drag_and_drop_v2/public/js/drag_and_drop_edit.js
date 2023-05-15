@@ -85,6 +85,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                     // Display target image
                     _fn.build.$el.targetImage.show();
 
+                    _fn.build.refreshTabsStatus(init_flag=true);
                     _fn.build.clickHandlers();
 
                     // upload success handler
@@ -441,6 +442,33 @@ function DragAndDropEditBlock(runtime, element, params) {
                     zone_tab.find('.autozone-size-height').val(image_params.zone_height || 200);
                 },
 
+                refreshTabsStatus: function(init_flag = false) {
+                    $('.supported-setting-tags-nav > li')[0].className = 'nav-item active-section';
+                    $('.supported-setting-tags-nav > li').each( function (i, obj) {
+                        if ( obj.id === "2") {
+                            if (_fn.data.zones === undefined || _fn.data.zones.length === 0) {
+                                obj.className = 'nav-item disable-section';
+                            } else {
+                                obj.className = 'nav-item';
+                            }
+                        } else if (obj.id === "3") {
+                            if (_fn.data.items === undefined || _fn.data.items.length === 0 ||
+                                _fn.data.zones === undefined || _fn.data.zones.length === 0) {
+                                obj.className = 'nav-item disable-section';
+                            } else {
+                                obj.className = 'nav-item';
+                            }
+                        } else {
+                            if (init_flag === true && obj.id === "0") {
+                                obj.className = 'nav-item active-section';
+                            } else {
+                                obj.className = 'nav-item';
+                            }
+                        }
+
+                    } );
+                },
+
                 recoverZonesFromZoneObjects: function(id_zones_canvas=ID_AUTHOR_CANVAS) {
                     _fn.build.form.zone.zoneObjects.forEach(function(zoneObj) {
                         if (ID_AUTHOR_CANVAS === id_zones_canvas) {
@@ -785,15 +813,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                     const $backgroundChoose = _fn.build.$el.backgroundChoose;
 
                     $element.find('.supported-setting-tags-nav > li').bind('click', function() {
+                        _fn.build.refreshTabsStatus();
+
                         $(this).addClass('active-section');
-                        $(this).siblings().each( function (i, obj) {
-                            if (parseInt(obj.id) < 2 ) {
-                                obj.className = 'nav-item';
-                            } else {
-                                obj.className = 'nav-item disable-section';
-                                $('#id_xblock_save_and_continue_button').className = 'action-item';
-                            }
-                        } )
+
                         _fn.build.selectTabPage($(this).attr('id'));
 
                     });
@@ -1839,17 +1862,7 @@ function DragAndDropEditBlock(runtime, element, params) {
         runtime.notify('cancel', {});
     });
 
-    $('.supported-setting-tags-nav > li')[0].className = 'nav-item active-section';
-    $('.supported-setting-tags-nav > li').each( function (i, obj) {
-        if (i > 0) {
-            if (obj.id < 2) {
-                obj.className = 'nav-item';
-            } else {
-                obj.className = 'nav-item disable-section';
-            }
-        }
-    } );
-
+    // Initialize js component
     dragAndDrop.init();
 
 }
