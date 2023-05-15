@@ -1105,6 +1105,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                              */
                             let element = document.createElement('div');
                             let new_div_title = document.createElement('div');
+                            let title_text = document.createElement('div');
                             let title_edit_icon = document.createElement('i');
                             let title_icon_container = document.createElement('div');
                             let zone_title = oldZone.title || _fn.build.form.zone.generateNewZoneTitle();
@@ -1125,12 +1126,16 @@ function DragAndDropEditBlock(runtime, element, params) {
                             }
                             element.setAttribute('style',`width:${minW}px; height:${minH}px; left:${zone_left}px; top:${zone_top}px`);
                             new_div_title.setAttribute('class', 'zone_title');
-                            new_div_title.innerText = zone_title;
+
+                            title_text.setAttribute('class', 'title_text');
+                            title_text.innerText = zone_title;
+
                             title_edit_icon.setAttribute('class', 'fa-solid fa-pen-circle');
                             title_icon_container.setAttribute('class', 'title_edit_button');
 
                             title_icon_container.appendChild(title_edit_icon);
                             new_div_title.appendChild(title_icon_container);
+                            new_div_title.appendChild(title_text);
                             element.appendChild(new_div_title);
                             $(id_zones_canvas)[0].appendChild(element);
 
@@ -1167,6 +1172,19 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     element.style.top  = (mousePosition.y + offset[1]) + 'px';
                                 }
                             }, true);
+
+                            title_icon_container.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                title_text.contentEditable = 'true';
+                                title_text.style.backgroundColor = '#fff';
+                                title_text.focus();
+                            });
+
+                            title_text.addEventListener('focusout', function (e) {
+                                e.preventDefault();
+                                e.currentTarget.contentEditable = 'false';
+                                e.currentTarget.style.backgroundColor = "";
+                            });
 
                             // We add new record into list if creating a new zone
                             if (oldZone.uid === undefined) {
