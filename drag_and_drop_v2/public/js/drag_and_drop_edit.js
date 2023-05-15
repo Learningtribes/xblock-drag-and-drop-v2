@@ -85,6 +85,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                     // Display target image
                     _fn.build.$el.targetImage.show();
 
+                    _fn.build.refreshTabsStatus(init_flag=true);
                     _fn.build.clickHandlers();
 
                     // upload success handler
@@ -164,6 +165,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         _fn.type_id === CUSTOM_TEMPLATE_TYPE && type_id === BLANK_TEMPLATE_TYPE) {
                         // BLANK <=> CUSTOM keep zones with no confirmation
                         _fn.type_id = parseInt(type_id);
+                        _fn.build.refreshTabsStatus();  // redraw tabs
                         _fn.build.updateSwitchers();
 
                         if (type_id === CUSTOM_TEMPLATE_TYPE) {
@@ -300,6 +302,7 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                     // set the new type_id
                     _fn.type_id = parseInt(type_id);
+                    _fn.build.refreshTabsStatus();  // redraw tabs
                     _fn.build.updateSwitchers();
 
                     if (onConfirmHandler) {
@@ -441,6 +444,33 @@ function DragAndDropEditBlock(runtime, element, params) {
                     zone_tab.find('.autozone-size-height').val(image_params.zone_height || 200);
                 },
 
+                refreshTabsStatus: function(init_flag = false, selected_tab_id = undefined) {
+                    $('.supported-setting-tags-nav > li').each( function (i, obj) {
+                        var is_activated = obj.className.includes('active-section');
+
+                        if ( obj.id === "2") {
+                            if (_fn.type_id === undefined || _fn.type_id === null) {
+                                obj.className = 'nav-item disable-section';
+                            } else {
+                                obj.className = is_activated && (selected_tab_id!==undefined ? selected_tab_id === obj.id : true) ? 'nav-item active-section' : 'nav-item';
+                            }
+                        } else if (obj.id === "3") {
+                            if (_fn.build.form.zone.zoneObjects === undefined || _fn.build.form.zone.zoneObjects.length === 0) {
+                                obj.className = 'nav-item disable-section';
+                            } else {
+                                obj.className = is_activated && (selected_tab_id!==undefined ? selected_tab_id === obj.id : true) ? 'nav-item active-section' : 'nav-item';
+                            }
+                        } else {
+                            if (init_flag === true && obj.id === "0") {
+                                obj.className = 'nav-item active-section';
+                            } else {
+                                obj.className = is_activated && (selected_tab_id!==undefined ? selected_tab_id === obj.id : true) ? 'nav-item active-section' : 'nav-item';
+                            }
+                        }
+
+                    } );
+                },
+
                 recoverZonesFromZoneObjects: function(id_zones_canvas=ID_AUTHOR_CANVAS) {
                     _fn.build.form.zone.zoneObjects.forEach(function(zoneObj) {
                         if (ID_AUTHOR_CANVAS === id_zones_canvas) {
@@ -452,6 +482,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         }
                     });
 
+                    _fn.build.refreshTabsStatus();  // redraw tabs
                 },
 
                 // When we auto generate a background image, we embed some parameters such as zone size and position
@@ -785,16 +816,37 @@ function DragAndDropEditBlock(runtime, element, params) {
                     const $backgroundChoose = _fn.build.$el.backgroundChoose;
 
                     $element.find('.supported-setting-tags-nav > li').bind('click', function() {
-                        $(this).addClass('active-section');
-                        $(this).siblings().each( function (i, obj) {
-                            if (parseInt(obj.id) < 2 ) {
-                                obj.className = 'nav-item';
-                            } else {
-                                obj.className = 'nav-item disable-section';
-                                $('#id_xblock_save_and_continue_button').className = 'action-item';
+                        var tabObj = $(this);
+                        var tabID = tabObj.attr('id');
+
+                        _fn.build.refreshTabsStatus(false, tabID);
+                        // Show hightlight if this tab button is disabled :
+                        if (tabID === '2' && (_fn.type_id === undefined || _fn.type_id === null)) {
+                            if (!tabObj.hasClass('disable-section-hightlight')) {
+                                tabObj.addClass('disable-section-hightlight');
                             }
-                        } )
-                        _fn.build.selectTabPage($(this).attr('id'));
+                            setTimeout(function() {
+                                tabObj.removeClass('disable-section-hightlight');
+                            }, 500);
+
+                            return;
+                        }
+                        if (tabID === '3' && (
+                            _fn.data.zones === undefined || _fn.data.zones.length === 0)) {
+                            if (!tabObj.hasClass('disable-section-hightlight')) {
+                                tabObj.addClass('disable-section-hightlight');
+                            }
+                            setTimeout(function() {
+                                tabObj.removeClass('disable-section-hightlight');
+                            }, 500);
+
+                            return;
+                        }
+
+                        if (!tabObj.hasClass('active-section')) {
+                            tabObj.addClass('active-section');
+                        }
+                        _fn.build.selectTabPage(tabID);
 
                     });
 
@@ -815,6 +867,7 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                         _fn.build.form.item.createAnswerItem({}, true);
                         _fn.build.rebind_events_for_answers_tab();
+                        _fn.build.refreshTabsStatus();  // redraw tabs
                     });
 
                     $fbkTab
@@ -839,6 +892,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             let top = canvas.offsetHeight / 100 * 45;
 
                             _fn.build.form.zone.makeResizableZone({x: left, y: top, width: 200, height: 100});
+                            _fn.build.refreshTabsStatus();  // redraw tabs
                         });
 
                     $itemTab
@@ -1517,6 +1571,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                                         item.zones.splice(item.zones.indexOf(zone_uid), 1);
                                     }
                                 }
+
+                                _fn.build.refreshTabsStatus();  // redraw tabs
                             }
                         }
 
@@ -1871,17 +1927,7 @@ function DragAndDropEditBlock(runtime, element, params) {
         runtime.notify('cancel', {});
     });
 
-    $('.supported-setting-tags-nav > li')[0].className = 'nav-item active-section';
-    $('.supported-setting-tags-nav > li').each( function (i, obj) {
-        if (i > 0) {
-            if (obj.id < 2) {
-                obj.className = 'nav-item';
-            } else {
-                obj.className = 'nav-item disable-section';
-            }
-        }
-    } );
-
+    // Initialize js component
     dragAndDrop.init();
 
 }

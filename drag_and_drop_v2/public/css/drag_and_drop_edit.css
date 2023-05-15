@@ -50,6 +50,13 @@
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .supported-setting-tags-nav .nav-item.disable-section {
     background-color: #A3A3A3;
+    -webkit-transition-property: background-color;
+    -webkit-transition-duration: 0.5s;
+    -webkit-transition-timing-function: ease;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .supported-setting-tags-nav .nav-item.disable-section-hightlight {
+    background-color: #d2d0d0;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns {
