@@ -933,7 +933,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                              *              And this is not safe because the `length` of array may depened on the logic of code. ( For example: this
                              *              array cleaned by some code, but the `uid_zone_{number}` will be still recovered from somewhere later`.
                              */
-                            return Date.now().toString(36) + Math.random().toString(36);
+                            return (Date.now().toString(36) + Math.random().toString(36)).replace('.', '_');
                         },
                         remove: function(e) {
                             var $el = $(e.currentTarget).closest('.zone-row'),
