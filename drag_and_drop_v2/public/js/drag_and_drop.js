@@ -1,3 +1,6 @@
+const BLANK_IMAGE_WIDTH = 700;
+const BLANK_IMAGE_HEIGHT = 500;
+
 function DragAndDropTemplates(configuration) {
     "use strict";
     var h = virtualDom.h;
@@ -654,6 +657,8 @@ function DragAndDropTemplates(configuration) {
         // image to 100%, so that it doesn't expand the container.
         if (ctx.drag_container_max_width === null) {
             target_img_style.maxWidth = '100%';
+            target_img_style.width = BLANK_IMAGE_WIDTH + 'px';
+            target_img_style.height = BLANK_IMAGE_HEIGHT + 'px';
             item_bank_properties.style = {display: 'none'};
         } else {
             drag_container_style.maxWidth = ctx.drag_container_max_width + 'px';
@@ -1024,6 +1029,13 @@ function DragAndDropBlock(runtime, element, configuration) {
     var loadBackgroundImage = function() {
         var promise = $.Deferred();
         var img = new Image();
+        if (!configuration.target_img_expanded_url) {
+            // for 2-rectangle and blank background
+            img.width = BLANK_IMAGE_WIDTH;
+            img.height = BLANK_IMAGE_HEIGHT;
+            promise.resolve(img);
+            return promise;
+        }
         img.addEventListener("load", function() {
             if (img.width == 0 || img.height == 0) {
                 // Workaround for IE11 issue with SVG images

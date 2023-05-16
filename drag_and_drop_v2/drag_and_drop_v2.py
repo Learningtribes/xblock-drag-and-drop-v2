@@ -755,15 +755,15 @@ class DragAndDropBlock(
         return i18n_service if i18n_service else DummyTranslationService()
 
     @property
-    def target_img_expanded_url(self, tpl_type_id=0):
+    def target_img_expanded_url(self):
         """Get the expanded URL to the target image (the image items are dragged onto).
         """
         if self.data.get('targetImg'):
             return self._expand_static_url(self.data['targetImg'])
-        elif 0 == tpl_type_id:
+        elif self.type_id == 0:
             return self.pyramid_background_image_url
-        else:
-            raise NotImplementedError('Not implementing background image for template Type ID = {}'.format(tpl_type_id))
+        elif self.type_id in [1, 2, 3]:
+            return ''
 
     @property
     def pyramid_background_image_url(self):
