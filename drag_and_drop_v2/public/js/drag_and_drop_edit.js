@@ -398,15 +398,16 @@ function DragAndDropEditBlock(runtime, element, params) {
                 },
                 updateSwitchers() {
                     /**
-                     *
+                     * Handle switcher display and default value
                      */
-                    //
+                    var switcherDisplayBorders =  $('#id_switcher_display_borders');
                     if (_fn.type_id === BLANK_TEMPLATE_TYPE) {
                         _fn.data.displayBorders = true;     // can't switch off
-                        $('#id_switcher_display_borders').css('display', 'none !important');
+                        switcherDisplayBorders.addClass('hidden');
                     } else {
                         _fn.data.displayBorders = false;
-                        $('#id_switcher_display_borders').css('display', 'flex');
+                        switcherDisplayBorders.removeClass('hidden');
+                        switcherDisplayBorders.css('display', 'flex');
                     }
                     _fn.data.displayLabels = true
                 },
@@ -540,21 +541,23 @@ function DragAndDropEditBlock(runtime, element, params) {
                 },
 
                 refreshZonesSettings: function() {
+                    var resizableBox = $('.resizable_box');
                     if (_fn.data.displayBorders === true) {
-                        $('.resizable_box').removeClass('no-border');
+                        resizableBox.removeClass('no-border');
                     } else {
-                        if (!$('.resizable_box').hasClass('no-border')) {
-                            $('.resizable_box').addClass('no-border');
+                        if (!resizableBox.hasClass('no-border')) {
+                            resizableBox.addClass('no-border');
                         }
                     }
 
+                    var zoneTitle = $('.zone_title');
                     if (_fn.data.displayLabels === true) {
-                        if ($('.zone_title').hasClass('hidden')) {
-                            $('.zone_title').removeClass('hidden');
+                        if (zoneTitle.hasClass('hidden')) {
+                            zoneTitle.removeClass('hidden');
                         }
                     } else {
-                        if (!$('.zone_title').hasClass('hidden')) {
-                            $('.zone_title').addClass('hidden');
+                        if (!zoneTitle.hasClass('hidden')) {
+                            zoneTitle.addClass('hidden');
                         }
                     }
                 },
@@ -653,7 +656,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                     } else if ('2' === tabId) { // Zones design tab
 
                         if (_fn.type_id === BLANK_TEMPLATE_TYPE) {
-                            pageFrame.height('826px');
+                            pageFrame.height('836px');
                         } else {
                             pageFrame.height('876px');
                         }
@@ -673,11 +676,15 @@ function DragAndDropEditBlock(runtime, element, params) {
                         _fn.build.recoverZonesFromZoneObjects();
 
                         if (LearningTribes && LearningTribes.Switcher) {
-                            var displayBordersSwitcher = $('#id_switcher_display_borders').find('.switcher')[0];
-                            new LearningTribes.Switcher(displayBordersSwitcher, _fn.data.displayBorders, function(checked){
-                                _fn.data.displayBorders = checked
-                                _fn.build.refreshZonesSettings();
-                            });
+                            if (_fn.type_id === BLANK_TEMPLATE_TYPE) {
+                                $('#id_switcher_display_borders').addClass('hidden');
+                            } else {
+                                var displayBordersSwitcher = $('#id_switcher_display_borders').find('.switcher')[0];
+                                new LearningTribes.Switcher(displayBordersSwitcher, _fn.data.displayBorders, function(checked){
+                                    _fn.data.displayBorders = checked
+                                    _fn.build.refreshZonesSettings();
+                                });
+                            }
                             var displayLabelsSwitcher = $('#id_switcher_display_labels').find('.switcher')[0];
                             new LearningTribes.Switcher(displayLabelsSwitcher, _fn.data.displayLabels, function(checked){
                                 _fn.data.displayLabels = checked

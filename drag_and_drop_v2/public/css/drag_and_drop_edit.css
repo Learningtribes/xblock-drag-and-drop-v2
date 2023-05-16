@@ -252,7 +252,7 @@
     font-weight: 700;
     line-height: 19.07px;
     margin: 10px 20px 0 10px;
-    display: flex !important;
+    display: flex;
 }
 
 .xblock--drag-and-drop--editor .zones_settings .setting_flag .switcher-wrapper {
@@ -269,6 +269,10 @@
     line-height: 29px;
     margin-left: 32px;
     width: 100%;
+}
+
+.xblock--drag-and-drop--editor .zones_settings .setting_flag .hidden {
+    display: none;
 }
 
 .xblock--drag-and-drop--editor .items {
