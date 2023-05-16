@@ -455,7 +455,8 @@ class DragAndDropBlock(
         for xblock in xblocks:
             other_xblock_id = _get_block_id(xblock)
             data = getattr(xblock, 'data', '')
-            other_xblock_asset_id = data['targetImg'] if 'targetImg' in data else None
+            # other_xblock_asset_id = data['targetImg'] if 'targetImg' in data else None
+            other_xblock_asset_id = getattr(xblock, 'custom_background', '')
 
             if other_xblock_id != xblock_id:
                 if other_xblock_asset_id and other_xblock_asset_id[1:] == asset_id:
