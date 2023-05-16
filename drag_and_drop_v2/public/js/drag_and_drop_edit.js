@@ -411,25 +411,54 @@ function DragAndDropEditBlock(runtime, element, params) {
                     _fn.data.displayLabels = true
                 },
 
-                validate: function() {
-                    var fields = $element.find('.tab').not('.hidden').find('input, textarea');
+                validate: function(tabID) {
+                    // validate user input argument while clicking button "save"
                     var success = true;
-                    fields.each(function(index, field) {
-                        field = $(field);
-                        // Right now our only check is if a field is set or not.
-                        field.removeClass('field-error');
-                        if (! field[0].checkValidity()) {
-                            field.addClass('field-error');
+
+                    if (tabID === '0') {
+                        var display_name = $element.find('.display-name').val();
+                        var weight = $element.find('.weight').val();
+
+                        if (display_name === undefined || display_name === '' || weight === undefined) {
                             success = false;
                         }
-                    });
-                    if (! success) {
+                    } else if (tabID === '1') {
+                        if (_fn.type_id === undefined || _fn.type_id === null) {
+                            success = false;
+                        } else {
+                            if (_fn.type_id === CUSTOM_TEMPLATE_TYPE && _fn.custom_background === undefined) {
+                                success = false;
+                            }
+                        }
+                    } else if (tabID === '2') {
+                        if (_fn.build.form.zone.zoneObjects.length === 0) {
+                            success = false;
+                        }
+                    } else if (tabID === '3') {
+                        if (_fn.build.form.item.itemObjects.length === 0 || _fn.build.form.zone.zoneObjects.length === 0) {
+                            success = false;
+                        } else {
+                            var zones_uids = new Set();
+                            _fn.build.form.zone.zoneObjects.forEach(function(zone) {
+                                zones_uids.add(zone.uid);
+                            });
+                            _fn.build.form.item.itemObjects.forEach(function(item) {
+                                item.zones.forEach(function(zone_uid) {
+                                    if (!zones_uids.has(zone_uid)) {
+                                        success = false;
+                                    }
+                                });
+                            })
+                        }
+                    }
+
+                    if (!success) {
                         runtime.notify('error', {
-                            'title': window.gettext("There was an error with your form."),
-                            'message': window.gettext("Please check over your submission.")
+                            'title': window.gettext('There was an error with your form.'),
+                            'message': window.gettext('Please check over your submission.')
                         });
                     }
-                    return success
+                    return success;
                 },
 
                 initAutozoneInputs: function() {
@@ -685,7 +714,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         _fn.build.rebind_events_for_answers_tab();
 
                     } else {
-                        pageFrame.height('100%');
+                        pageFrame.height('690px');
                         $('#id_xblock_save_button').className = 'action-item hidden';
                         $('#id_xblock_save_and_continue_button').className = 'action-item ';
                     }
@@ -856,11 +885,19 @@ function DragAndDropEditBlock(runtime, element, params) {
                     $element.find('.save-continue-button').bind('click', '.save-continue-button', function saveContinueButtonHandler(e) {
                         e.preventDefault();
 
+                        if (!_fn.build.validate(_fn.selected_tab_id === undefined ? '0' : _fn.selected_tab_id)) {
+                            return;
+                        }
+
                         _fn.build.form.submit(continue_mode=true);
                     });
 
                     $element.find('.save-button').bind('click', function(e) {
                         e.preventDefault();
+
+                        if (!_fn.build.validate(_fn.selected_tab_id === undefined ? '0' : _fn.selected_tab_id)) {
+                            return;
+                        }
 
                         _fn.build.form.submit(continue_mode=false);
                     })
@@ -925,17 +962,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                     zone: {
                         totalZonesCreated: 0,   // This counter is used for HTML IDs. Never decremented.
                         zoneObjects: [],        // The Editing version of Zones
-                        toggleAutozoneSettings: function(e) {
-                            var element = _fn.build.$el.zones.tab;
-                            var value = element.find('.background-image-type input:checked').val();
-                            if (value === 'manual') {
-                                element.find('.background-manual').show();
-                                element.find('.background-auto').hide();
-                            } else {
-                                element.find('.background-auto').show();
-                                element.find('.background-manual').hide();
-                            }
-                        },
                         getZoneObjByUID: function(uid) {
                             for (var i = 0; i < _fn.build.form.zone.zoneObjects.length; i++) {
                                 if (_fn.build.form.zone.zoneObjects[i].uid == uid) {
@@ -1037,44 +1063,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 record.align = $changedInput.val();
                             }
                         },
-                        getAutozoneParams: function() {
-                            var element = _fn.build.$el.zones.tab.find('.background-auto');
-                            return {
-                                rows: parseInt(element.find('.autozone-layout-rows').val(), 10),
-                                cols: parseInt(element.find('.autozone-layout-cols').val(), 10),
-                                zone_width: parseInt(element.find('.autozone-size-width').val(), 10),
-                                zone_height: parseInt(element.find('.autozone-size-height').val(), 10),
-                                padding: 20
-                            };
-                        },
-                        validateAutozoneParams: function(params) {
-                            var fields = [
-                                '.autozone-layout-cols',
-                                '.autozone-layout-rows',
-                                '.autozone-size-width',
-                                '.autozone-size-height'
-                            ];
-                            var success = true;
-                            fields.forEach(function(field) {
-                                var element = _fn.build.$el.zones.tab.find(field);
-                                var val = element.val();
-                                var number = parseInt(element.val(), 10);
-                                // Make sure the user entered a positive integer number.
-                                if (number && number > 0 && String(number) === val) {
-                                    element.removeClass('field-error');
-                                } else {
-                                    element.addClass('field-error');
-                                    success = false;
-                                }
-                            });
-                            if (!success) {
-                                runtime.notify('error', {
-                                    'title': window.gettext("There was an error with your form."),
-                                    'message': window.gettext("Please check the values you entered.")
-                                });
-                            }
-                            return success;
-                        },
                         calculateAutozoneData: function(params) {
                             var rows = params.rows;
                             var cols = params.cols;
@@ -1114,26 +1102,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 zone_height: params.zone_height
                             });
                             return 'data:image/svg+xml;' + data_uri_params + ',' + encodeURIComponent(svg);
-                        },
-                        generateZones: function(zones, removed_unused_zones_flag = undefined) {
-                            if (removed_unused_zones_flag === true) {
-                                // Remove unused zones
-                                // To do:
-                            } else {
-                                // Remove all existing zones
-                                _fn.build.form.zone.zoneObjects = [];
-                            }
-
-                            // Now generate new zones.
-                            zones.forEach(function(zone) {
-                                _fn.build.form.zone.add({
-                                    width: zone.width,
-                                    height: zone.height,
-                                    x: zone.x,
-                                    y: zone.y,
-                                    align: 'center'
-                                });
-                            });
                         },
                         makeReadonlyZone: function(oldZone, id_zones_canvas=ID_PREVIEW_CANVAS) {
                             let element = document.createElement('div');
@@ -1880,17 +1848,18 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                         var data = {
                             'display_name': $element.find('.display-name').val(),
-                            'mode': $element.find(".problem-mode").val(),
-                            'max_attempts': $element.find(".max-attempts").val(),
-                            'show_title': $element.find('.show-title').is(':checked'),
+                            'max_attempts': $element.find(".max-attempts").val(),           // ? Should we remove this
                             'weight': $element.find('.weight').val(),
                             'problem_text': $element.find('.problem-text').val(),
-                            'show_problem_header': $element.find('.show-problem-header').is(':checked'),
-                            'item_background_color': $element.find('.item-background-color').val(),
-                            'item_text_color': $element.find('.item-text-color').val(),
-                            'max_items_per_zone': $element.find('.max-items-per-zone').val(),
+                            // 'mode': $element.find(".problem-mode").val(),                // remove this & assign with value `assessment` mode
+                            // 'show_title': $element.find('.show-title').is(':checked'),   // remove this & assign with value `True`
+                            'show_problem_header': $element.find('.show-problem-header').is(':checked'),    // ? Should we remove this
+
+                            'item_background_color': $element.find('.item-background-color').val(), // ?
+                            'item_text_color': $element.find('.item-text-color').val(),             // ?
+                            'max_items_per_zone': $element.find('.max-items-per-zone').val(),       // ?
                             'feedback': {
-                                'start': $element.find('.intro-feedback').val(),
+                                //'start': $element.find('.intro-feedback').val(),          // remove this & assign with empty value
                                 'finish': $element.find('.final-feedback').val()
                             },
                             'type_id': parseInt(_fn.type_id),

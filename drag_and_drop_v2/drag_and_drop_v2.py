@@ -82,7 +82,7 @@ class DragAndDropBlock(
             {"display_name": _("Standard"), "value": Constants.STANDARD_MODE},
             {"display_name": _("Assessment"), "value": Constants.ASSESSMENT_MODE},
         ],
-        default=Constants.STANDARD_MODE,
+        default=Constants.ASSESSMENT_MODE,  # Assign with `assessment mode` instead of `standard mode` in new version
         enforce_type=True,
     )
 
@@ -98,18 +98,18 @@ class DragAndDropBlock(
     )
 
     show_title = Boolean(
-        display_name=_("Show title"),
-        help=_("Display the title to the learner?"),
+        display_name=_('Show title'),
+        help=_('Display the title to the learner?'),
         scope=Scope.settings,
-        default=True,
+        default=True,                       # Always activated this field in new version
         enforce_type=True,
     )
 
     question_text = String(
-        display_name=_("Problem text"),
-        help=_("The description of the problem or instructions shown to the learner."),
+        display_name=_('Problem text'),
+        help=_('The description of the problem or instructions shown to the learner.'),
         scope=Scope.settings,
-        default="",
+        default='',
         enforce_type=True,
     )
 
@@ -390,7 +390,6 @@ class DragAndDropBlock(
             'runtime_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/runtime.min.js'),
             'common_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/common.min.js'),
             'assets_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/assets.min.js'),
-            'default_start_feedback': ZonesDefinition.START_FEEDBACK,
             'default_finish_feedback': ZonesDefinition.FINISH_FEEDBACK
         }
 

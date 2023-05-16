@@ -33,7 +33,7 @@ class ZonesDefinition(object):
                 "thumbnail": "public/img/abc.jpg"
             }
     """
-    START_FEEDBACK = _("Drag the items onto the image above.")
+    START_FEEDBACK = _("Drag the items onto the image above.")      # We don't use this field anymore in our new version
     FINISH_FEEDBACK = _("Good work! You have completed this drag and drop problem.")
 
     def __init__(self, tpl_data=None):
