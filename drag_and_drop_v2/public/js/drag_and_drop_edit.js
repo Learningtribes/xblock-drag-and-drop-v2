@@ -158,6 +158,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                      * custom background uploaded
                      */
                     if (type_id === undefined || type_id === _fn.type_id) {
+                        if (type_id === CUSTOM_TEMPLATE_TYPE) {
+                            _fn.build.changeBackgroundConfirmHandler(type_id, onConfirmHandler);
+                        }
                         return;
                     }
 
@@ -174,7 +177,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             }
                         }
 
-                        _fn.build.changeBackgroundSelect()
+                        _fn.build.changeBackgroundSelect();
 
                     } else {
                         _fn.build.changeBackgroundConfirmHandler(type_id, onConfirmHandler);
@@ -387,10 +390,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             _fn.data.targetImg = newXblockAsset.url;
                             _fn.custom_background = newXblockAsset.url;
                             _fn.build.form.submit(continue_mode=true);
-
                         })
-
-                        console.log('uploadAssetsSuccessEvent: ', _fn.data.targetImg);
                     }
                 },
                 onBackgroundGetAssetsSuccessHandler(e) {
