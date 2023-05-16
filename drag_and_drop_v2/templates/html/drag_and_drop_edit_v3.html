@@ -79,13 +79,6 @@
                         <label class="h4">
                             <span>
                                 <span class="text">{% trans fields.question_text.display_name %}</span>
-                                <label class="checkbox-label">
-                                  <input class="show-problem-header"
-                                         type="checkbox"
-                                         aria-describedby="show-problem-header-description-{{id_suffix}}"
-                                    {% if self.show_question_header %}checked="checked"{% endif %}>
-                                  <span>{% trans fields.show_question_header.display_name %}</span>
-                                </label>
                             </span>
                             {% if self.question_text %}
                             <textarea class="problem-text">{{ self.question_text }}</textarea>

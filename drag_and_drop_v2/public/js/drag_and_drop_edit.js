@@ -389,7 +389,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         _fn.build.changeBackgroundType(CUSTOM_TEMPLATE_TYPE, function() {
                             _fn.data.targetImg = newXblockAsset.url;
                             _fn.custom_background = newXblockAsset.url;
-                            _fn.build.form.submit(continue_mode=true);
+                            _fn.build.form.submit('1', continue_mode=true);
                         })
                     }
                 },
@@ -885,21 +885,25 @@ function DragAndDropEditBlock(runtime, element, params) {
                     $element.find('.save-continue-button').bind('click', '.save-continue-button', function saveContinueButtonHandler(e) {
                         e.preventDefault();
 
-                        if (!_fn.build.validate(_fn.selected_tab_id === undefined ? '0' : _fn.selected_tab_id)) {
+                        var tabID = _fn.selected_tab_id === undefined ? '0' : _fn.selected_tab_id;
+
+                        if (!_fn.build.validate(tabID)) {
                             return;
                         }
 
-                        _fn.build.form.submit(continue_mode=true);
+                        _fn.build.form.submit(tabID, continue_mode=true);
                     });
 
                     $element.find('.save-button').bind('click', function(e) {
                         e.preventDefault();
 
-                        if (!_fn.build.validate(_fn.selected_tab_id === undefined ? '0' : _fn.selected_tab_id)) {
+                        var tabID = _fn.selected_tab_id === undefined ? '0' : _fn.selected_tab_id;
+
+                        if (!_fn.build.validate(tabID)) {
                             return;
                         }
 
-                        _fn.build.form.submit(continue_mode=false);
+                        _fn.build.form.submit(tabID, continue_mode=false);
                     })
 
                     $element.find('.add_answer_button').bind('click', function(e) {
@@ -1837,40 +1841,39 @@ function DragAndDropEditBlock(runtime, element, params) {
                             }
                         });
                     },
-                    submit: function(continue_mode=false) {
-                        // save all
-                        if (_fn.build.form.item.itemObjects.length > 0) {
-                            _fn.data.items = _fn.build.form.item.itemObjects;
-                        }
-                        if (_fn.build.form.zone.zoneObjects.length > 0) {
-                            _fn.data.zones = _fn.build.form.zone.zoneObjects;
-                        }
+                    submit: function(tabID, continue_mode=false) {
+                        // Save parts of data for a specified Tab
+                        var post_data = {};
 
-                        var data = {
-                            'display_name': $element.find('.display-name').val(),
-                            'max_attempts': $element.find(".max-attempts").val(),           // ? Should we remove this
-                            'weight': $element.find('.weight').val(),
-                            'problem_text': $element.find('.problem-text').val(),
-                            // 'mode': $element.find(".problem-mode").val(),                // remove this & assign with value `assessment` mode
-                            // 'show_title': $element.find('.show-title').is(':checked'),   // remove this & assign with value `True`
-                            'show_problem_header': $element.find('.show-problem-header').is(':checked'),    // ? Should we remove this
-
-                            'item_background_color': $element.find('.item-background-color').val(), // ?
-                            'item_text_color': $element.find('.item-text-color').val(),             // ?
-                            'max_items_per_zone': $element.find('.max-items-per-zone').val(),       // ?
-                            'feedback': {
-                                //'start': $element.find('.intro-feedback').val(),          // remove this & assign with empty value
-                                'finish': $element.find('.final-feedback').val()
-                            },
-                            'type_id': parseInt(_fn.type_id),
-                            'custom_background': _fn.custom_background,
-                            'data': _fn.data,
-                        };
+                        if (tabID === '0') {
+                            post_data['display_name'] = $element.find('.display-name').val();
+                            post_data['max_attempts'] = $element.find(".max-attempts").val();               // ? Should we remove this
+                            post_data['weight'] = $element.find('.weight').val();
+                            post_data['problem_text'] = $element.find('.problem-text').val();
+                            post_data['feedback'] = {'finish': $element.find('.final-feedback').val()};
+                        } else if (tabID === '1') {
+                            post_data['type_id'] = parseInt(_fn.type_id);
+                            post_data['custom_background'] = _fn.custom_background;
+                        } else if (tabID === '2' || tabID === '3') {
+                            if (_fn.build.form.item.itemObjects.length > 0) {
+                                _fn.data.items = _fn.build.form.item.itemObjects;
+                            }
+                            if (_fn.build.form.zone.zoneObjects.length > 0) {
+                                _fn.data.zones = _fn.build.form.zone.zoneObjects;
+                            }
+                            post_data['type_id'] = parseInt(_fn.type_id);           // Have to save this data assigned in Background Tab again
+                            post_data['custom_background'] = _fn.custom_background; // Save again
+                            post_data['max_items_per_zone'] = $element.find('.max-items-per-zone').val();   // ? Should we remove this
+                            post_data['data'] = _fn.data;
+                        } else {
+                            return;
+                        }
 
                         var handlerUrl = runtime.handlerUrl(element, 'studio_submit');
 
                         runtime.notify('save', {state: 'start', message: gettext("Saving")});
-                        $.post(handlerUrl, JSON.stringify(data), 'json').done(function(response) {
+
+                        $.post(handlerUrl, JSON.stringify(post_data), 'json').done(function(response) {
                             if (response.result === 'success') {
                                 runtime.notify('save', continue_mode ? {state: 'save_and_continue'} : {state: 'end'});
                             } else {
