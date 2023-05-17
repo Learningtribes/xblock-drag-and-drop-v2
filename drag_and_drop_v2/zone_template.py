@@ -109,7 +109,7 @@ class ZonesDefinition(object):
             @rtype:             dict
         """
         zone = [
-            {'title': zone['title'], 'description': zone['description']} for zone in self._tpl_data['zones'] if uid == zone['uid']
+            {'title': zone['title'], 'description': zone.get('description')} for zone in self._tpl_data['zones'] if uid == zone['uid']
         ]
         assert len(zone) == 1
         return zone[0]

@@ -557,7 +557,7 @@ class DragAndDropBlock(
         """Handles dropping item into a zone.
         """
         if self.mode != Constants.ASSESSMENT_MODE:
-            if not self.definition_data.get_zone_info_by_key(item_attempt['zone']):
+            if not self.definition_data.get_zone_info_by_uid(item_attempt['zone']):
                 raise JsonHandlerError(400, 'Item zone data is invalid.')
 
         if self.mode == Constants.ASSESSMENT_MODE:
@@ -683,7 +683,7 @@ class DragAndDropBlock(
         """
         item = self.definition_data.get_item_by_id(attempt['val'])
         # attempt should already be validated here - not doing the check for existing zone again
-        zone = self.definition_data.get_zone_info_by_key(attempt['zone'])
+        zone = self.definition_data.get_zone_info_by_uid(attempt['zone'])
 
         item_label = item.get("displayName")
         if not item_label:
