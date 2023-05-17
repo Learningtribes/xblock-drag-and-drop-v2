@@ -52,7 +52,7 @@ function DragAndDropTemplates(configuration) {
 
     var itemContentTemplate = function(item) {
         var key = item.value + '-content';
-        return h('div', { key: key, innerHTML: item.displayName, className: "item-content" });
+        return h('div', { key: key, innerHTML: item.displayName || 'Unknown Answer', className: "item-content" });
     };
 
     var itemTemplate = function(item, ctx) {
