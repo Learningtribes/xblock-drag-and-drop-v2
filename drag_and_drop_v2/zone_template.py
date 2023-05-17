@@ -85,7 +85,7 @@ class ZonesDefinition(object):
             @rtype:             list
         """
         if self._tpl_data is None:
-            raise NotImplementedError('zones data is empty.')
+            raise NotImplementedError('zones/items data is empty.')
 
         return [zone['uid'] for zone in self._tpl_data['zones']]
 
@@ -93,10 +93,10 @@ class ZonesDefinition(object):
         """Return all valid item IDs
 
             @return:            item ids
-            @rtype:             List
+            @rtype:             set
         """
         if self._tpl_data is None:
-            raise NotImplementedError('zones data is empty.')
+            raise NotImplementedError('zones/items data is empty.')
 
         return set([str(item['id']) for item in self._tpl_data['items']])
 

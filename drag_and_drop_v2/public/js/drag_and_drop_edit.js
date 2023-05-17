@@ -1854,7 +1854,6 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                         if (tabID === '0') {
                             post_data['display_name'] = $element.find('.display-name').val();
-                            post_data['max_attempts'] = $element.find(".max-attempts").val();               // ? Should we remove this
                             post_data['weight'] = $element.find('.weight').val();
                             post_data['problem_text'] = $element.find('.problem-text').val();
                             post_data['feedback'] = {'finish': $element.find('.final-feedback').val()};
@@ -1870,7 +1869,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                             }
                             post_data['type_id'] = parseInt(_fn.type_id);           // Have to save this data assigned in Background Tab again
                             post_data['custom_background'] = _fn.custom_background; // Save again
-                            post_data['max_items_per_zone'] = $element.find('.max-items-per-zone').val();   // ? Should we remove this
                             post_data['data'] = _fn.data;
                         } else {
                             return;

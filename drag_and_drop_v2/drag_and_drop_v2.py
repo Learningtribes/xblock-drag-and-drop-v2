@@ -28,7 +28,7 @@ from .utils import (
 )
 from .default_data import DEFAULT_EMPTY_DATA
 from .tabs_header import TabsHeader
-from .zone_template import ZonesDefinition, ZONE_TPL_DEFINITIONS
+from .zone_template import TriangleTemplate, ZonesDefinition, ZONE_TPL_DEFINITIONS
 
 
 loader = ResourceLoader(__name__)
@@ -62,35 +62,35 @@ class DragAndDropBlock(
     }
 
     display_name = String(
-        display_name=_("Title"),
-        help=_("The title of the drag and drop problem. The title is displayed to learners."),
+        display_name=_('Title'),
+        help=_('The title of the drag and drop problem. The title is displayed to learners.'),
         scope=Scope.settings,
-        default=_("Drag & Drop"),
+        default=_('Drag & Drop'),
         enforce_type=True,
     )
-
+    # Keep it for being compatible with old version only ( In new version, we always set it with `ASSESSMENT_MODE` )
     mode = String(
-        display_name=_("Mode"),
+        display_name=_('Mode'),
         help=_(
-            "Standard mode: the problem provides immediate feedback each time "
-            "a learner drops an item on a target zone. "
-            "Assessment mode: the problem provides feedback only after "
-            "a learner drops all available items on target zones."
+            'Standard mode: the problem provides immediate feedback each time '
+            'a learner drops an item on a target zone. '
+            'Assessment mode: the problem provides feedback only after '
+            'a learner drops all available items on target zones.'
         ),
         scope=Scope.settings,
         values=[
-            {"display_name": _("Standard"), "value": Constants.STANDARD_MODE},
-            {"display_name": _("Assessment"), "value": Constants.ASSESSMENT_MODE},
+            {'display_name': _('Standard'), 'value': Constants.STANDARD_MODE},
+            {'display_name': _('Assessment'), 'value': Constants.ASSESSMENT_MODE},
         ],
         default=Constants.ASSESSMENT_MODE,  # Assign with `assessment mode` instead of `standard mode` in new version
         enforce_type=True,
     )
-
+    # In new version, the value is `None` always.
     max_attempts = Integer(
-        display_name=_("Maximum attempts"),
+        display_name=_('Maximum attempts'),
         help=_(
-            "Defines the number of times a student can try to answer this problem. "
-            "If the value is not set, infinite attempts are allowed."
+            'Defines the number of times a student can try to answer this problem. '
+            'If the value is not set, infinite attempts are allowed.'
         ),
         scope=Scope.settings,
         default=None,
@@ -122,43 +122,43 @@ class DragAndDropBlock(
     )
 
     weight = Float(
-        display_name=_("Problem Weight"),
-        help=_("Defines the number of points the problem is worth."),
+        display_name=_('Problem Weight'),
+        help=_('Defines the number of points the problem is worth.'),
         scope=Scope.settings,
         default=1,
         enforce_type=True,
     )
 
     item_background_color = String(
-        display_name=_("Item background color"),
-        help=_("The background color of draggable items in the problem (example: 'blue' or '#0000ff')."),
+        display_name=_('Item background color'),
+        help=_('The background color of draggable items in the problem (example: \'blue\' or \'#0000ff\').'),
         scope=Scope.settings,
-        default="",
+        default='',
         enforce_type=True,
     )
 
     item_text_color = String(
-        display_name=_("Item text color"),
-        help=_("Text color to use for draggable items (example: 'white' or '#ffffff')."),
+        display_name=_('Item text color'),
+        help=_('Text color to use for draggable items (example: \'white\' or \'#ffffff\').'),
         scope=Scope.settings,
         default="",
         enforce_type=True,
     )
-
+    # In new version, the value is `None` always.
     max_items_per_zone = Integer(
-        display_name=_("Maximum items per zone"),
-        help=_("This setting limits the number of items that can be dropped into a single zone."),
+        display_name=_('Maximum items per zone'),
+        help=_('This setting limits the number of items that can be dropped into a single zone.'),
         scope=Scope.settings,
         default=None,
         enforce_type=True,
     )
 
     data = Dict(
-        display_name=_("Problem data"),
+        display_name=_('Problem data'),
         help=_(
-            "Information about zones, items, feedback, and background image for this problem. "
-            "This information is derived from the input that a course author provides via the interactive editor "
-            "when configuring the problem."
+            'Information about zones, items, feedback, and background image for this problem. '
+            'This information is derived from the input that a course author provides via the interactive editor '
+            'when configuring the problem.'
         ),
         scope=Scope.content,
         default=DEFAULT_EMPTY_DATA,
@@ -166,48 +166,48 @@ class DragAndDropBlock(
     )
 
     item_state = Dict(
-        help=_("Information about current positions of items that a learner has dropped on the target image."),
+        help=_('Information about current positions of items that a learner has dropped on the target image.'),
         scope=Scope.user_state,
         default={},
         enforce_type=True,
     )
 
     attempts = Integer(
-        help=_("Number of attempts learner used"),
+        help=_('Number of attempts learner used'),
         scope=Scope.user_state,
         default=0,
         enforce_type=True,
     )
 
     completed = Boolean(
-        help=_("Indicates whether a learner has completed the problem at least once"),
+        help=_('Indicates whether a learner has completed the problem at least once'),
         scope=Scope.user_state,
         default=False,
         enforce_type=True,
     )
 
     grade = Float(
-        help=_("DEPRECATED. Keeps maximum score achieved by student as a weighted value."),
+        help=_('DEPRECATED. Keeps maximum score achieved by student as a weighted value.'),
         scope=Scope.user_state,
         default=0
     )
 
     raw_earned = Float(
-        help=_("Keeps maximum score achieved by student as a raw value between 0 and 1."),
+        help=_('Keeps maximum score achieved by student as a raw value between 0 and 1.'),
         scope=Scope.user_state,
         default=0,
         enforce_type=True,
     )
 
     type_id = Integer(
-        help=_("Background index of pyramid, rectangles, blank, custom"),
+        help=_('Background index of pyramid, rectangles, blank, custom'),
         scope=Scope.settings,
         default=None,
         enforce_type=True,
     )
 
     custom_background = String(
-        help=_("Background image of custom"),
+        help=_('Background image of custom'),
         scope=Scope.settings,
         default=None,
         enforce_type=True,
@@ -272,7 +272,7 @@ class DragAndDropBlock(
             As it is calculated as ratio of correctly placed (or left in bank in case of decoys) items to
             total number of items, it lays in interval [0..1]
         """
-        correct_count, total_count = self._get_item_stats()
+        correct_count, total_count = self._get_items_correctness_stats()
         return correct_count / float(total_count)
 
     @XBlock.supports("multi_device")  # Enable this block for use in the mobile app via webview
@@ -513,10 +513,13 @@ class DragAndDropBlock(
 
         if 'display_name' in submissions:
             self.display_name = submissions['display_name']
+        # Only support `assessment mode` in new version
+        # But still keep field `mode` and value `Constants.STANDARD_MODE` loaded from DB to be compatible with old version
         if 'mode' in submissions:
-            self.mode = submissions['mode']
+            self.mode = Constants.ASSESSMENT_MODE
+        # In new version : Infinite attempts are allowed. and keep the field `max_attempts` to be compatible with old version
         if 'max_attempts' in submissions:
-            self.max_attempts = submissions['max_attempts']
+            self.max_attempts = None
         if 'show_title' in submissions:
             self.show_title = submissions['show_title']
         if 'problem_text' in submissions:
@@ -529,8 +532,9 @@ class DragAndDropBlock(
             self.item_background_color = submissions['item_background_color']
         if 'item_text_color' in submissions:
             self.item_text_color = submissions['item_text_color']
+        # In new version we remove this limitation
         if 'max_items_per_zone' in submissions:
-            self.max_items_per_zone = get_max_items_per_zone(submissions.get('max_items_per_zone', None))
+            self.max_items_per_zone = None
         if zones_items_data:
             self.data = zones_items_data
         if 'feedback' in submissions:
@@ -583,7 +587,7 @@ class DragAndDropBlock(
         return {
             'correct': is_correct,
             'grade': self._get_weighted_earned_if_set(),
-            'finished': self._is_answer_correct(),
+            'finished': self._are_all_answers_correct(),
             'overall_feedback': present_feedback(overall_feedback),
             'feedback': present_feedback([item_feedback])
         }
@@ -602,6 +606,7 @@ class DragAndDropBlock(
             self._publish_item_to_bank_event(_item['id'], is_correct)
         else:
             # State is always updated in assessment mode to store intermediate item positions
+            # Key : item_id ==> Value : {'zone': 'zone_123_id', 'correct': True/False}
             self.item_state[str(_item['id'])] = make_state_from_attempt(item_attempt, is_correct)
             self._publish_item_dropped_event(item_attempt, is_correct)
 
@@ -627,7 +632,7 @@ class DragAndDropBlock(
         # incorrect order of invocation causes issues:
         self._mark_complete_and_publish_grade()  # must happen before _get_feedback - sets grade
 
-        correct = self._is_answer_correct()  # must happen before manipulating item_state - reads item_state
+        correct = self._are_all_answers_correct()  # must happen before manipulating item_state - reads item_state
         overall_feedback_msgs, misplaced_ids = self._get_feedback(include_item_feedback=True)
 
         misplaced_items = []
@@ -650,7 +655,7 @@ class DragAndDropBlock(
     def _mark_complete_and_publish_grade(self):
         """Helper method to update `self.completed` and submit grade event if appropriate conditions met.
         """
-        # This method implicitly depends on self.item_state (via _is_answer_correct and _learner_raw_score)
+        # This method implicitly depends on self.item_state (via _are_all_answers_correct and _learner_raw_score)
         # and also updates self.raw_earned if some conditions are met. As a result this method implies some order of
         # invocation:
         # * it should be called after learner-caused updates to self.item_state is applied
@@ -661,7 +666,7 @@ class DragAndDropBlock(
         # and help avoid bugs caused by invocation order violation in future.
 
         # There's no going back from "completed" status to "incomplete"
-        self.completed = self.completed or self._is_answer_correct() or not self.attempts_remain
+        self.completed = self.completed or self._are_all_answers_correct() or not self.attempts_remain
         current_raw_earned = self._learner_raw_score()
         # ... and from higher grade to lower
         # if we have an old-style (i.e. unreliable) grade, override no matter what
@@ -726,7 +731,7 @@ class DragAndDropBlock(
         """Resets problem to initial state
         """
         self.item_state = {}
-        return self._get_user_state()
+        return self._get_user_testing_state()
 
     @XBlock.json_handler
     def show_answer(self, data, suffix=''):
@@ -760,9 +765,9 @@ class DragAndDropBlock(
         """
         if self.data.get('targetImg'):
             return self._expand_static_url(self.data['targetImg'])
-        elif self.type_id == 0:
+        elif self.type_id == TriangleTemplate.TYPE_ID:
             return self.pyramid_background_image_url
-        elif self.type_id in [1, 2, 3]:
+        elif self.type_id in ZONE_TPL_DEFINITIONS.ALL_SUPPORTED_TEMPLATES:
             return ''
 
     @property
@@ -781,20 +786,20 @@ class DragAndDropBlock(
     def get_user_state(self, request, suffix=''):
         """ GET all user-specific data, and any applicable feedback """
         return webob.Response(
-            body=json.dumps(self._get_user_state()),
+            body=json.dumps(self._get_user_testing_state()),
             content_type='application/json'
         )
 
     def _get_feedback(self, include_item_feedback=False):
         """Builds overall feedback for both standard and assessment modes
         """
-        _answer_correctness = self._answer_correctness()
+        _answer_correctness = self.answers_correctness
 
         if self.mode == Constants.STANDARD_MODE or not self.attempts:
             feedback_key = 'finish' if _answer_correctness == self.SOLUTION_CORRECT else 'start'
             return [FeedbackMessage(self.data['feedback'][feedback_key], None)], set()
 
-        items = self._get_item_raw_stats()
+        items = self._get_classified_stats_of_user_items()
         missing_ids = items.required - items.placed
         misplaced_ids = items.placed - items.correctly_placed
         feedback_msgs = []
@@ -861,9 +866,13 @@ class DragAndDropBlock(
                 pass
         return url
 
-    def _get_item_state(self):
+    def _get_user_dropped_items_state(self):
         """Returns a copy of the user item state.
             Converts to a dict if data is stored in legacy tuple form.
+
+            @return:            user dropped items' state
+                                    ==>  Sample: {item_id, ['zone' : 'zone_123_id',  'correct': True/False]}
+            @rtype:             dict
         """
         # IMPORTANT: this method should always return a COPY of self.item_state - it is called from get_user_state
         # handler and the data it returns is manipulated there to hide correctness of items placed.
@@ -874,58 +883,56 @@ class DragAndDropBlock(
             for item_id, item in self.item_state.items()
         }
 
-    def _get_user_state(self):
+    def _get_user_testing_state(self):
         """ Get all user-specific data, and any applicable feedback """
-        _item_state = self._get_item_state()
+        _user_dropped_items_state = self._get_user_dropped_items_state()
         # In assessment mode, we do not want to leak the correctness info for individual items to the frontend,
         # so we remove "correct" from all items when in assessment mode.
         if self.mode == Constants.ASSESSMENT_MODE:
-            for item in _item_state.values():
+            for item in _user_dropped_items_state.values():
                 del item["correct"]
 
         overall_feedback_msgs, __ = self._get_feedback()
-        if self.mode == Constants.STANDARD_MODE:
-            is_finished = self._is_answer_correct()
-        else:
-            is_finished = not self.attempts_remain
+
         return {
-            'items': _item_state,
-            'finished': is_finished,
+            'items': _user_dropped_items_state,
+            'finished': self._are_all_answers_correct() if self.mode == Constants.STANDARD_MODE else not self.attempts_remain,
             'attempts': self.attempts,
             'grade': self._get_weighted_earned_if_set(),
             'overall_feedback': present_feedback(overall_feedback_msgs)
         }
 
-    def _get_item_raw_stats(self):
+    def _get_classified_stats_of_user_items(self):
         """Returns a named tuple containing required, decoy, placed, correctly
             placed, and correctly unplaced decoy items.
 
-        Returns:
-            namedtuple: (required, placed, correctly_placed, decoy, decoy_in_bank)
-                * required - IDs of items that must be placed on the board
-                * placed - IDs of items actually placed on the board
-                * correctly_placed - IDs of items that were placed correctly
-                * decoy - IDs of decoy items
-                * decoy_in_bank - IDs of decoy items that were unplaced
+            Returns:
+                namedtuple: (required, placed, correctly_placed, decoy, decoy_in_bank)
+                    * required - IDs of items that must be placed on the board
+                    * placed - IDs of items actually placed on the board
+                    * correctly_placed - IDs of items that were placed correctly
+                    * decoy - IDs of decoy items
+                    * decoy_in_bank - IDs of decoy items that were unplaced
         """
-        _item_state = self._get_item_state()
+        _user_dropped_items_state = self._get_user_dropped_items_state()
+        _all_items_ids = self.definition_data.get_valid_item_ids()
 
-        all_items = self.definition_data.get_valid_item_ids()
-        required = set(item_id for item_id in all_items if self.definition_data.get_zones_by_item_id(int(item_id)) != [])
-        placed = set(item_id for item_id in all_items if item_id in _item_state)
-        correctly_placed = set(item_id for item_id in placed if _item_state[item_id]['correct'])
-        decoy = all_items - required
-        decoy_in_bank = set(item_id for item_id in decoy if item_id not in _item_state)
+        required = set(item_id for item_id in _all_items_ids if self.definition_data.get_zones_by_item_id(int(item_id)))
+        placed = set(item_id for item_id in _all_items_ids if item_id in _user_dropped_items_state)
+        correctly_placed = set(item_id for item_id in placed if _user_dropped_items_state[item_id]['correct'])
+        decoy = _all_items_ids - required
+        decoy_in_bank = set(item_id for item_id in decoy if item_id not in _user_dropped_items_state)
 
         return ItemStats(required, placed, correctly_placed, decoy, decoy_in_bank)
 
-    def _get_item_stats(self):
+    def _get_items_correctness_stats(self):
         """Returns a tuple representing the number of correctly placed items,
             and the total number of items required (including decoy items).
         """
-        _items = self._get_item_raw_stats()
-        correct_count = len(_items.correctly_placed) + len(_items.decoy_in_bank)
-        total_count = len(_items.required) + len(_items.decoy)
+        _items_stats = self._get_classified_stats_of_user_items()
+
+        correct_count = len(_items_stats.correctly_placed) + len(_items_stats.decoy_in_bank)
+        total_count = len(_items_stats.required) + len(_items_stats.decoy)
 
         return correct_count, total_count
 
@@ -940,8 +947,9 @@ class DragAndDropBlock(
         """
         return self.weighted_grade() if self.fields['raw_earned'].is_set_on(self) else None
 
-    def _answer_correctness(self):
-        """Checks answer correctness:
+    @property
+    def answers_correctness(self):
+        """Return answers correctness:
 
             Returns:
                 string: Correct/Incorrect/Partial
@@ -949,7 +957,7 @@ class DragAndDropBlock(
                     * Partial: Some items are at their correct place.
                     * Incorrect: None items are at their correct place.
         """
-        correct_count, total_count = self._get_item_stats()
+        correct_count, total_count = self._get_items_correctness_stats()
         if correct_count == total_count:
             return self.SOLUTION_CORRECT
         elif correct_count == 0:
@@ -957,10 +965,10 @@ class DragAndDropBlock(
         else:
             return self.SOLUTION_PARTIAL
 
-    def _is_answer_correct(self):
-        """Helper - checks if answer is correct
+    def _are_all_answers_correct(self):
+        """Helper - checks if answers are all correct
         """
-        return self._answer_correctness() == self.SOLUTION_CORRECT
+        return self.answers_correctness == self.SOLUTION_CORRECT
 
     @staticmethod
     def workbench_scenarios():
