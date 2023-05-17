@@ -485,7 +485,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 obj.className = is_activated && (selected_tab_id!==undefined ? selected_tab_id === obj.id : true) ? 'nav-item active-section' : 'nav-item';
                             }
                         } else if (obj.id === "3") {
-                            if (_fn.build.form.zone.zoneObjects === undefined || _fn.build.form.zone.zoneObjects.length === 0) {
+                            if ((_fn.build.form.zone.zoneObjects === undefined || _fn.build.form.zone.zoneObjects.length === 0) && _fn.type_id === null) {
                                 obj.className = 'nav-item disable-section';
                             } else {
                                 obj.className = is_activated && (selected_tab_id!==undefined ? selected_tab_id === obj.id : true) ? 'nav-item active-section' : 'nav-item';

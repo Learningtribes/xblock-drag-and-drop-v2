@@ -507,9 +507,9 @@ class DragAndDropBlock(
             return None
 
         zones_items_data = submissions.get('data')
-        json_resp = _validate_zone_uids(zones_items_data)
-        if json_resp:
-            return json_resp
+        json_error_resp = _validate_zone_uids(zones_items_data)
+        if json_error_resp:
+            return json_error_resp
 
         if 'display_name' in submissions:
             self.display_name = submissions['display_name']
