@@ -680,7 +680,6 @@ function DragAndDropTemplates(configuration) {
                     h('span.block-label-text', gettext('Drag & Drop')),
                 ]),
                 h('hr.sep-line'),
-                h('div', [forwardKeyboardHelpButtonTemplate(ctx)]),
                 h('div', [tipsTemplate(ctx)]),
                 h('div.problem', [
                     problemHeader,
@@ -705,7 +704,6 @@ function DragAndDropTemplates(configuration) {
                     (ctx.show_submit_answer ? submitAnswerTemplate(ctx) : null),
                     sidebarTemplate(ctx),
                 ]),
-                keyboardHelpPopupTemplate(ctx),
                 feedbackTemplate(ctx),
                 h('div.sr.reader-feedback-area', {
                     attributes: {'aria-live': 'polite', 'aria-atomic': true},

@@ -1853,7 +1853,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         var post_data = {};
 
                         if (tabID === '0') {
-                            post_data['display_name'] = $element.find('.display-name').val();
+                            post_data['displayName'] = $element.find('.display-name').val();
                             post_data['weight'] = $element.find('.weight').val();
                             post_data['problem_text'] = $element.find('.problem-text').val();
                             post_data['feedback'] = {'finish': $element.find('.final-feedback').val()};

@@ -51,7 +51,7 @@ class ZonesDefinition(object):
         """Generate and return zone settings (dict) according to arguments
         """
         return {
-            'id': id, 'display_name': display_name,
+            'id': id, 'displayName': display_name,
             'feedback': {
                 'incorrect': incorrect_feedback, 'correct': correct_feedback
             },
