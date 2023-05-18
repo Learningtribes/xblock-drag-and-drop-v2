@@ -121,18 +121,23 @@ function DragAndDropEditBlock(runtime, element, params) {
                     if (e.target.matches('#item-delete-circle-3') || e.target.matches('#item-delete-circle-3 svg')) {
                         // delete custom background
                         runtime.notify('confirm', {
-                            title: gettext('Delete background?'),
-                            message: gettext('The custom background will be deleted. Are you sure you want to continue?'),
+                            title: gettext('Delete the custom background?'),
+                            message: gettext('Your current background will be deleted. Are you sure you want to continue?'),
                             actionLabel: gettext('Yes, delete the background'),
                             operation: function () {
-                                _fn.custom_background = '';
                                 const patternItemCustomBackground = $("#background-type-" + CUSTOM_TEMPLATE_TYPE.toString());
                                 patternItemCustomBackground.css('display', 'none');
 
                                 if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE) {
-                                    const oldAssetId = _fn.data.targetImg.substring(_fn.data.targetImg.lastIndexOf('/') + 1);
+                                    const oldAssetId = _fn.custom_background.substring(_fn.custom_background.lastIndexOf('/') + 1);
                                     if (oldAssetId) {
-                                        _fn.build.form.background_check(oldAssetId)
+                                        _fn.build.form.background_check(oldAssetId, function(){
+                                            _fn.custom_background = '';
+                                            _fn.build.form.submit('1', continue_mode=true);
+                                        });
+                                    } else {
+                                        _fn.custom_background = '';
+                                        _fn.build.form.submit('1', continue_mode=true);
                                     }
                                 }
                             },
@@ -379,15 +384,37 @@ function DragAndDropEditBlock(runtime, element, params) {
                     const newBlockId = newXblockAsset.id.toString();
 
                     if (oldAssetId !== newBlockId) {
-                        //
-                        if (oldAssetId) {
-                            _fn.build.form.background_check(oldAssetId)
+                        if (_fn.custom_background) {
+                            // overwrites previously custom background
+                            runtime.notify('confirm', {
+                                title: gettext('Replace the custom background?'),
+                                message: gettext('Your current background will be deleted and immediately replaced by the new upload. Are you sure you want to continue?'),
+                                actionLabel: gettext('Yes, replace the background'),
+                                operation: function () {
+                                    onConfirmReplaceCustomBackgroundHandler();
+                                }
+                            });
+                        } else {
+                            onConfirmReplaceCustomBackgroundHandler();
                         }
-                        _fn.build.changeBackgroundType(CUSTOM_TEMPLATE_TYPE, function() {
-                            _fn.data.targetImg = newXblockAsset.url;
-                            _fn.custom_background = newXblockAsset.url;
-                            _fn.build.form.submit('1', continue_mode=true);
-                        })
+                    }
+
+                    function onConfirmReplaceCustomBackgroundHandler (){
+                        if (oldAssetId) {
+                            _fn.build.form.background_check(oldAssetId, function(){
+                                onBGCheckCallback();
+                            });
+                        } else {
+                            onBGCheckCallback();
+                        }
+
+                        function onBGCheckCallback() {
+                            _fn.build.changeBackgroundType(CUSTOM_TEMPLATE_TYPE, function() {
+                                _fn.data.targetImg = newXblockAsset.url;
+                                _fn.custom_background = newXblockAsset.url;
+                                _fn.build.form.submit('1', continue_mode=true);
+                            })
+                        }
                     }
                 },
                 onBackgroundGetAssetsSuccessHandler(e) {
@@ -1724,7 +1751,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             $el.find('.row.advanced-link').toggleClass('opening')
                         },
                     },
-                    background_check(oldAssetId) {
+                    background_check(oldAssetId, callback) {
                         /**
                          * Handle check and delete unused custom background asset
                          */
@@ -1732,17 +1759,23 @@ function DragAndDropEditBlock(runtime, element, params) {
                             asset_id: oldAssetId
                         }
                         var handlerUrl = runtime.handlerUrl(element, 'background_check');
-                        $.post(handlerUrl, JSON.stringify(data), 'json').done(function(response) {
-                            if (response.result === 'success') {
-                                // runtime.notify('save', continue_mode ? {state: 'save_and_continue'} : {state: 'end'});
-                            } else {
-                                var message = response.messages.join(", ");
-                                runtime.notify('error', {
-                                    'title': window.gettext("There was an error with your form."),
-                                    'message': message
-                                });
-                            }
-                        });
+                        $.post(handlerUrl, JSON.stringify(data), 'json')
+                            .done(function(response) {
+                                if (response.result === 'success') {
+                                    // runtime.notify('save', continue_mode ? {state: 'save_and_continue'} : {state: 'end'});
+                                } else {
+                                    var result = response.result;
+                                    runtime.notify('error', {
+                                        'title': window.gettext("There was an error with your form."),
+                                        'message': result
+                                    });
+                                }
+                            })
+                            .always(function() {
+                                if (callback) {
+                                    callback.apply(this);
+                                }
+                            });
                     },
                     submit: function(tabID, continue_mode=false) {
                         // Save parts of data for a specified Tab
@@ -1756,6 +1789,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         } else if (tabID === '1') {
                             post_data['type_id'] = parseInt(_fn.type_id);
                             post_data['custom_background'] = _fn.custom_background;
+                            post_data['data'] = _fn.data;
                         } else if (tabID === '2' || tabID === '3') {
                             if (_fn.build.form.item.itemObjects.length > 0) {
                                 _fn.data.items = _fn.build.form.item.itemObjects;
