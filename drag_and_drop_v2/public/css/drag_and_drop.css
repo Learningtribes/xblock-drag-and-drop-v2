@@ -6,6 +6,12 @@
     position: relative;
 }
 
+.xblock--drag-and-drop .drap-drop-tips-info {
+    font-size: 16px;
+    font-weight: 400;
+    margin: 8px 0px 8px 0px;
+}
+
 .xblock--drag-and-drop .resize-detector {
     position: absolute;
     top: 0;
@@ -80,7 +86,7 @@
     box-sizing: border-box;
     width: auto;
     padding: 1%;
-    background-color: #ebf0f2;
+    background-color: #ffffff;
     position: relative;
 }
 
@@ -89,7 +95,7 @@
 .xblock--drag-and-drop .item-bank {
     display: -ms-flexbox;
     display: flex;
-
+    align-content: flex-start;
     -ms-flex-flow: row wrap;
     flex-flow: row wrap;
 
@@ -102,29 +108,33 @@
     position: relative;
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 3px;
-    padding: 0; /* padding: 5px looks better but makes some blocks to change in size when dropped onto the target; */
+    padding: 6px 10px 6px 10px; /* padding: 5px looks better but makes some blocks to change in size when dropped onto the target; */
+    margin: 15px 0px 15px 0px;
+    height: 166px;
+    border: 2px dashed #727272;
+    border-radius: 4px;
+    box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .xblock--drag-and-drop .drag-container .option {
-    display: inline-block;
-    width: auto;
-    min-width: 4em;
-    max-width: 30%;
-    border: 1px solid transparent;
-    border-radius: 3px;
     box-sizing: border-box;
-    margin: 5px;
-    padding: 10px;
-    text-align: center;
-    background-color: #1d5280;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 16px;
+    margin: 12px 12px 0px 0px;
+    width: fit-content;
+    cursor: pointer;
+    height: 35px;
+    background: #FAFAFA !important;
+    border: 1px solid #1D1D1D;
+    border-radius: 4px;
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 700;
     font-size: 14px;
-    color: #fff;
-    opacity: 1;
-    outline-color: #fff;
-    outline-style: none;
-    /* Some versions of the drag and drop library try to fiddle with this */
-    z-index: 10 !important;
-    -webkit-touch-callout: none;
+    line-height: 19px;
 }
 
 @media screen and (max-width: 480px) {
@@ -140,6 +150,11 @@
         flex-grow: 0;
         max-width: 80%;
     }
+}
+
+.xblock--drag-and-drop .drag-container .handler_style {
+    cursor: pointer;
+    margin: 0px 5px 0px 5px;
 }
 
 .xblock--drag-and-drop .drag-container .option.specified-width img {
@@ -172,7 +187,7 @@
 
 /* Placed option */
 .xblock--drag-and-drop .drag-container .target .option {
-    position: absolute;
+    position: relative;
     margin: 0;
     transform: translate(-50%, -50%); /* These blocks are to be centered on their absolute x,y position */
 }
@@ -188,12 +203,30 @@
     position: relative;
 }
 .xblock--drag-and-drop .zone .item-align .option {
-    transform: none;
-    position: relative;
-    vertical-align: top;
-    margin-right: 2px;
-    margin-bottom: 2px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 16px;
+    margin: 12px 12px 0px 0px;
+    width: fit-content;
+    cursor: pointer;
+    height: 35px;
+    background: #FAFAFA !important;
+    border: 1px solid #1D1D1D;
+    border-radius: 4px;
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 19px;
 }
+
+.xblock--drag-and-drop .zone .item-align .option .handler_style {
+    cursor: pointer;
+    margin: 0px 5px 0px 5px;
+}
+
 .xblock--drag-and-drop .zone .item-align-left {
     text-align: left;
 }
@@ -201,12 +234,29 @@
     text-align: right;
 }
 .xblock--drag-and-drop .zone .item-align-center {
+    display: flex;
     text-align: center;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 .xblock--drag-and-drop .zone .item-align-center .option {
-    display: inline-block;
-    margin-left: 1px;
-    margin-right: 1px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 16px;
+    margin: 12px 12px 0px 0px;
+    width: fit-content;
+    cursor: pointer;
+    height: 35px;
+    background: #FAFAFA !important;
+    border: 1px solid #1D1D1D;
+    border-radius: 4px;
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 19px;
 }
 
 /* Focused option */

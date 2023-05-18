@@ -577,7 +577,7 @@ class DragAndDropBlock(
         """Handles dropping item into a zone.
         """
         if self.mode != Constants.ASSESSMENT_MODE:
-            if not self.definition_data.get_zone_info_by_key(item_attempt['zone']):
+            if not self.definition_data.get_zone_info_by_uid(item_attempt['zone']):
                 raise JsonHandlerError(400, 'Item zone data is invalid.')
 
         if self.mode == Constants.ASSESSMENT_MODE:
@@ -594,7 +594,9 @@ class DragAndDropBlock(
         """Handles dropping item to a zone in standard mode.
         """
         _item = self.definition_data.get_item_by_id(item_attempt['val'])
-        is_correct = self.definition_data.is_attempt_correct(item_attempt)  # Student placed item in a correct zone
+        is_correct = self.definition_data.is_attempt_correct(
+            item_attempt, self.mode == Constants.ASSESSMENT_MODE
+        )  # Student placed item in a correct zone
         if is_correct:  # In standard mode state is only updated when attempt is correct
             self.item_state[str(_item['id'])] = make_state_from_attempt(item_attempt, is_correct)
 
@@ -619,8 +621,9 @@ class DragAndDropBlock(
             raise JsonHandlerError(409, self.i18n_service.gettext("Max number of attempts reached"))
 
         _item = self.definition_data.get_item_by_id(item_attempt['val'])
-        is_correct = self.definition_data.is_attempt_correct(item_attempt)
-
+        is_correct = self.definition_data.is_attempt_correct(
+            item_attempt, self.mode == Constants.ASSESSMENT_MODE
+        )
         if item_attempt['zone'] is None:
             self.item_state.pop(str(_item['id']), None)
             self._publish_item_to_bank_event(_item['id'], is_correct)
@@ -703,7 +706,7 @@ class DragAndDropBlock(
         """
         item = self.definition_data.get_item_by_id(attempt['val'])
         # attempt should already be validated here - not doing the check for existing zone again
-        zone = self.definition_data.get_zone_info_by_key(attempt['zone'])
+        zone = self.definition_data.get_zone_info_by_uid(attempt['zone'])
 
         item_label = item.get("displayName")
         if not item_label:

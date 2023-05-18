@@ -35,6 +35,8 @@ class ZonesDefinition(object):
     """
     START_FEEDBACK = _("Drag the items onto the image above.")      # We don't use this field anymore in our new version
     FINISH_FEEDBACK = _("Good work! You have completed this drag and drop problem.")
+    _ITEM_CORRECT_FEEDBACK = _("Correct! This one belongs to {zone}.")
+    _ITEM_INCORRECT_FEEDBACK = _("No, this item does not belong here. Try again.")
 
     def __init__(self, tpl_data=None):
         self._tpl_data = tpl_data
@@ -51,7 +53,7 @@ class ZonesDefinition(object):
         """Generate and return zone settings (dict) according to arguments
         """
         return {
-            'id': id, 'display_name': display_name,
+            'id': id, 'displayName': display_name,
             'feedback': {
                 'incorrect': incorrect_feedback, 'correct': correct_feedback
             },
@@ -109,16 +111,16 @@ class ZonesDefinition(object):
             @rtype:             dict
         """
         zone = [
-            {'title': zone['title'], 'description': zone['description']} for zone in self._tpl_data['zones'] if uid == zone['uid']
+            {'title': zone['title'], 'description': zone.get('description')} for zone in self._tpl_data['zones'] if uid == zone['uid']
         ]
         assert len(zone) == 1
         return zone[0]
 
-    def is_attempt_correct(self, attempt):
+    def is_attempt_correct(self, attempt, is_assessment_mod):
         """Check if the item was placed on correct area.
         """
         correct_zones = self.get_zones_by_item_id(attempt['val'])
-        if correct_zones == [] and attempt['zone'] is None and self.mode == Constants.ASSESSMENT_MODE:
+        if correct_zones == [] and attempt['zone'] is None and is_assessment_mod:
             return True
         return attempt['zone'] in correct_zones
 
@@ -206,8 +208,6 @@ class TriangleTemplate(ZonesDefinition):
     _ITEM_ANY_ZONE_NAME = _("Goes anywhere")
     _ITEM_NO_ZONE_NAME = _("I don't belong anywhere")
 
-    _ITEM_CORRECT_FEEDBACK = _("Correct! This one belongs to {zone}.")
-    _ITEM_INCORRECT_FEEDBACK = _("No, this item does not belong here. Try again.")
     _ITEM_NO_ZONE_FEEDBACK = _("You silly, there are no zones for this one.")
     _ITEM_ANY_ZONE_FEEDBACK = _("Of course it goes here! It goes anywhere!")
 
@@ -288,8 +288,6 @@ class RectangleTemplate(ZonesDefinition):
     _ITEM_ANY_ZONE_NAME = _("Goes anywhere")
     _ITEM_NO_ZONE_NAME = _("I don't belong anywhere")
 
-    _ITEM_CORRECT_FEEDBACK = _("Correct! This one belongs to {zone}.")
-    _ITEM_INCORRECT_FEEDBACK = _("No, this item does not belong here. Try again.")
     _ITEM_NO_ZONE_FEEDBACK = _("You silly, there are no zones for this one.")
     _ITEM_ANY_ZONE_FEEDBACK = _("Of course it goes here! It goes anywhere!")
 
