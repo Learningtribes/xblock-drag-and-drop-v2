@@ -18,7 +18,8 @@ from xblock.scorable import ScorableXBlockMixin, Score
 from xblockutils.resources import ResourceLoader
 from xblockutils.settings import XBlockWithSettingsMixin, ThemableXBlockMixin
 from xmodule.modulestore.django import modulestore
-from contentstore.views.assets import delete_asset
+from xmodule.contentstore.django import contentstore
+from openedx.core.djangoapps.contentserver.caching import del_cached_content
 from opaque_keys.edx.keys import AssetKey, CourseKey
 
 from .utils import (
@@ -468,7 +469,27 @@ class DragAndDropBlock(
         asset_key = AssetKey.from_string(asset_id) if asset_id else None
 
         try:
-            delete_asset(course_key, asset_key)
+            # _check_existence_and_get_asset_content
+            content = contentstore().find(asset_key)
+            # _save_content_to_trash
+            contentstore('trashcan').save(content)
+            # _delete_thumbnail
+            if content.thumbnail_location is not None:
+                thumbnail_location = course_key.make_asset_key('thumbnail', asset_key.block_id)
+
+                try:
+                    thumbnail_content = contentstore().find(thumbnail_location)
+                    # _save_content_to_trash
+                    contentstore('trashcan').save(thumbnail_content)
+                    contentstore().delete(thumbnail_content.get_id())
+                    # del_cached_content
+                    del_cached_content(thumbnail_location)
+                except Exception:
+                    logging.warning('Could not delete thumbnail: %s', thumbnail_location)
+
+            contentstore().delete(content.get_id())
+            del_cached_content(content.location)
+
             logging.info('Deleted unused asset: {file_name}, asset_key: {asset_key}, '
                          'course_id: {course_id}'.format(file_name=asset_key.name,
                                                          asset_key=asset_key,
@@ -477,9 +498,8 @@ class DragAndDropBlock(
                 'result': 'success',
             }
         except Exception as e:
-            print(e)
             return {
-                'result': 'success',
+                'result': 'background_check to delete: ' + str(e),
             }
 
     @XBlock.json_handler
