@@ -49,8 +49,10 @@
                                   <span class="sr">{% trans fields.show_title.help %}</span>
                                 </label>
                             </span>
-                            <input class="display-name" value="{{ self.display_name }}" />
-                            <div class="title_button"><i class="fa-light fa-arrow-rotate-left"></i></div>
+                            <input id="id_display_name_input" class="display-name" value="{{ self.display_name }}" initial_value="{{ self.display_name }}"/>
+                            <div class="title_button">
+                                <i class="fa-light fa-arrow-rotate-left" style="color: #727272; margin: 4px 0px 0px 4px;"></i>
+                            </div>
                         </label>
 
                         <label class="h4">
