@@ -1393,7 +1393,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     startX = get_int_style('left')
                                     startW = get_int_style('width')
                                     offsetX = clientX - startX;
-                                    maxX = startX + startW - zone_width;
+                                    maxX = startX + startW - minWidth;
 
                                     document.addEventListener('mouseup',closeDragElement)
                                     document.addEventListener('mousemove',elementDrag)
@@ -1432,7 +1432,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     startY = get_int_style('top')
                                     startH = get_int_style('height')
                                     offsetY = clientY - startY;
-                                    maxY = startY + startH - zone_height;
+                                    maxY = startY + startH - minHeight;
 
                                     document.addEventListener('mouseup',closeDragElement,false)
                                     document.addEventListener('mousemove',elementDrag,false)
