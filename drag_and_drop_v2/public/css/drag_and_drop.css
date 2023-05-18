@@ -187,7 +187,7 @@
 
 /* Placed option */
 .xblock--drag-and-drop .drag-container .target .option {
-    position: absolute;
+    position: relative;
     margin: 0;
     transform: translate(-50%, -50%); /* These blocks are to be centered on their absolute x,y position */
 }
@@ -234,7 +234,10 @@
     text-align: right;
 }
 .xblock--drag-and-drop .zone .item-align-center {
+    display: flex;
     text-align: center;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 .xblock--drag-and-drop .zone .item-align-center .option {
     box-sizing: border-box;

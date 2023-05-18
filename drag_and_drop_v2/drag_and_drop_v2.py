@@ -18,7 +18,6 @@ from xblock.scorable import ScorableXBlockMixin, Score
 from xblockutils.resources import ResourceLoader
 from xblockutils.settings import XBlockWithSettingsMixin, ThemableXBlockMixin
 from xmodule.modulestore.django import modulestore
-from contentstore.views.assets import delete_asset
 from opaque_keys.edx.keys import AssetKey, CourseKey
 
 from .utils import (
@@ -468,6 +467,7 @@ class DragAndDropBlock(
         asset_key = AssetKey.from_string(asset_id) if asset_id else None
 
         try:
+            from contentstore.views.assets import delete_asset
             delete_asset(course_key, asset_key)
             logging.info('Deleted unused asset: {file_name}, asset_key: {asset_key}, '
                          'course_id: {course_id}'.format(file_name=asset_key.name,
@@ -574,7 +574,9 @@ class DragAndDropBlock(
         """Handles dropping item to a zone in standard mode.
         """
         _item = self.definition_data.get_item_by_id(item_attempt['val'])
-        is_correct = self.definition_data.is_attempt_correct(item_attempt)  # Student placed item in a correct zone
+        is_correct = self.definition_data.is_attempt_correct(
+            item_attempt, self.mode == Constants.ASSESSMENT_MODE
+        )  # Student placed item in a correct zone
         if is_correct:  # In standard mode state is only updated when attempt is correct
             self.item_state[str(_item['id'])] = make_state_from_attempt(item_attempt, is_correct)
 
@@ -599,8 +601,9 @@ class DragAndDropBlock(
             raise JsonHandlerError(409, self.i18n_service.gettext("Max number of attempts reached"))
 
         _item = self.definition_data.get_item_by_id(item_attempt['val'])
-        is_correct = self.definition_data.is_attempt_correct(item_attempt)
-
+        is_correct = self.definition_data.is_attempt_correct(
+            item_attempt, self.mode == Constants.ASSESSMENT_MODE
+        )
         if item_attempt['zone'] is None:
             self.item_state.pop(str(_item['id']), None)
             self._publish_item_to_bank_event(_item['id'], is_correct)
