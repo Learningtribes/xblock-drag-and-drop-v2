@@ -344,9 +344,18 @@
 }
 
 .xblock--drag-and-drop--editor .feedback-tab .title_button {
+    cursor: pointer;
     display: inline-block;
-    width: 20px;
-    margin-left: 5px;
+    width: 24px;
+    height: 24px;
+    margin: 0px 0px 0px 5px;
+    border-radius: 25px;
+    background-color: #DCDCDC;
+    border: 1px solid #727272;
+}
+
+.xblock--drag-and-drop--editor .feedback-tab .title_button:hover {
+    background-color: #999999;
 }
 
 .xblock--drag-and-drop--editor .feedback-tab .question-mark-wrapper {

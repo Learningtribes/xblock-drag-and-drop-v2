@@ -1878,6 +1878,12 @@ function DragAndDropEditBlock(runtime, element, params) {
         runtime.notify('cancel', {});
     });
 
+    $element.find('.title_button').bind('click', function(e) {
+        e.preventDefault();
+        var initial_value = document.getElementById('id_display_name_input').getAttribute('initial_value');
+        document.getElementById('id_display_name_input').value = initial_value || "";
+    });
+
     // Initialize js component
     dragAndDrop.init();
 
