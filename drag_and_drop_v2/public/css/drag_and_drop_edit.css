@@ -191,6 +191,7 @@
     margin: 15px 0px 15px 0px;
     position: relative;
     background-repeat: no-repeat;
+    background-size: contain;
 }
 
 .xblock--drag-and-drop--editor .tab-content .left {

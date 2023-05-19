@@ -27,7 +27,7 @@ from .utils import (
 )
 from .default_data import DEFAULT_EMPTY_DATA
 from .tabs_header import TabsHeader
-from .zone_template import TriangleTemplate, ZonesDefinition, ZONE_TPL_DEFINITIONS
+from .zone_template import TriangleTemplate, RectangleTemplate, ZonesDefinition, ZONE_TPL_DEFINITIONS
 
 
 loader = ResourceLoader(__name__)
@@ -769,6 +769,8 @@ class DragAndDropBlock(
             return self._expand_static_url(self.data['targetImg'])
         elif self.type_id == TriangleTemplate.TYPE_ID:
             return self.pyramid_background_image_url
+        elif self.type_id == RectangleTemplate.TYPE_ID:
+            return self.rectangle_background_image_url
         elif self.type_id in ZONE_TPL_DEFINITIONS.ALL_SUPPORTED_TEMPLATES:
             return ''
 
@@ -777,6 +779,12 @@ class DragAndDropBlock(
         """The URL to the `pyramid` background image, shown when pyramid template is selected
         """
         return self.runtime.local_resource_url(self, "public/img/triangle.png")
+
+    @property
+    def rectangle_background_image_url(self):
+        """The URL to the `2-rectangle` background image, shown when 2-rectangle template is selected
+        """
+        return self.runtime.local_resource_url(self, "public/img/rectangle.png")
 
     @property
     def attempts_remain(self):
