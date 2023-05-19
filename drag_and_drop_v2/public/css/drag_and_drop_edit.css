@@ -541,7 +541,6 @@
 .xblock--drag-and-drop--editor .items-tab .answers_collection {
     display: flex;
     align-content: flex-start;
-    opacity: 0.5;
     border: 2px dashed #727272;
     border-radius: 4px;
     margin: 0px;
