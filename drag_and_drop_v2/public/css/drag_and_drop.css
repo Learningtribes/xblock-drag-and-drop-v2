@@ -183,6 +183,7 @@
                  /* (this can happen if item displays image whose width exceeds computed max-width of item) */
     overflow-wrap: break-word;
     word-wrap: break-word;
+    color: #1D1D1D;
 }
 
 /* Placed option */
