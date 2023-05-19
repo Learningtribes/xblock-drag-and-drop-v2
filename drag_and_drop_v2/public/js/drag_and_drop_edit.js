@@ -546,17 +546,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                     _fn.build.refreshTabsStatus();  // redraw tabs
                 },
 
-                // When we auto generate a background image, we embed some parameters such as zone size and position
-                // into the generated data URI.
-                encodeDataUriParams: function(params) {
-                    var encoded = [];
-                    Object.keys(params).forEach(function(key) {
-                        var json = JSON.stringify(params[key]);
-                        encoded.push(encodeURIComponent(key) + '=' + encodeURIComponent(json));
-                    });
-                    return encoded.join(';');
-                },
-
                 refreshZonesSettings: function() {
                     var resizableBox = $('.resizable_box');
                     if (_fn.data.displayBorders === true) {
@@ -859,6 +848,26 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 answer_card.remove();
                                 break;
                             }
+                        }
+                    });
+
+                    $element.find('.answer_item').bind('mouseover', function(e) {
+                        let dropdown_content_elements = e.currentTarget.getElementsByClassName('answer_zones_dropdown_content');
+
+                        if (dropdown_content_elements.length === 1) {
+                            let container_top = document.getElementById('id_answers_collection').offsetTop;
+                            let container_height = document.getElementById('id_answers_collection').clientHeight;
+                            let button_top = e.currentTarget.offsetTop;
+                            let button_height = e.currentTarget.clientHeight;
+                            let dropdown_content_element = dropdown_content_elements[0];
+                            let menu_height = dropdown_content_element.clientHeight;
+
+                            if ((button_top - container_top + button_height + menu_height) >= container_height) {
+                                dropdown_content_element.style.top = "-140px";
+                            } else {
+                                dropdown_content_element.style.top = "34px";
+                            }
+
                         }
                     });
 
@@ -1585,9 +1594,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             });
                             options_list.append($(`<li data-item_id="${item_uid}" class="delete_answer_button">Delete the Answer</li>`));
                             options_menu.append(options_list);
-                            let menu_container = $('<div></div>');
-                            menu_container.append(options_menu);
-                            answer_element.append(menu_container);
+                            answer_element.append(options_menu);
                             // Card Icon
                             handle_el.append(handle_icon);
                             answer_element.append(handle_el);
