@@ -559,18 +559,13 @@ function DragAndDropEditBlock(runtime, element, params) {
                         }
                     }
                 },
-                renderTemplateZonesAreaBackgroud: function(canvas_element, tabId,
-                    id_two_rect_template_left='id_two_rect_template_left',
-                    id_two_rect_template_right='id_two_rect_template_right',
-                ) {
+                renderTemplateZonesAreaBackgroud: function(canvas_element, tabId) {
                     let drawing_area_selector = '.zones-tab .tab-content .drag_drop_area';
 
                     // This method is used by ZoneTab & AnswerTab
                     canvas_element.empty(); // clean all element in the Canvas
                     // For AnswerTab, we have another named id set
                     if ('3' === tabId) {
-                        id_two_rect_template_left = 'id_two_rect_template_left_in_itemtab';
-                        id_two_rect_template_right = 'id_two_rect_template_right_in_itemtab';
                         drawing_area_selector = '.items-tab .tab-content .drag_drop_area';
                     }
 
@@ -578,27 +573,12 @@ function DragAndDropEditBlock(runtime, element, params) {
                     if (_fn.type_id !== _fn.zone_tab_used_tpl_id || '3' === tabId || '2' === tabId) {
 
                         // Create new background
-                        if (_fn.type_id === 0) {           // Triangle template
+                        if (_fn.type_id === 0 || _fn.type_id === 1) {           // Triangle template and Two rectangle template
                             _fn.tpl_summaries.forEach(function(tpl_summary) {
-                                if (tpl_summary.type_id === 0) {
+                                if (tpl_summary.type_id === parseInt(_fn.type_id)) {
                                     $(drawing_area_selector).css("background-image", "url(" + tpl_summary.thumbnail + ")");
-
                                 }
                             });
-                        } else if (_fn.type_id === 1) {    // Two rectangle template
-                            let left_rect = document.createElement('div');
-                            let right_rect = document.createElement('div');
-
-                            left_rect.setAttribute('id', id_two_rect_template_left);
-                            left_rect.setAttribute('class', 'left resizable_box_container');
-                            left_rect.style.pointerEvents = 'none';
-                            right_rect.setAttribute('id', id_two_rect_template_right);
-                            right_rect.setAttribute('class', 'right resizable_box_container');
-                            right_rect.style.pointerEvents = 'none';
-
-                            canvas_element.append(left_rect);
-                            canvas_element.append(right_rect);
-
                         } else if (_fn.type_id === 3) {     // Custom Background template
                             $(drawing_area_selector)
                                 .css("background-image", "url(" + _fn.data.targetImg + ")");    // paste uploaded image into background
@@ -638,6 +618,7 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                     // Update new selected template data into data ( `Zones` + `Answers` )
                     if (tabId === "2" || tabId === "3") {
+
                         if (_fn.new_selected_tpl_data !== undefined) {
                             _fn.data.zones = _fn.data.zones.concat(_fn.new_selected_tpl_data.zones);
                             _fn.data.items = _fn.data.items.concat(_fn.new_selected_tpl_data.items);
@@ -653,8 +634,26 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                     } else if ('2' === tabId) { // Zones design tab
 
+                        if (_fn.type_id === PYRAMID_TEMPLATE_TYPE) {
+                            canvas_element.css('height', '486px');
+                        } else if (_fn.type_id === RECTANGLE_TEMPLATE_TYPE) {
+                            canvas_element.css('height', '533px');
+                        } else if (_fn.type_id === CUSTOM_TEMPLATE_TYPE) {
+                            // for test image height
+                            // var img = new Image();
+                            // img.addEventListener("load", function() {
+                            //     canvas_element.css('height', img.height + 'px');
+                            // }, false);
+                            // img.src = _fn.custom_background;
+                            canvas_element.css('height', '540px');
+                        } else {
+                            canvas_element.css('height', '523px');
+                        }
+
                         if (_fn.type_id === BLANK_TEMPLATE_TYPE) {
                             pageFrame.height('836px');
+                        } else if (_fn.type_id === RECTANGLE_TEMPLATE_TYPE) {
+                            pageFrame.height('886px');
                         } else {
                             pageFrame.height('876px');
                         }

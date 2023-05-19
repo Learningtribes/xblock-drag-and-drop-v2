@@ -1,5 +1,5 @@
-const BLANK_IMAGE_WIDTH = 700;
-const BLANK_IMAGE_HEIGHT = 500;
+const BLANK_IMAGE_WIDTH = 514;
+const BLANK_IMAGE_HEIGHT = 486;
 
 function DragAndDropTemplates(configuration) {
     "use strict";
@@ -1059,6 +1059,12 @@ function DragAndDropBlock(runtime, element, configuration) {
     /** Zones are specified in the configuration via pixel values - convert to percentages */
     var computeZoneDimension = function(zone, bg_image_width, bg_image_height) {
         if (zone.x_percent === undefined) {
+            // set a max-height
+            if (bg_image_height > 540) {
+                var scale = 540 / bg_image_width
+                bg_image_width = scale * bg_image_width
+                bg_image_height = 540
+            }
             // We can assume that if 'x_percent' is not set, 'y_percent', 'width_percent', and
             // 'height_percent' will also not be set.
             zone.x_percent = (+zone.x) / bg_image_width * 100;
