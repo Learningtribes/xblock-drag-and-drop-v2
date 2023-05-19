@@ -926,15 +926,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                         .on('click', '.pattern-item', _fn.build.backgroundTemplateChoose);
 
                     $zoneTab
-                        // .on('change', '.background-image-type input', _fn.build.form.zone.toggleAutozoneSettings)
-                        // .on('click', '.add-zone', function(e) {
-                        //     _fn.build.form.zone.add();
-                        //     // Set focus to first field of the new zone.
-                        //     $('.zones-form .zone-row:last input[type=text]:first', element).select();
-                        // })
-                        // .on('click', '.remove-zone', _fn.build.form.zone.remove)
-                        // .on('input', '.zone-row input', _fn.build.form.zone.changedInputHandler)
-                        // .on('change', '.zone-align-select', _fn.build.form.zone.changedInputHandler)
                         .on('click', '#id_add_zone_bt', function(e) {
                             let canvas = $(ID_AUTHOR_CANVAS)[0];
                             let left = canvas.offsetWidth / 100 * 40;
@@ -971,13 +962,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                     zone: {
                         totalZonesCreated: 0,   // This counter is used for HTML IDs. Never decremented.
                         zoneObjects: [],        // The Editing version of Zones
-                        getZoneObjByUID: function(uid) {
-                            for (var i = 0; i < _fn.build.form.zone.zoneObjects.length; i++) {
-                                if (_fn.build.form.zone.zoneObjects[i].uid == uid) {
-                                    return _fn.build.form.zone.zoneObjects[i];
-                                }
-                            }
-                        },
                         generateNewZoneTitle: function() {
                             /**
                              * Guarantee generating a new unique Zone title.
@@ -1051,78 +1035,17 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 _fn.build.$el.zones.form.find('.remove-zone').addClass('hidden');
                             }
                         },
-                        changedInputHandler: function(ev) {
-                            // Called when any of the inputs have changed.
-                            var $changedInput = $(ev.currentTarget);
-                            var $row = $changedInput.closest('.zone-row');
-                            var record = _fn.build.form.zone.getZoneObjByUID(String($row.data('uid')));
-                            if ($changedInput.hasClass('zone-title')) {
-                                record.title = $changedInput.val();
-                            } else if ($changedInput.hasClass('zone-width')) {
-                                record.width = $changedInput.val();
-                            } else if ($changedInput.hasClass('zone-description')) {
-                                record.description = $changedInput.val();
-                            } else if ($changedInput.hasClass('zone-height')) {
-                                record.height = $changedInput.val();
-                            } else if ($changedInput.hasClass('zone-x')) {
-                                record.x = $changedInput.val();
-                            } else if ($changedInput.hasClass('zone-y')) {
-                                record.y = $changedInput.val();
-                            } else if ($changedInput.hasClass('zone-align-select')) {
-                                record.align = $changedInput.val();
-                            }
-                        },
-                        calculateAutozoneData: function(params) {
-                            var rows = params.rows;
-                            var cols = params.cols;
-                            var zone_width = params.zone_width;
-                            var zone_height = params.zone_height;
-                            var padding = params.padding;
-
-                            var width = (zone_width * cols) + (padding * (cols + 1));
-                            var height = (zone_height * rows) + (padding * (rows + 1));
-
-                            var zones = [];
-                            for (var row = 0; row < rows; row++) {
-                                for (var col = 0; col < cols; col++) {
-                                    zones.push({
-                                        width: zone_width,
-                                        height: zone_height,
-                                        x: (padding * (col + 1) + (col * zone_width)),
-                                        y: (padding * (row + 1) + (row * zone_height))
-                                    });
-                                }
-                            }
-
-                            return {
-                                width: width,
-                                height: height,
-                                zones: zones
-                            };
-                        },
-                        generateBackgroundDataUri: function(autozone_data, params) {
-                            var autozone_data = _fn.build.form.zone.calculateAutozoneData(params);
-                            var svg = _fn.tpl.autozoneSvg(autozone_data).trim();
-                            var data_uri_params = _fn.build.encodeDataUriParams({
-                                producer: 'dndv2',
-                                cols: params.cols,
-                                rows: params.rows,
-                                zone_width: params.zone_width,
-                                zone_height: params.zone_height
-                            });
-                            return 'data:image/svg+xml;' + data_uri_params + ',' + encodeURIComponent(svg);
-                        },
                         makeReadonlyZone: function(oldZone, id_zones_canvas=ID_PREVIEW_CANVAS) {
                             let element = document.createElement('div');
                             let new_div_title = document.createElement('div');
                             let zone_left = (oldZone.x || 0);
                             let zone_top = (oldZone.y || 0);
-                            let minW = oldZone.width || 200;
-                            let minH = oldZone.height || 100;
+                            let zone_width = oldZone.width || 200;
+                            let zone_height = oldZone.height || 100;
 
                             element.setAttribute('id', oldZone.uid);
                             element.setAttribute( 'class', 'readonly_zone_box' );
-                            element.setAttribute('style',`width:${minW}px; height:${minH}px; left:${zone_left}px; top:${zone_top}px`);
+                            element.setAttribute('style',`width:${zone_width}px; height:${zone_height}px; left:${zone_left}px; top:${zone_top}px`);
                             new_div_title.setAttribute('class', 'readonly_zone_title');
                             new_div_title.innerText = oldZone.title;
 
@@ -1147,8 +1070,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                             let zone_align = oldZone.align || 'center';
                             let zone_left = oldZone.x || 0;
                             let zone_top = oldZone.y || 0;
-                            let minW = oldZone.width || 200;
-                            let minH = oldZone.height || 100;
+                            let minWidth = 200;
+                            let minHeight = 100;
+                            let zone_width = oldZone.width || 200;
+                            let zone_height = oldZone.height || 100;
                             let size = oldZone.size || 20;
                             let is_resizing = false;    // true: allow resizing zone | false: allow moving zone
 
@@ -1158,7 +1083,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             } else {
                                 element.setAttribute( 'class', 'resizable_box' );
                             }
-                            element.setAttribute('style',`width:${minW}px; height:${minH}px; left:${zone_left}px; top:${zone_top}px`);
+                            element.setAttribute('style',`width:${zone_width}px; height:${zone_height}px; left:${zone_left}px; top:${zone_top}px`);
                             new_div_title.setAttribute('class', 'zone_title');
 
                             title_text.setAttribute('class', 'title_text');
@@ -1262,7 +1187,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             if (oldZone.uid === undefined) {
                                 _fn.build.form.zone.add({
                                     uid: zone_uid, title: zone_title,
-                                    width: minW, height: minH,
+                                    width: zone_width, height: zone_height,
                                     x: zone_left, y: zone_top, align: zone_align,
                                     description: oldZone.description
                                 });
@@ -1417,7 +1342,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                   function elementDrag(e) {
                                         const {clientX} = e;
                                         let x = clientX - element.offsetLeft - offsetX
-                                        if(x < minW) x = minW;
+                                        if(x < minWidth) x = minWidth;
                                         element.style.width =  x + 'px';
                                   }
 
@@ -1447,7 +1372,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                   function elementDrag(e) {
                                         const {clientY} = e;
                                         let y =  clientY - element.offsetTop - offsetY;
-                                        if(y < minH) y = minH;
+                                        if(y < minHeight) y = minHeight;
                                         element.style.height = y + 'px';
                                   }
 
@@ -1474,7 +1399,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     startX = get_int_style('left')
                                     startW = get_int_style('width')
                                     offsetX = clientX - startX;
-                                    maxX = startX + startW - minW
+                                    maxX = startX + startW - zone_width;
 
                                     document.addEventListener('mouseup',closeDragElement)
                                     document.addEventListener('mousemove',elementDrag)
@@ -1484,7 +1409,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                         const {clientX} = e;
                                         let x = clientX - offsetX
                                         let w = startW + startX - x
-                                        if(w < minW) w = minW;
+                                        if(w < minWidth) w = minWidth;
                                         if(x > maxX) x = maxX;
                                         element.style.left = x + 'px';
                                         element.style.width = w + 'px';
@@ -1513,7 +1438,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     startY = get_int_style('top')
                                     startH = get_int_style('height')
                                     offsetY = clientY - startY;
-                                    maxY = startY + startH - minH
+                                    maxY = startY + startH - zone_height;
 
                                     document.addEventListener('mouseup',closeDragElement,false)
                                     document.addEventListener('mousemove',elementDrag,false)
@@ -1523,7 +1448,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                         const {clientY} = e;
                                         let y =  clientY - offsetY
                                         let h = startH + startY - y
-                                        if(h < minH) h = minH;
+                                        if(h < minHeight) h = minHeight;
                                         if(y > maxY) y = maxY;
                                         element.style.top = y + 'px';
                                         element.style.height = h + 'px';
