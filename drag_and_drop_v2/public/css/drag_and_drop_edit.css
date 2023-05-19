@@ -724,6 +724,7 @@
     font-size: 12px;
     font-weight: 400;
     letter-spacing: -0.01em;
+    z-index: 200;
 }
 
 .xblock--drag-and-drop--editor .items-tab .answers_collection .answer_item:hover .answer_zones_dropdown_content {

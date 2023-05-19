@@ -239,24 +239,43 @@ function DragAndDropEditBlock(runtime, element, params) {
                         });
                     });
                     // Check items :
-                    let item_ids_set = new Set();
+                    let used_items_ids_set = new Set();
 
+                    function generateDuplicatedTplItemTitle(tpl_item_display_name) {
+                        // Generate New Template Item name like `Go to Middle Zone (2)` if `Go to Middle Zone` already used
+                        var count = 0;
+                        var has_duplicated = false;
+
+                        _fn.data.items.forEach(function(item) {
+                            if (item.displayName.includes(tpl_item_display_name)) {
+                                has_duplicated = true;
+                                count++;
+                            }
+                        });
+
+                        if (false === has_duplicated) {
+                            return tpl_item_display_name;
+                        } else {
+                            return tpl_item_display_name + ' (' + (1 + count) + ')';
+                        }
+                    };
+                    // collecting used items ids.
                     _fn.data.items.forEach(function(saved_item) {
-                        item_ids_set.add(saved_item.id);
-                    });
-                    _fn.new_selected_tpl_data.items.forEach(function(tpl_item) {
-                        item_ids_set.add(tpl_item.id);
+                        used_items_ids_set.add(saved_item.id);
                     });
                     for (var n = 0; n < _fn.new_selected_tpl_data.items.length; n++) {
                         // Check duplicated item_ids in field `items` :
-                        for( var new_item_id = 1; true; new_item_id++) {
-                            if (item_ids_set.has(new_item_id)) {
+                        for( var new_item_id = _fn.new_selected_tpl_data.items[n].id; true; new_item_id++) {
+                            if (used_items_ids_set.has(new_item_id)) {
                                 continue;
                             }
                             _fn.new_selected_tpl_data.items[n].id = new_item_id;
-                            item_ids_set.add(new_item_id);
+                            used_items_ids_set.add(new_item_id);
                             break;
                         }
+                        let item_display_name = _fn.new_selected_tpl_data.items[n].displayName;
+                        _fn.new_selected_tpl_data.items[n].displayName = generateDuplicatedTplItemTitle(item_display_name);
+
                         // Check duplicated Related zone UIDs in fields `items` :
                         for (var i = 0; i < _fn.new_selected_tpl_data.items[n].zones.length; i++) {
                             var related_zone_uid = _fn.new_selected_tpl_data.items[n].zones[i];
@@ -1791,6 +1810,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         if (tabID === '0') {
                             post_data['display_name'] = $element.find('.display-name').val();
                             post_data['weight'] = $element.find('.weight').val();
+                            post_data['max_attempts'] = $element.find(".max-attempts").val();
                             post_data['problem_text'] = $element.find('.problem-text').val();
                             post_data['feedback'] = {'finish': $element.find('.final-feedback').val()};
                         } else if (tabID === '1') {
