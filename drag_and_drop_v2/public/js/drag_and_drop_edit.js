@@ -1113,7 +1113,9 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                                 document.addEventListener('mouseup', function() {
                                     isDown = false;
-                                    update_zones_data(element)
+                                    if (element.offsetWidth !== 0 && element.offsetHeight !== 0) {
+                                        update_zones_data(element);
+                                    }
                                     document.removeEventListener("mouseup", arguments.callee);
                                 }, true);
 
