@@ -1140,6 +1140,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 e.preventDefault();
                                 isEditTitle = true;
                                 title_text.contentEditable = 'true';
+                                let range = document.createRange();
+                                range.selectNodeContents(title_text);
+                                let selection = window.getSelection();
+                                selection.removeAllRanges();
+                                selection.addRange(range);
                                 title_text.style.backgroundColor = '#fff';
                                 title_text.focus();
                             });
@@ -1170,6 +1175,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                             // new zone tile to zoneObject title
                                             if (oldZoneTitleText === zoneObjects[zoneIndex].title) {
                                                 zoneObjects[zoneIndex].title = _titleText.textContent;
+                                                oldZoneTitleText = _titleText.textContent;
                                             }
                                         }
                                     } else {
