@@ -518,7 +518,7 @@ class DragAndDropBlock(
             self.mode = Constants.ASSESSMENT_MODE
         # In new version : Infinite attempts are allowed. and keep the field `max_attempts` to be compatible with old version
         if 'max_attempts' in submissions:
-            self.max_attempts = None
+            self.max_attempts = submissions['max_attempts']
         if 'show_title' in submissions:
             self.show_title = submissions['show_title']
         if 'problem_text' in submissions:

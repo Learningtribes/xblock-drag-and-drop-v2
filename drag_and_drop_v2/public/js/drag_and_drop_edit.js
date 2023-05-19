@@ -1811,6 +1811,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         if (tabID === '0') {
                             post_data['display_name'] = $element.find('.display-name').val();
                             post_data['weight'] = $element.find('.weight').val();
+                            post_data['max_attempts'] = $element.find(".max-attempts").val();
                             post_data['problem_text'] = $element.find('.problem-text').val();
                             post_data['feedback'] = {'finish': $element.find('.final-feedback').val()};
                         } else if (tabID === '1') {

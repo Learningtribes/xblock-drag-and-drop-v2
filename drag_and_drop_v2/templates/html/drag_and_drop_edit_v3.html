@@ -64,6 +64,20 @@
                           {% trans fields.weight.help %}
                         </div>
 
+                        <label class="h4 assessment-setting">
+                          <span>{% trans fields.max_attempts.display_name %}</span>
+                          <input class="max-attempts input_box"
+                                 type="number"
+                                 min="1"
+                                 step="1"
+                                 aria-describedby="max-attempts-description-{{id_suffix}}"
+                                 {% if self.max_attempts %}value="{{ self.max_attempts }}"{% endif %} />
+                            <span class="question-mark-wrapper" data-title="{% trans fields.max_attempts.help %}"></span>
+                        </label>
+                        <div id="max-attempts-description-{{id_suffix}}" class="assessment-setting form-help">
+                          {% trans fields.max_attempts.help %}
+                        </div>
+
                         <label class="h4">
                             <span>
                                 <span class="text">{% trans fields.question_text.display_name %}</span>
