@@ -310,14 +310,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                         if (type_id === BLANK_TEMPLATE_TYPE || type_id === CUSTOM_TEMPLATE_TYPE) {
                             // at least one zone is used, keep all zones
                         } else {
-                            // keep the used zones, delete unused zones
-                            var distinctUsedZones = Array.from(new Set(usedZones));
-                            for (var zoneIndex=0;zoneIndex<_fn.data.zones.length;zoneIndex++) {
-                                const zoneData = _fn.data.zones[zoneIndex];
-                                if (!distinctUsedZones.includes(zoneData.uid)) {
-                                    _fn.data.zones.splice(zoneIndex);
-                                }
-                            }
+                            // delete all zones
+                            _fn.data.zones = [];
                         }
                     } else {
                         // on zone is used, delete zones
