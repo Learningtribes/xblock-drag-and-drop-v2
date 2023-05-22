@@ -605,6 +605,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                     // Update new selected template data into data ( `Zones` + `Answers` )
                     if (tabId === "2" || tabId === "3") {
 
+                        // Apply data of new selected template of Background Tab
+                        // &
+                        // `new_selected_tpl_data` will also be applied when user clicking button `save` ( method submit() ) on Background Tab
                         if (_fn.new_selected_tpl_data !== undefined) {
                             _fn.data.zones = _fn.data.zones.concat(_fn.new_selected_tpl_data.zones);
                             _fn.data.items = _fn.data.items.concat(_fn.new_selected_tpl_data.items);
@@ -1738,6 +1741,13 @@ function DragAndDropEditBlock(runtime, element, params) {
                         } else if (tabID === '1') {
                             post_data['type_id'] = parseInt(_fn.type_id);
                             post_data['custom_background'] = _fn.custom_background;
+                            // Apply new selected template data to `_fn.data.zones/items` if user clicking save button
+                            // of Background Tab directly before he switch to Zones / Items Tab.
+                            if (_fn.new_selected_tpl_data !== undefined) {
+                                _fn.data.zones = _fn.data.zones.concat(_fn.new_selected_tpl_data.zones);
+                                _fn.data.items = _fn.data.items.concat(_fn.new_selected_tpl_data.items);
+                                _fn.new_selected_tpl_data = undefined;
+                            }
                             post_data['data'] = _fn.data;
                         } else if (tabID === '2' || tabID === '3') {
                             if (_fn.build.form.item.itemObjects.length > 0) {
