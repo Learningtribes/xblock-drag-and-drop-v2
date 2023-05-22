@@ -90,7 +90,7 @@ function DragAndDropTemplates(configuration) {
             style.top = item.drag_position.top + 'px';
         }
         if (item.is_placed) {
-            var maxWidth = (item.widthPercent || 30) / 100;
+            var maxWidth = (item.widthPercent || 40) / 100;
             var widthPercent = zone.width_percent / 100;
             style.maxWidth = ((1 / (widthPercent / maxWidth)) * 100) + '%';
             if (item.widthPercent) {

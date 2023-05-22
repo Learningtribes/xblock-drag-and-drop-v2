@@ -205,8 +205,6 @@
 }
 .xblock--drag-and-drop .zone .item-align .option {
     box-sizing: border-box;
-    display: flex;
-    flex-direction: row;
     align-items: center;
     padding: 8px 16px;
     margin: 12px 12px 0px 0px;
@@ -221,6 +219,7 @@
     font-weight: 700;
     font-size: 14px;
     line-height: 19px;
+    transform: none;
 }
 
 .xblock--drag-and-drop .zone .item-align .option .handler_style {
@@ -230,6 +229,9 @@
 
 .xblock--drag-and-drop .zone .item-align-left {
     text-align: left;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 .xblock--drag-and-drop .zone .item-align-right {
     text-align: right;
