@@ -33,19 +33,6 @@ function DragAndDropEditBlock(runtime, element, params) {
 
     var dragAndDrop = (function($) {
         var _fn = {
-            // Templates
-            tpl: {
-                init: function() {
-                    _fn.tpl = {
-                        // zoneInput: Handlebars.compile($(".zone-input-tpl", element).html()),
-                        // zoneElement: Handlebars.compile($(".zone-element-tpl", element).html()),
-                        // zoneCheckbox: Handlebars.compile($(".zone-checkbox-tpl", element).html()),
-                        // itemInput: Handlebars.compile($(".item-input-tpl", element).html()),
-                        // autozoneSvg: Handlebars.compile($(".autozone-tpl", element).html())
-                    };
-                }
-            },
-
             build: {
                 $el: {
                     feedback: {
@@ -78,9 +65,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                     _fn.tpl_summaries = params.tpl_summaries;
 
                     _fn.build.changeBackgroundSelect();
-
-                    // Compile templates
-                    _fn.tpl.init();
 
                     // Display target image
                     _fn.build.$el.targetImage.show();
@@ -932,10 +916,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                 },
 
                 clickHandlers: function() {
-                    var $fbkTab = _fn.build.$el.feedback.tab,
-                        $zoneTab = _fn.build.$el.zones.tab,
-                        $itemTab = _fn.build.$el.items.tab;
-
+                    var $zoneTab = _fn.build.$el.zones.tab;
                     const $backgroundChoose = _fn.build.$el.backgroundChoose;
 
                     $element.find('.supported-setting-tags-nav > li').bind('click', function() {
@@ -1005,9 +986,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                         _fn.build.refreshTabsStatus();  // redraw tabs
                     });
 
-                    $fbkTab
-                        .on('change', '.problem-mode', _fn.build.form.problem.toggleAssessmentSettings);
-
                     $backgroundChoose.templates
                         .on('click', '.pattern-item', _fn.build.backgroundTemplateChoose);
 
@@ -1020,31 +998,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                             _fn.build.form.zone.makeResizableZone({x: left, y: top, width: 200, height: 100});
                             _fn.build.refreshTabsStatus();  // redraw tabs
                         });
-
-                    $itemTab
-                        .on('click', '.add-item', function(e) {
-                            _fn.build.form.item.add();
-                            // Set focus to first field of the new item.
-                            $('.items-form .item:last input[type=text]:first', element).select();
-                        })
-                        .on('click', '.remove-item', _fn.build.form.item.remove)
-                        .on('click', '.advanced-link button', _fn.build.form.item.toggleAdvancedSettings)
-                        .on('input', '.item-image-url', _fn.build.form.item.imageURLChanged);
                 },
                 form: {
-                    problem: {
-                        toggleAssessmentSettings: function(e) {
-                            e.preventDefault();
-                            var $modeSetting = $(e.currentTarget),
-                                $problemForm = $modeSetting.closest('form'),
-                                $assessmentSettings = $problemForm.find('.assessment-setting');
-                            if ($modeSetting.val() === 'assessment') {
-                                $assessmentSettings.show();
-                            } else {
-                                $assessmentSettings.hide();
-                            }
-                        }
-                    },
                     zone: {
                         totalZonesCreated: 0,   // This counter is used for HTML IDs. Never decremented.
                         zoneObjects: [],        // The Editing version of Zones
@@ -1096,30 +1051,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                              *              array cleaned by some code, but the `uid_zone_{number}` will be still recovered from somewhere later`.
                              */
                             return (Date.now().toString(36) + Math.random().toString(36)).replace('.', '_');
-                        },
-                        remove: function(e) {
-                            var $el = $(e.currentTarget).closest('.zone-row'),
-                                classes = $el.attr('class'),
-                                id = classes.slice(classes.indexOf('zone-row') + 9),
-                                uid = String($el.data('uid')),  // cast to string since UID must be string but .data() converts data-uid="5" to 5
-                                array_index;
-
-                            $el.detach();
-
-                            // Find the uid of the zone in the array and remove it.
-                            for (array_index = 0; array_index < _fn.build.form.zone.zoneObjects.length;
-                                 array_index++) {
-                                if (_fn.build.form.zone.zoneObjects[array_index].uid == uid) break;
-                            }
-                            _fn.build.form.zone.zoneObjects.splice(array_index, 1);
-
-                            _fn.build.form.zone.disableDelete();
-
-                        },
-                        disableDelete: function() {
-                            if (_fn.build.form.zone.zoneObjects.length === 1) {
-                                _fn.build.$el.zones.form.find('.remove-zone').addClass('hidden');
-                            }
                         },
                         makeReadonlyZone: function(oldZone, id_zones_canvas=ID_PREVIEW_CANVAS) {
                             let element = document.createElement('div');
@@ -1576,22 +1507,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                         }
 
                     },
-                    createCheckboxes: function(selectedZones) {
-                        var template = _fn.tpl.zoneCheckbox;
-                        var checkboxes = [];
-                        var zoneObjects = _fn.build.form.zone.zoneObjects;
-
-                        zoneObjects.forEach(function(zoneObj) {
-                            checkboxes.push(template({
-                                zoneUid: zoneObj.uid,
-                                title: zoneObj.title,
-                                checked: $.inArray(zoneObj.uid, selectedZones) !== -1 ? 'checked' : '',
-                            }));
-                        });
-
-                        var html = checkboxes.join('');
-                        return new Handlebars.SafeString(html);
-                    },
                     item: {
                         count: 0,
                         itemObjects: [],    // The Editing version of Answer
@@ -1782,82 +1697,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     }
                                 }
                             }
-                        },
-                        add: function(itemData) {
-                            var $form = _fn.build.$el.items.form,
-                                tpl = _fn.tpl.itemInput,
-                                ctx = {};
-
-                            if (itemData) {
-                                ctx = itemData;
-                                if (itemData.backgroundImage && !ctx.imageURL) {
-                                    ctx.imageURL = itemData.backgroundImage; // This field was renamed.
-                                }
-                                if (itemData.size && parseInt(itemData.size.width) > 0) {
-                                    // Convert old fixed pixel width setting values (hard to
-                                    // make mobile friendly) to new percentage format.
-                                    // Note itemData.size.width is a string like "380px" (it can
-                                    // also be "auto" but that's excluded by the if condition above)
-                                    var bgImgWidth = _fn.build.$el.targetImage[0].naturalWidth;
-                                    if (bgImgWidth > 0 && typeof ctx.widthPercent === "undefined") {
-                                        ctx.widthPercent = parseInt(itemData.size.width) / bgImgWidth * 100;
-                                    }
-                                    // Preserve the old-style data in case we need it again:
-                                    ctx.pixelWidth = itemData.size.width.substr(0, itemData.size.width.length - 2); // Remove 'px'
-                                }
-                                if (itemData.size && parseInt(itemData.size.height) > 0) {
-                                    // Item fixed pixel height is ignored in new versions of the
-                                    // block, but preserve the data in case we need it again:
-                                    ctx.pixelHeight = itemData.size.height.substr(0, itemData.size.height.length - 2); // Remove 'px'
-                                }
-                            }
-                            ctx.checkboxes = _fn.build.form.createCheckboxes(ctx.zones);
-
-                            ctx.index = _fn.build.form.item.count++;
-                            var renderResult = tpl(ctx)
-                            var $component = $form.append(renderResult);
-                            _fn.build.form.item.enableDelete();
-
-                            setTimeout(function(){
-                                if (LearningTribes && LearningTribes.QuestionMark) {
-                                    $wrappers = $component.find('.question-mark-wrapper')
-                                    $wrappers.each(function(i, wrapper){
-                                        new LearningTribes.QuestionMark(wrapper)
-                                    })
-                                }
-                            }, 200)
-
-
-                        },
-                        remove: function(e) {
-                            var $el = $(e.currentTarget).closest('.item');
-
-                            $el.detach();
-
-                            _fn.build.form.item.count--;
-                            _fn.build.form.item.disableDelete();
-
-                        },
-                        imageURLChanged: function(e) {
-                            // Mark the image description field as required if (and only if) an image is specified.
-                            var $imageUrlField = $(e.currentTarget);
-                            var $descriptionField = $imageUrlField.closest('.item').find('.item-image-description');
-                            $descriptionField.prop("required", $imageUrlField.val() != "");
-                        },
-                        enableDelete: function() {
-                            if (_fn.build.form.item.count > 1) {
-                                _fn.build.$el.items.form.find('.remove-item').removeClass('hidden');
-                            }
-                        },
-                        disableDelete: function() {
-                            if (_fn.build.form.item.count === 1) {
-                                _fn.build.$el.items.form.find('.remove-item').addClass('hidden');
-                            }
-                        },
-                        toggleAdvancedSettings: function(e) {
-                            var $el = $(e.currentTarget).closest('.item');
-                            $el.find('.row.advanced').show();
-                            $el.find('.row.advanced-link').toggleClass('opening')
                         },
                     },
                     background_check(oldAssetId, callback) {
