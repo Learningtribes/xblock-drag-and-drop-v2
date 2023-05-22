@@ -557,9 +557,13 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                     // Whether new template has been selected OR AnswerTab selected :
                     if (_fn.type_id !== _fn.zone_tab_used_tpl_id || '3' === tabId || '2' === tabId) {
-
                         // Create new background
-                        if (_fn.type_id === 0 || _fn.type_id === 1) {           // Triangle template and Two rectangle template
+                        if (_fn.type_id === PYRAMID_TEMPLATE_TYPE || _fn.type_id === RECTANGLE_TEMPLATE_TYPE) {           // Triangle template and Two rectangle template
+                            if (_fn.type_id === PYRAMID_TEMPLATE_TYPE) {
+                                $(drawing_area_selector).css('height', '486px');
+                            } else if (_fn.type_id === RECTANGLE_TEMPLATE_TYPE) {
+                                $(drawing_area_selector).css('height', '533px');
+                            }
                             _fn.tpl_summaries.forEach(function(tpl_summary) {
                                 if (tpl_summary.type_id === parseInt(_fn.type_id)) {
                                     $(drawing_area_selector).css("background-image", "url(" + tpl_summary.thumbnail + ")");
@@ -568,6 +572,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                         } else if (_fn.type_id === 3) {     // Custom Background template
                             $(drawing_area_selector)
                                 .css("background-image", "url(" + _fn.data.targetImg + ")");    // paste uploaded image into background
+                        } else {
+                            $(drawing_area_selector).css('height', '523px');
                         }
                     }
 
