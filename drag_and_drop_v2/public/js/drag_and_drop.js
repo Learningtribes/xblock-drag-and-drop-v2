@@ -350,6 +350,28 @@ function DragAndDropTemplates(configuration) {
         );
     };
 
+    var resetButtonTemplate = function(ctx) {
+        var options = {
+            disabled: ctx.disable_reset_button
+        };
+        return (
+            h('div.action-toolbar-item', {}, [
+                h(
+                    'button.btn-brand',
+                    {
+                        className: 'reset-button',
+                        disabled: options.disabled || options.spinner || false
+                    },
+                    [
+                        h('span.btn-icon.fa', {className: 'fa-refresh', attributes: {"aria-hidden": true}}),
+                        ' ',
+                        gettext('Reset')
+                    ]
+                )
+            ])
+        );
+    };
+
     var sidebarButtonTemplate = function(buttonClass, iconClass, buttonText, options) {
         options = options || {};
         if (options.spinner) {
@@ -397,12 +419,6 @@ function DragAndDropTemplates(configuration) {
                     "fa-arrow-up",
                     gettext("Go to Beginning"),
                     {disabled: ctx.disable_go_to_beginning_button}
-                ),
-                sidebarButtonTemplate(
-                    "reset-button",
-                    "fa-refresh",
-                    gettext('Reset'),
-                    {disabled: ctx.disable_reset_button}
                 ),
                 showAnswerButton,
             ])
@@ -702,6 +718,7 @@ function DragAndDropTemplates(configuration) {
                 ]),
                 h("div.actions-toolbar", {attributes: {'role': 'group', 'aria-label': gettext('Actions')}}, [
                     (ctx.show_submit_answer ? submitAnswerTemplate(ctx) : null),
+                    resetButtonTemplate(ctx),
                     sidebarTemplate(ctx),
                 ]),
                 feedbackTemplate(ctx),
