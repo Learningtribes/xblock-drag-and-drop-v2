@@ -1,3 +1,8 @@
+.placeholder-highlight {
+    height: 1.5em;
+    line-height: 1.2em;
+}
+
 .xblock--drag-and-drop--editor {
   width: 100%;
   height: 690px;

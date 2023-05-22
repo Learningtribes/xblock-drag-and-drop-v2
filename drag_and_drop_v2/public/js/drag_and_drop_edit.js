@@ -787,43 +787,53 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                 rebind_events_for_answers_tab: function() {
                     // For creating answer items dynamiclly, we rebind event for these new items.
+                    var old_answer_text = undefined;
 
-                    $('input.option_checkbox').bind('click', function(e) {
+                    $('input.option_checkbox').bind('click', function (e) {
                         let answerItemId = e.currentTarget.getAttribute('answer_item_id');
                         _fn.build.form.item.updateAnswerToZone(
                             parseInt(answerItemId), e.currentTarget.value, e.currentTarget.checked);
                     });
 
-                    $element.find('.answer_text').bind('click', function(e) {
-                        let answer_item_id = parseInt(e.currentTarget.getAttribute('data-item_id'));
-                        let answer_editor = $('#id_answer_editor__' + answer_item_id);
+                    $element.find('.answer_text').bind('click', function (e) {
+                        let range = document.createRange();
+                        let selection = window.getSelection();
 
-                        if (answer_editor.hasClass('hidden')) {
-                            answer_editor.removeClass('hidden');
-                            e.currentTarget.setAttribute('class', 'answer_text hidden');
-                        }
+                        old_answer_text = e.currentTarget.textContent;
+                        e.currentTarget.contentEditable = 'true';
+                        range.selectNodeContents(e.currentTarget);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                        e.currentTarget.style.backgroundColor = '#fff';
+                        e.currentTarget.focus();
                     });
 
-                    $element.find('.answer_editor').bind('focusout', function(e) {
+                    $element.find('.answer_text').bind('focusout', function(e) {
                         let answer_item_id = parseInt(e.currentTarget.getAttribute('data-item_id'));
-                        let answer_text_el = $('#id_answer_name__' + answer_item_id);
+                        let new_answer_text = e.currentTarget.textContent;
 
-                        if (answer_text_el.hasClass('hidden')) {
-                            let new_answer_text = e.currentTarget.value;
-                            let old_answer_text = answer_text_el.text();
+                        e.currentTarget.textContent.contentEditable = 'false';
+                        e.currentTarget.style.backgroundColor = '';
 
-                            old_answer_text = old_answer_text || ('Answer ' + (1 + $('.answer_item').length));
-                            answer_text_el.text(new_answer_text || old_answer_text); // replace with new answer text on UI
-                            // replacing in data
-                            _fn.build.form.item.itemObjects.forEach(function(item) {
-                                if (item.id === answer_item_id) {
-                                    item.displayName = new_answer_text || old_answer_text;
-                                }
-                            })
-
-                            answer_text_el.removeClass('hidden');
-                            e.currentTarget.setAttribute('class', 'answer_editor hidden');
+                        old_answer_text = old_answer_text || _fn.build.form.item.grabItemName();
+                        e.currentTarget.textContent = new_answer_text || old_answer_text; // replace with new answer text on UI
+                        var has_one = false;
+                        _fn.build.form.item.itemObjects.forEach(function(item) {
+                            if (item.displayName === new_answer_text) {
+                                has_one = true;
+                            }
+                        });
+                        if (has_one === true) {
+                            new_answer_text = old_answer_text;
                         }
+                        // replacing in data
+                        _fn.build.form.item.itemObjects.forEach(function(item) {
+                            if (item.id === answer_item_id) {
+                                item.displayName = new_answer_text;
+                                e.currentTarget.textContent = new_answer_text;
+                            }
+                        })
+
                     });
 
                     $element.find('.delete_answer_button').bind('click', function(e) {
@@ -863,6 +873,61 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                         }
                     });
+
+                    $('.answers_collection').sortable({
+                        placeholder: 'placeholder-highlight',
+                        start: function(event, ui) {
+                            $('.answer_zones_dropdown_content').addClass('hidden');
+                        },
+                        stop: function(event, ui) {
+                            var new_index = undefined;
+                            var dragged_item_id = parseInt(ui.item[0].getAttribute('data-itemid'));
+                            var answers_cards = $('.answer_item');
+
+                            for (var i = 0; i < answers_cards.length; i++) {
+                                if (dragged_item_id === parseInt($('.answer_item')[i].getAttribute('data-itemid'))) {
+                                    new_index = i;
+                                    break;
+                                }
+                            }
+
+                            $('.answer_zones_dropdown_content').removeClass('hidden');
+
+                            if (new_index === undefined) {
+                                return;
+                            }
+
+                            for (var old_index = 0; old_index < _fn.build.form.item.itemObjects.length; old_index++) {
+                                if (dragged_item_id === _fn.build.form.item.itemObjects[old_index].id) {
+                                    if (new_index !== old_index) {
+                                        if (new_index < old_index) {
+                                            _fn.build.form.item.itemObjects.splice(
+                                                new_index, 0, _fn.build.form.item.itemObjects[old_index]
+                                            );
+                                            _fn.build.form.item.itemObjects.splice(old_index + 1, 1);
+                                        } else {
+                                            _fn.build.form.item.itemObjects.splice(
+                                                new_index + 1, 0, _fn.build.form.item.itemObjects[old_index]
+                                            );
+                                            _fn.build.form.item.itemObjects.splice(old_index, 1);
+                                        }
+
+                                        var last_card_id = answers_cards[answers_cards.length - 1].id;
+                                        $('#id_add_answer_item_btn').insertAfter('#' + last_card_id);
+
+                                        return;
+                                    }
+                                }
+                            }
+
+                            if (answers_cards.length > 0) {
+                                var last_card_id = answers_cards[answers_cards.length - 1].id;
+                                $('#id_add_answer_item_btn').insertAfter('#' + last_card_id);
+                            }
+
+                        }
+                    });
+                    $('.answers_collection').disableSelection();
 
                 },
 
@@ -1549,20 +1614,38 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                         },
 
+                        grabItemName: function() {
+                            for (let new_item_id = 0; new_item_id < $('.answer_item').length; new_item_id++) {
+                                let has_one = false;
+                                let new_generated_name = 'Answer ' + (1 + new_item_id);
+
+                                _fn.build.form.item.itemObjects.forEach(function(item) {
+                                    if (item.displayName === new_generated_name) {
+                                        has_one = true;
+                                    }
+                                });
+
+                                if (has_one === false) {
+                                    return new_generated_name;
+                                }
+                            }
+
+                            return 'Answer ' + (1 + $('.answer_item').length);
+                        },
+
                         createAnswerItem: function(oldItem = {}, create_new_flag=false) {
-                            let item_uid = oldItem.id || _fn.build.form.item.grabAnswerId();
-                            let item_title = oldItem.displayName || ('Answer ' + item_uid);
+                            let item_uid = oldItem.id === undefined ? _fn.build.form.item.grabAnswerId() : oldItem.id;
+                            let item_title = oldItem.displayName || _fn.build.form.item.grabItemName();
                             let item_zones = oldItem.zones || [];
                             let id_answer_name = 'id_answer_name__' + item_uid;
                             let id_answer_colored_zones = 'id_answer_colored_zones__' + item_uid;
 
-                            let answer_element = $(`<div id="id_answer_card__${item_uid}" class="answer_item"></div>`); // Answer Item Card
+                            let answer_element = $(`<div id="id_answer_card__${item_uid}" data-itemid="${item_uid}" class="answer_item"></div>`); // Answer Item Card
                             let options_menu = $('<div class="answer_zones_dropdown_content"></div>');
                             let options_list = $('<ul></ul>');
                             let handle_el = $('<div class="handler_style"></div>');
                             let handle_icon = $('<i class="fa-solid fa-grip-dots-vertical" style="color: #1D1D1D"></i>');
                             let answer_text = $(`<div class="answer_text" id="${id_answer_name}" data-item_id="${item_uid}">${item_title}</div>`);
-                            let answer_editor = $(`<input class="answer_editor hidden" data-item_id="${item_uid}" id="id_answer_editor__${item_uid}" type="text">`);
                             let linked_zones = $(`<div class="selected_zones" id="${id_answer_colored_zones}"></div>`);
                             let dropdown_btn = $('<div class="answer_zones_dropdown_menu"></div>');
                             let dropdown_icon = $('<i class="fa-solid fa-caret-down" style="color: #1D1D1D"></i>');
@@ -1593,7 +1676,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                             answer_element.append(handle_el);
                             // Answer description
                             answer_element.append(answer_text);
-                            answer_element.append(answer_editor);
                             // Colored Selected Zones Bar of this answer
                             let item_used_zones_titles = [];
                             _fn.build.form.zone.zoneObjects.forEach(function(zoneObj){
