@@ -1592,7 +1592,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 option_zone.append(option_display_name);
                                 options_list.append(option_zone);
                             });
-                            options_list.append($(`<li data-item_id="${item_uid}" class="delete_answer_button">Delete the Answer</li>`));
+                            var delete_the_answer = gettext('Delete the Answer');
+                            options_list.append($(`<li data-item_id="${item_uid}" class="delete_answer_button">${delete_the_answer}</li>`));
                             options_menu.append(options_list);
                             answer_element.append(options_menu);
                             // Card Icon
