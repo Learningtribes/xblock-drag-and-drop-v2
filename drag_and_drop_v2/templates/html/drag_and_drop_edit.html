@@ -1,6 +1,13 @@
 {% load i18n %}
 {% load l10n %}
 
+<script type="application/json" id="SFE_i18n_data">
+{
+    "locale": "{{language_code}}",
+    "messages": {{studio_frontend_messages | safe}}
+}
+</script>
+
 <script type="application/javascript" id='studioContext'>
     var studioContext = {
       course: {
@@ -23,12 +30,12 @@
       },
       upload_settings: {
         max_file_size_in_mbs: 10,
-      }
+      },
+      lang: "{{language_code}}"
     };
 </script>
 
 <div class="xblock--drag-and-drop--editor editor-with-buttons">
-
     <div class="drag-builder">
         <div class="supported-setting-tags" id="supported-setting-tags">
             <ul class="supported-setting-tags-nav" id="supported-setting-tags-nav">

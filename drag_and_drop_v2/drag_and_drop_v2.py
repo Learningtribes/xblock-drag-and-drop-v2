@@ -3,6 +3,7 @@
 
 
 import copy
+from django.utils.translation import get_language
 import json
 import logging
 import urllib
@@ -348,7 +349,7 @@ class DragAndDropBlock(
             # final feedback (data.feedback.finish) is not included - it may give away answers.
         }
 
-    def studio_view(self, context):
+    def studio_view(self, view_context):
         """Editing view in Studio
         """
         # Get an 'id_suffix' string that is unique for this block.
@@ -365,7 +366,7 @@ class DragAndDropBlock(
             return xblock.location.html_id() if hasattr(xblock, 'location') else unicode(xblock.scope_ids.usage_id)
 
         course_module = modulestore().get_course(self.course_id)
-
+        language_code = get_language()
         context = {
             'course_id': "{}".format(self.course_id),
             'course': {
@@ -389,7 +390,9 @@ class DragAndDropBlock(
             'runtime_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/runtime.min.js'),
             'common_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/common.min.js'),
             'assets_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/assets.min.js'),
-            'default_finish_feedback': ZonesDefinition.FINISH_FEEDBACK
+            'default_finish_feedback': ZonesDefinition.FINISH_FEEDBACK,
+            'language_code': language_code,
+            'studio_frontend_messages': load_sfe_i18n_messages(language_code)
         }
 
         fragment = Fragment()
