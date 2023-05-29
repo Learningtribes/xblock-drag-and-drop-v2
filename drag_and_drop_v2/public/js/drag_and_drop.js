@@ -545,13 +545,6 @@ function DragAndDropTemplates(configuration) {
         );
     };
 
-    var tipsTemplate = function(ctx) {
-        return h(
-            '.xblock--drag-and-drop.drap-drop-tips-info',
-             gettext('Drag the items onto the image above.')
-        );
-    };
-
     var progressTemplate = function(ctx) {
         // Formats a number to 4 decimals without trailing zeros
         // (1.00 -> '1'; 1.50 -> '1.5'; 1.333333333 -> '1.3333').
@@ -696,9 +689,7 @@ function DragAndDropTemplates(configuration) {
                     h('span.block-label-text', gettext('Drag & Drop')),
                 ]),
                 h('hr.sep-line'),
-                h('div', [tipsTemplate(ctx)]),
                 h('div.problem', [
-                    problemHeader,
                     h('p', {innerHTML: ctx.problem_html}),
                 ]),
                 h('div.drag-container', {style: drag_container_style}, [
