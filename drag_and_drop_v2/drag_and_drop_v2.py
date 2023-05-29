@@ -385,8 +385,8 @@ class DragAndDropBlock(
             'type_id': self.type_id,
             'tpl_summaries': ZONE_TPL_DEFINITIONS.get_templates_summary(self, self.runtime.local_resource_url),
             ### For editImageModal rendering
-            'common_min_css': get_storage_url('/common/js/vendor/learningtribes-studio-frontend/dist/common.min.css'),
-            'assets_min_css': get_storage_url('/common/js/vendor/learningtribes-studio-frontend/dist/assets.min.css'),
+            'common_min_css': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/common.min.css'),
+            'assets_min_css': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/assets.min.css'),
             'runtime_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/runtime.min.js'),
             'common_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/common.min.js'),
             'assets_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/assets.min.js'),
