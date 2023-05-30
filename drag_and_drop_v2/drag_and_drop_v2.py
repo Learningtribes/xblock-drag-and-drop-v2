@@ -202,7 +202,7 @@ class DragAndDropBlock(
     type_id = Integer(
         help=_('Background index of pyramid, rectangles, blank, custom'),
         scope=Scope.settings,
-        default=None,
+        default=None,       # Default value should always be `None` when loading old version data
         enforce_type=True,
     )
 
@@ -326,6 +326,9 @@ class DragAndDropBlock(
                     item['expandedImageURL'] = ''
             return items
 
+        # To be compatible with old version
+        _is_old_version = self.type_id not in ZONE_TPL_DEFINITIONS.ALL_SUPPORTED_TEMPLATES
+
         return {
             "mode": self.mode,
             "zones": self.definition_data.get_compatible_zones(),
@@ -335,8 +338,8 @@ class DragAndDropBlock(
             "max_items_per_zone": self.max_items_per_zone,
             # SDK doesn't supply url_name.
             "url_name": getattr(self, 'url_name', ''),
-            "display_zone_labels": self.data.get('displayLabels', False),
-            "display_zone_borders": self.data.get('displayBorders', False),
+            "display_zone_labels": True if _is_old_version else self.data.get('displayLabels', False),
+            "display_zone_borders": True if _is_old_version else self.data.get('displayBorders', False),
             "items": items_without_answers(),
             "title": self.display_name,
             "show_title": self.show_title,
@@ -774,8 +777,8 @@ class DragAndDropBlock(
             return self.pyramid_background_image_url
         elif self.type_id == RectangleTemplate.TYPE_ID:
             return self.rectangle_background_image_url
-        elif self.type_id in ZONE_TPL_DEFINITIONS.ALL_SUPPORTED_TEMPLATES:
-            return ''
+        elif self.type_id not in ZONE_TPL_DEFINITIONS.ALL_SUPPORTED_TEMPLATES:
+            return self.pyramid_background_image_url
 
     @property
     def pyramid_background_image_url(self):
