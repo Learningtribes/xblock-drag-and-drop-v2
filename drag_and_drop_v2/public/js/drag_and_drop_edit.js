@@ -1042,7 +1042,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 // this field cannot be called "id" and must inherit the "title"
                                 // property if no 'uid' value is present, since old versions of
                                 // this block used the title as the primary identifier.
-                                uid: oldZone.uid || _fn.build.form.zone.generateUID(),  // Removed " || oldZone.title " from this line
+                                uid: oldZone.uid || oldZone.title || _fn.build.form.zone.generateUID(),
                                 width: oldZone.width || 200,
                                 height: oldZone.height || 100,
                                 x: oldZone.x || 0,
