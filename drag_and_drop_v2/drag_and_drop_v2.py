@@ -517,8 +517,8 @@ class DragAndDropBlock(
             self.display_name = submissions['display_name']
         # Only support `assessment mode` in new version
         # But still keep field `mode` and value `Constants.STANDARD_MODE` loaded from DB to be compatible with old version
-        if 'mode' in submissions:
-            self.mode = Constants.ASSESSMENT_MODE
+        # Always as ASSESSMENT MODE
+        self.mode = Constants.ASSESSMENT_MODE
         # In new version : Infinite attempts are allowed. and keep the field `max_attempts` to be compatible with old version
         if 'max_attempts' in submissions:
             self.max_attempts = submissions['max_attempts']
