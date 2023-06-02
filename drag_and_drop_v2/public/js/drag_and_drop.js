@@ -263,7 +263,7 @@ function DragAndDropTemplates(configuration) {
             if (message.message_class) {
                 selector += "."+message.message_class;
             }
-            return h(selector, {innerHTML: message.message}, []);
+            return h(selector, {innerHTML: gettext(message.message)}, []);
         });
 
         return (
@@ -272,8 +272,8 @@ function DragAndDropTemplates(configuration) {
                     "div.feedback-content",
                     {},
                     [
-                        h('h3.title1', { style: { display: feedback_display } }, gettext('Feedback')),
-                        h('div.messages', { style: { display: feedback_display } }, feedback_messages),
+                        h('h3.title1', { style: { display: gettext(feedback_display) } }, gettext('Feedback')),
+                        h('div.messages', { style: { display: gettext(feedback_display) } }, feedback_messages),
                     ]
                 )
             ])

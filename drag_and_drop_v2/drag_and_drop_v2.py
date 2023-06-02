@@ -750,9 +750,9 @@ class DragAndDropBlock(
                  * JsonHandlerError with 409 error code if there are still attempts left
         """
         if self.mode != Constants.ASSESSMENT_MODE:
-            raise JsonHandlerError(400, self.i18n_service.gettext("show_answer handler should only be called for assessment mode"))
+            raise JsonHandlerError(400, self.i18n_service.gettext('show_answer handler should only be called for assessment mode'))
         if self.attempts_remain:
-            raise JsonHandlerError(409, self.i18n_service.gettext("There are attempts remaining"))
+            raise JsonHandlerError(409, self.i18n_service.gettext('There are attempts remaining'))
 
         return self.definition_data.get_correct_state()
 
@@ -823,7 +823,7 @@ class DragAndDropBlock(
         def _add_msg_if_exists(ids_list, message_template, message_class):
             """ Adds message to feedback messages if corresponding items list is not empty """
             if ids_list:
-                message = message_template(len(ids_list), self.i18n_service.ngettext)
+                message = message_template(len(ids_list), self.i18n_service.ungettext)
                 feedback_msgs.append(FeedbackMessage(message, message_class))
 
         if self.item_state or include_item_feedback:
@@ -843,9 +843,9 @@ class DragAndDropBlock(
             _add_msg_if_exists(missing_ids, FeedbackMessages.not_placed, FeedbackMessages.MessageClasses.NOT_PLACED)
 
         if self.attempts_remain and (misplaced_ids or missing_ids):
-            problem_feedback_message = self.data['feedback']['start']
+            problem_feedback_message = self.i18n_service.ugettext(self.data['feedback']['start'])
         else:
-            problem_feedback_message = self.data['feedback']['finish']
+            problem_feedback_message = self.i18n_service.ugettext(self.data['feedback']['finish'])
 
         problem_feedback_class = self.PROBLEM_FEEDBACK_CLASSES.get(_answer_correctness, None)
         grade_feedback_class = self.GRADE_FEEDBACK_CLASSES.get(_answer_correctness, None)
@@ -854,9 +854,9 @@ class DragAndDropBlock(
 
         if self.weight > 0:
             if self.attempts_remain:
-                grade_feedback_template = FeedbackMessages.GRADE_FEEDBACK_TPL
+                grade_feedback_template = self.i18n_service.ugettext(FeedbackMessages.GRADE_FEEDBACK_TPL)
             else:
-                grade_feedback_template = FeedbackMessages.FINAL_ATTEMPT_TPL
+                grade_feedback_template = self.i18n_service.ugettext(FeedbackMessages.FINAL_ATTEMPT_TPL)
 
             feedback_msgs.append(
                 FeedbackMessage(grade_feedback_template.format(score=self.weighted_grade()), grade_feedback_class)
