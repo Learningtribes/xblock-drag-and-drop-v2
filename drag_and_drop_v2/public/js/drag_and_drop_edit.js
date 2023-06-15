@@ -1018,7 +1018,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                              */
                             for (var i = 1; true; i++) {
                                 var has_one = false;
-                                var new_unique_zone_title = "Zone " + i;
+                                var new_unique_zone_title = gettext("Zone") + " " + i;
                                 _fn.build.form.zone.zoneObjects.forEach(function(zone) {
                                     if (new_unique_zone_title === zone.title) {
                                         has_one = true;
@@ -1073,7 +1073,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             element.setAttribute( 'class', 'readonly_zone_box' );
                             element.setAttribute('style',`width:${zone_width}px; height:${zone_height}px; left:${zone_left}px; top:${zone_top}px`);
                             new_div_title.setAttribute('class', 'readonly_zone_title');
-                            new_div_title.innerText = oldZone.title;
+                            new_div_title.innerText = gettext(oldZone.title);
 
                             element.appendChild(new_div_title);
                             $(id_zones_canvas)[0].appendChild(element);
@@ -1091,7 +1091,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             let title_text = document.createElement('div');
                             let title_edit_icon = document.createElement('i');
                             let title_icon_container = document.createElement('div');
-                            let zone_title = oldZone.title || _fn.build.form.zone.generateNewZoneTitle();
+                            let zone_title = gettext(oldZone.title) || _fn.build.form.zone.generateNewZoneTitle();
                             let zone_uid = oldZone.uid || _fn.build.form.zone.generateUID();
                             let zone_align = oldZone.align || 'center';
                             let zone_left = oldZone.x || 0;
@@ -1559,7 +1559,7 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                         createAnswerItem: function(oldItem = {}, create_new_flag=false) {
                             let item_uid = oldItem.id === undefined ? _fn.build.form.item.grabAnswerId() : oldItem.id;
-                            let item_title = oldItem.displayName || _fn.build.form.item.grabItemName();
+                            let item_title = gettext(oldItem.displayName) || _fn.build.form.item.grabItemName();
                             let item_zones = oldItem.zones || [];
                             let id_answer_name = 'id_answer_name__' + item_uid;
                             let id_answer_colored_zones = 'id_answer_colored_zones__' + item_uid;
@@ -1588,7 +1588,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 option_zone.append(option_checkbox);
                                 let option_display_name = document.createElement('span');
                                 option_display_name.setAttribute('class', 'option_display_name');
-                                option_display_name.innerText = zoneObj.title;
+                                option_display_name.innerText = gettext(zoneObj.title);
                                 option_zone.append(option_display_name);
                                 options_list.append(option_zone);
                             });
@@ -1605,7 +1605,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             let item_used_zones_titles = [];
                             _fn.build.form.zone.zoneObjects.forEach(function(zoneObj){
                                 if (item_zones.includes(zoneObj.uid)) {
-                                    item_used_zones_titles.push(zoneObj.title);
+                                    item_used_zones_titles.push(gettext(zoneObj.title));
                                 }
                             });
                             if (item_used_zones_titles.length === 0) {

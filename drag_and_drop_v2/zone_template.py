@@ -33,10 +33,10 @@ class ZonesDefinition(object):
                 "thumbnail": "public/img/abc.jpg"
             }
     """
-    START_FEEDBACK = _("Drag the items onto the image above.")      # We don't use this field anymore in our new version
-    FINISH_FEEDBACK = _("Good work! You have completed this drag and drop problem.")
-    _ITEM_CORRECT_FEEDBACK = _("Correct! This one belongs to {zone}.")
-    _ITEM_INCORRECT_FEEDBACK = _("No, this item does not belong here. Try again.")
+    START_FEEDBACK = 'Drag the items onto the image above.'      # We don't use this field anymore in our new version
+    FINISH_FEEDBACK = 'Good work! You have completed this drag and drop problem.'
+    _ITEM_CORRECT_FEEDBACK = 'Correct! This one belongs to {zone}.'
+    _ITEM_INCORRECT_FEEDBACK = 'No, this item does not belong here. Try again.'
 
     def __init__(self, tpl_data=None):
         self._tpl_data = tpl_data
@@ -198,18 +198,18 @@ class TriangleTemplate(ZonesDefinition):
     _TOP_ZONE_ID = "triangle_tpl_top"
     _MIDDLE_ZONE_ID = "triangle_tpl_middle"
     _BOTTOM_ZONE_ID = "triangle_tpl_bottom"
-    _TOP_ZONE_TITLE = _("The Top Zone")
-    _MIDDLE_ZONE_TITLE = _("The Middle Zone")
-    _BOTTOM_ZONE_TITLE = _("The Bottom Zone")
+    _TOP_ZONE_TITLE = "The Top Zone"
+    _MIDDLE_ZONE_TITLE = "The Middle Zone"
+    _BOTTOM_ZONE_TITLE = "The Bottom Zone"
 
-    _ITEM_TOP_ZONE_NAME = _("Goes to the top")
-    _ITEM_MIDDLE_ZONE_NAME = _("Goes to the middle")
-    _ITEM_BOTTOM_ZONE_NAME = _("Goes to the bottom")
-    _ITEM_ANY_ZONE_NAME = _("Goes anywhere")
-    _ITEM_NO_ZONE_NAME = _("I don't belong anywhere")
+    _ITEM_TOP_ZONE_NAME = "Goes to the top"
+    _ITEM_MIDDLE_ZONE_NAME = "Goes to the middle"
+    _ITEM_BOTTOM_ZONE_NAME = "Goes to the bottom"
+    _ITEM_ANY_ZONE_NAME = "Goes anywhere"
+    _ITEM_NO_ZONE_NAME = "I don't belong anywhere"
 
-    _ITEM_NO_ZONE_FEEDBACK = _("You silly, there are no zones for this one.")
-    _ITEM_ANY_ZONE_FEEDBACK = _("Of course it goes here! It goes anywhere!")
+    _ITEM_NO_ZONE_FEEDBACK = "You silly, there are no zones for this one."
+    _ITEM_ANY_ZONE_FEEDBACK = "Of course it goes here! It goes anywhere!"
 
     def __init__(self, tpl_data=None):
         super(TriangleTemplate, self).__init__(tpl_data=tpl_data)
@@ -280,16 +280,16 @@ class RectangleTemplate(ZonesDefinition):
     _LEFT_ZONE_ID = "two_rectangle_tpl_left"
     _RIGHT_ZONE_ID = "two_rectangle_tpl_right"
 
-    _LEFT_ZONE_TITLE = _("The Left Zone")
-    _RIGHT_ZONE_TITLE = _("The Right Zone")
+    _LEFT_ZONE_TITLE = "The Left Zone"
+    _RIGHT_ZONE_TITLE = "The Right Zone"
 
-    _ITEM_LEFT_ZONE_NAME = _("Goes to the left")
-    _ITEM_RIGHT_ZONE_NAME = _("Goes to the right")
-    _ITEM_ANY_ZONE_NAME = _("Goes anywhere")
-    _ITEM_NO_ZONE_NAME = _("I don't belong anywhere")
+    _ITEM_LEFT_ZONE_NAME = "Goes to the left"
+    _ITEM_RIGHT_ZONE_NAME = "Goes to the right"
+    _ITEM_ANY_ZONE_NAME = "Goes anywhere"
+    _ITEM_NO_ZONE_NAME = "I don't belong anywhere"
 
-    _ITEM_NO_ZONE_FEEDBACK = _("You silly, there are no zones for this one.")
-    _ITEM_ANY_ZONE_FEEDBACK = _("Of course it goes here! It goes anywhere!")
+    _ITEM_NO_ZONE_FEEDBACK = "You silly, there are no zones for this one."
+    _ITEM_ANY_ZONE_FEEDBACK = "Of course it goes here! It goes anywhere!"
 
     def __init__(self, tpl_data=None):
         super(RectangleTemplate, self).__init__(tpl_data=tpl_data)

@@ -52,7 +52,7 @@ function DragAndDropTemplates(configuration) {
 
     var itemContentTemplate = function(item) {
         var key = item.value + '-content';
-        return h('div', { key: key, innerHTML: item.displayName || 'Unknown Answer', className: "item-content" });
+        return h('div', { key: key, innerHTML: gettext(item.displayName) || 'Unknown Answer', className: "item-content" });
     };
 
     var itemTemplate = function(item, ctx) {
@@ -243,7 +243,7 @@ function DragAndDropTemplates(configuration) {
                         'p',
                         { className: className },
                         [
-                            zone.title,
+                            gettext(zone.title),
                             h('span.sr', gettext(', dropzone'))
                         ]
                     ),
@@ -440,7 +440,7 @@ function DragAndDropTemplates(configuration) {
                 (!ctx.last_action_correct) ? h("p", {}, gettext("Some of your answers were not correct.")) : null,
                 h("p", {}, gettext("Hints:")),
                 h("ul", {}, msgs.map(function(message) {
-                    return h("li", {innerHTML: message.message});
+                    return h("li", {innerHTML: gettext(message.message)});
                 }))
             ];
             popup_content = h(
@@ -453,7 +453,7 @@ function DragAndDropTemplates(configuration) {
                 ctx.last_action_correct ? "div.popup-content" : "div.popup-content.popup-content-incorrect",
                 {},
                 msgs.map(function(message) {
-                    return h("p", {innerHTML: message.message});
+                    return h("p", {innerHTML: gettext(message.message)});
                 })
             );
         }
