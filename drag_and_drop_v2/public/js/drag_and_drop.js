@@ -677,22 +677,22 @@ function DragAndDropTemplates(configuration) {
                 h('object.resize-detector', {
                     attributes: {type: 'text/html', tabindex: -1, data: 'about:blank'}
                 }),
-                h('div.block-header-wrapper.drag-and-drop-header-wrapper', [
+                (ctx.zones.length > 0 ? h('div.block-header-wrapper.drag-and-drop-header-wrapper', [
                     problemTitle,
                     h('div.problem-progress-wrapper', [
                         h('span.fal.fa-bullseye-pointer'),
                         problemProgress,
                     ]),
-                ]),
+                ]) : null),
                 h('div.block-label.problem-label', [
                     h('span.fal.fa-clipboard-list.block-label-icon'),
                     h('span.block-label-text', gettext('Drag & Drop')),
                 ]),
                 h('hr.sep-line'),
-                h('div.problem', [
+                (ctx.zones.length > 0 ? h('div.problem', [
                     h('p', {innerHTML: ctx.problem_html}),
-                ]),
-                h('div.drag-container', {style: drag_container_style}, [
+                ]) : null),
+                (ctx.zones.length > 0 ? h('div.drag-container', {style: drag_container_style}, [
                     h('div.target', {attributes: {'role': 'group', 'arial-label': gettext('Drop Targets')}}, [
                         itemFeedbackPopupTemplate(ctx),
                         h('div.target-img-wrapper', [
@@ -706,13 +706,13 @@ function DragAndDropTemplates(configuration) {
                     ]),
                     h('div.dragged-items', renderCollection(itemTemplate, items_dragged, ctx)),
                     h('div.item-bank', item_bank_properties, bank_children),
-                ]),
-                h("div.actions-toolbar", {attributes: {'role': 'group', 'aria-label': gettext('Actions')}}, [
+                ]) : null ),
+                (ctx.zones.length > 0 ? h("div.actions-toolbar", {attributes: {'role': 'group', 'aria-label': gettext('Actions')}}, [
                     (ctx.show_submit_answer ? submitAnswerTemplate(ctx) : null),
                     resetButtonTemplate(ctx),
                     sidebarTemplate(ctx),
-                ]),
-                feedbackTemplate(ctx),
+                ]) : null),
+                (ctx.zones.length > 0 ? feedbackTemplate(ctx) : null),
                 h('div.sr.reader-feedback-area', {
                     attributes: {'aria-live': 'polite', 'aria-atomic': true},
                     innerHTML: ctx.screen_reader_messages
