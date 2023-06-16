@@ -1541,7 +1541,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         grabItemName: function() {
                             for (let new_item_id = 0; new_item_id < $('.answer_item').length; new_item_id++) {
                                 let has_one = false;
-                                let new_generated_name = 'Answer ' + (1 + new_item_id);
+                                let new_generated_name = gettext('Answer') + ' ' + (1 + new_item_id);
 
                                 _fn.build.form.item.itemObjects.forEach(function(item) {
                                     if (item.displayName === new_generated_name) {
