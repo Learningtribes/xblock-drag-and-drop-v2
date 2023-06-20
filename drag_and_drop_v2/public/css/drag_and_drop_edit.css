@@ -522,6 +522,7 @@
     margin: 15px 0px 15px 0px;
     transform: scale(0.8) translate(-50px, -50px);
     background-repeat: no-repeat;
+    background-size: contain;
 }
 
 .xblock--drag-and-drop--editor .items-tab .drag-drop-tip {
