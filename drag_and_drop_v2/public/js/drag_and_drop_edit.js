@@ -572,6 +572,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         } else if (_fn.type_id === 3) {     // Custom Background template
                             $(drawing_area_selector)
                                 .css("background-image", "url(" + _fn.data.targetImg + ")");    // paste uploaded image into background
+                            $(drawing_area_selector).css('max-height', '520px');
                         } else {
                             $(drawing_area_selector).css('height', '523px');
                         }
