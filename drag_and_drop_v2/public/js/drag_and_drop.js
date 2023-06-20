@@ -1068,10 +1068,10 @@ function DragAndDropBlock(runtime, element, configuration) {
     var computeZoneDimension = function(zone, bg_image_width, bg_image_height) {
         if (zone.x_percent === undefined) {
             // set a max-height
-            if (bg_image_height > 540) {
-                var scale = 540 / bg_image_width
+            if (bg_image_height > 530) {
+                var scale = 530 / bg_image_width
                 bg_image_width = scale * bg_image_width
-                bg_image_height = 540
+                bg_image_height = 530
             }
             // We can assume that if 'x_percent' is not set, 'y_percent', 'width_percent', and
             // 'height_percent' will also not be set.
