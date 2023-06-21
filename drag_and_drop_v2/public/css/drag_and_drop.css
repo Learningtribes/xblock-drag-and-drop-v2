@@ -674,6 +674,16 @@
 
 .xblock--drag-and-drop .show-answer-button {
     height: 40px;
+    display: flex !important;
+    color: #09092D !important;
+    background-color: white !important;
+    border-radius: 8px !important;
+    border: 1px solid #09092D !important;
+    cursor: pointer;
+}
+
+.xblock--drag-and-drop .show-answer-button:hover {
+    background-color: #E9E9E9 !important;
 }
 
 .xblock--drag-and-drop .btn-small {
@@ -743,12 +753,6 @@
 
 /*** ACTIONS TOOLBAR ***/
 
-.xblock--drag-and-drop .reset-button {
-    border: 0;
-    display: flex;
-    margin-left: 8px;
-}
-
 .xblock--drag-and-drop .actions-toolbar {
     min-height: 3.75em;
     width: auto;
@@ -760,10 +764,24 @@
     margin: 10px 0;
 }
 
+.xblock--drag-and-drop .actions-toolbar .action-toolbar-item .submit-answer-button {
+    font-size: 15px;
+}
+
 .xblock--drag-and-drop .actions-toolbar .action-toolbar-item .reset-button {
-    border: 0;
-    display: flex;
-    margin-left: 8px;
+    border: 0 !important;
+    display: flex !important;
+    margin-left: 8px !important;
+    padding: 10px !important;
+    color: white !important;
+}
+
+.xblock--drag-and-drop .actions-toolbar .action-toolbar-item .reset-button:hover {
+    border-color: #fff !important;
+    background-color: #fff !important;
+    color: #09092D !important;
+    text-shadow: 0.25px 0.25px 0 #09092D;
+    box-shadow: 1px 1px 4px #e3e3e3;
 }
 
 .xblock--drag-and-drop .attempts-used {
