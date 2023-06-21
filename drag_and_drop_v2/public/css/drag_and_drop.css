@@ -743,6 +743,12 @@
 
 /*** ACTIONS TOOLBAR ***/
 
+.xblock--drag-and-drop .reset-button {
+    border: 0;
+    display: flex;
+    margin-left: 8px;
+}
+
 .xblock--drag-and-drop .actions-toolbar {
     min-height: 3.75em;
     width: auto;
@@ -756,8 +762,8 @@
 
 .xblock--drag-and-drop .actions-toolbar .action-toolbar-item .reset-button {
     border: 0;
-    display: flex !important;
-    margin-left: 8px !important;
+    display: flex;
+    margin-left: 8px;
 }
 
 .xblock--drag-and-drop .attempts-used {
