@@ -748,8 +748,8 @@
 .xblock--drag-and-drop .btn-brand:disabled,
 .xblock--drag-and-drop .btn-brand.is-disabled {
     border-color: #d2d0d0;
-    background: #f2f3f3;
-    color: #676666
+    background: #A3A3A3;
+    color: #ffffff
 }
 
 

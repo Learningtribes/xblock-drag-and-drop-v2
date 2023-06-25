@@ -363,7 +363,7 @@ function DragAndDropTemplates(configuration) {
                         disabled: options.disabled || options.spinner || false
                     },
                     [
-                        h('span.btn-icon.fa', {className: 'fa-refresh', attributes: {"aria-hidden": true}}),
+                        h('span.btn-icon.fa', {className: 'fa-refresh', attributes: {"aria-hidden": true}, style: {'font-size': "16px"}}),
                         ' ',
                         gettext('Reset')
                     ]
