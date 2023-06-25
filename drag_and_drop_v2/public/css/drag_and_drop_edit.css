@@ -817,7 +817,7 @@
 /** Buttons **/
 .xblock--drag-and-drop--editor .btn {
     background-color: #e7413c;
-    color: black;
+    color: white;
     border: 0;
     border-radius: 6px;
     padding: 5px 10px;
@@ -827,7 +827,8 @@
 .xblock--drag-and-drop--editor .btn:hover,
 .xblock--drag-and-drop--editor .btn:focus {
     background-color: white;
-    box-shadow: 0 1px 1px rgba(0,0,0,0.5);
+    color: black;
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.5) !important;
 }
 
 .xblock--drag-and-drop--editor .remove-zone,
