@@ -684,11 +684,6 @@ function DragAndDropTemplates(configuration) {
                         problemProgress,
                     ]),
                 ]) : null),
-                h('div.block-label.problem-label', [
-                    h('span.fal.fa-clipboard-list.block-label-icon'),
-                    h('span.block-label-text', gettext('Drag & Drop')),
-                ]),
-                h('hr.sep-line'),
                 (ctx.zones.length > 0 ? h('div.problem', [
                     h('p', {innerHTML: ctx.problem_html}),
                 ]) : null),
