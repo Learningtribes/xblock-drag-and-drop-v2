@@ -350,6 +350,7 @@ class BlankTemplate(ZonesDefinition):
     """Predefined No background template
     """
     TYPE_ID = 2
+    THUMBNAIL_PATH = 'public/img/triangle.png'
 
     def __init__(self, tpl_data=None):
         super(BlankTemplate, self).__init__(tpl_data=tpl_data)
@@ -362,7 +363,7 @@ class BlankTemplate(ZonesDefinition):
                 start=_(self.START_FEEDBACK),
                 finish=_(self.FINISH_FEEDBACK)
             ),
-            'thumbnail': '',
+            'thumbnail': self.THUMBNAIL_PATH,
             'template_type': self.TYPE_ID
         }
         return self._tpl_data
