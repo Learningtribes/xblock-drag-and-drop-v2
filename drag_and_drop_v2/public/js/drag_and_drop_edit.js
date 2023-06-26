@@ -1521,6 +1521,18 @@ function DragAndDropEditBlock(runtime, element, params) {
                     item: {
                         count: 0,
                         itemObjects: [],    // The Editing version of Answer
+                        predefinedZoneColors: [
+                            'color: #00476A; background-color: #DEF4FF;',
+                            'color: #7D19C9; background-color: #F4E4FF;',
+                            'color: #56CF88; background-color: #56CF8833;',
+                            'color: #FF776F; background-color: #FF776F33;',
+                            'color: #FFC700; background-color: #FFC70033;',
+                            'color: #0057D9; background-color: #0057D933;',
+                            'color: #B8D312; background-color: #B8D31233;',
+                            'color: #CD00DF; background-color: #CD00DF33;',
+                            'color: #CD4A00; background-color: #CD4A0033;',
+                            'color: #00A194; background-color: #00A19433;'
+                        ],
 
                         grabAnswerId: function() {
                             // Generate and return new unique Item ID
@@ -1605,16 +1617,19 @@ function DragAndDropEditBlock(runtime, element, params) {
                             answer_element.append(answer_text);
                             // Colored Selected Zones Bar of this answer
                             let item_used_zones_titles = [];
+                            let zone_counter = 0;
                             _fn.build.form.zone.zoneObjects.forEach(function(zoneObj){
                                 if (item_zones.includes(zoneObj.uid)) {
-                                    item_used_zones_titles.push(gettext(zoneObj.title));
+                                    var predefinedStyle = _fn.build.form.item.predefinedZoneColors[zone_counter % _fn.build.form.item.predefinedZoneColors.length];
+                                    item_used_zones_titles.push({title: gettext(zoneObj.title), style: predefinedStyle});
                                 }
+                                zone_counter++;
                             });
                             if (item_used_zones_titles.length === 0) {
                                 linked_zones.addClass('hidden');
                             } else {
-                                item_used_zones_titles.forEach(function(zone_title) {
-                                    let colored_used_zone_title = $(`<div class="colored_name">${zone_title}</div>`);
+                                item_used_zones_titles.forEach(function(zoneInfo) {
+                                    let colored_used_zone_title = $(`<div class="colored_name" style="${zoneInfo.style}">${zoneInfo.title}</div>`);
                                     linked_zones.append(colored_used_zone_title);
                                 })
                             }
