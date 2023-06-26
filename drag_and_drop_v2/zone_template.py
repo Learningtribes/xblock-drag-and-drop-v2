@@ -326,8 +326,8 @@ class RectangleTemplate(ZonesDefinition):
 
         self._tpl_data = {
             'zones': [
-                self.gen_zone_settings(uid=self._LEFT_ZONE_ID, title=self._LEFT_ZONE_TITLE, description=None, x=0, y=0, width=465, height=533, align='left'),
-                self.gen_zone_settings(uid=self._RIGHT_ZONE_ID, title=self._RIGHT_ZONE_TITLE, description=None, x=470, y=0, width=465, height=533, align='left'),
+                self.gen_zone_settings(uid=self._LEFT_ZONE_ID, title=self._LEFT_ZONE_TITLE, description=None, x=0, y=0, width=470, height=533, align='left'),
+                self.gen_zone_settings(uid=self._RIGHT_ZONE_ID, title=self._RIGHT_ZONE_TITLE, description=None, x=475, y=0, width=460, height=533, align='left'),
             ],
             'items': [
                 self.gen_item_settings(id=0, display_name=self._ITEM_LEFT_ZONE_NAME, incorrect_feedback=self._ITEM_INCORRECT_FEEDBACK, correct_feedback=self._ITEM_CORRECT_FEEDBACK.format(zone=self._LEFT_ZONE_TITLE), related_zones=self._LEFT_ZONE_ID, image_url=''),
