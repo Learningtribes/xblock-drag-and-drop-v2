@@ -289,6 +289,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                     _fn.build.getZonesFromZoneObjects();
                     _fn.build.form.zone.zoneObjects = [];
                     $(ID_AUTHOR_CANVAS).empty();
+                    if (type_id === BLANK_TEMPLATE_TYPE) {
+                        $(ID_AUTHOR_CANVAS).css("background-image", "url()");
+                    }
 
                     if (usedZones.length > 0) {
                         if (type_id === BLANK_TEMPLATE_TYPE || type_id === CUSTOM_TEMPLATE_TYPE) {
