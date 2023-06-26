@@ -1648,14 +1648,18 @@ function DragAndDropEditBlock(runtime, element, params) {
                         updateAnswerToZone: function(answerItemId, zoneId, addOrRemoveFlag) {
                             // Adding/Removing related zones to a Answer Card + Rendering Colored zones bar in the Answer Card
                             let updated_flag = false;
+                            let zone_counter = 0;
                             let zone_title = undefined;
+                            let zone_style = undefined;
                             var colored_zones_bar = $('#id_answer_colored_zones__' + answerItemId);
 
                             if (zoneId !== undefined) {
                                 _fn.build.form.zone.zoneObjects.forEach(function (zone) {
                                     if (zone.uid == zoneId) {
                                         zone_title = zone.title;
+                                        zone_style = _fn.build.form.item.predefinedZoneColors[zone_counter % _fn.build.form.item.predefinedZoneColors.length];
                                     }
+                                    zone_counter++;
                                 })
                                 if (zone_title === undefined) {
                                     return;
@@ -1671,7 +1675,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                                 // add to data
                                                 item.zones.push(zoneId);
                                                 // add to UI
-                                                colored_zones_bar.append($(`<div class="colored_name">${zone_title}</div>`));
+                                                colored_zones_bar.append($(`<div class="colored_name" style="${zone_style}">${zone_title}</div>`));
                                                 // show colored zone names bar if need
                                                 if (colored_zones_bar.hasClass('hidden')) {
                                                     colored_zones_bar.removeClass('hidden');
