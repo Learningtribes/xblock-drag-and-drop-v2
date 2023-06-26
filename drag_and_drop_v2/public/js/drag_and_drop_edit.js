@@ -296,6 +296,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         } else {
                             // delete all zones
                             _fn.data.zones = [];
+                            _fn.data.items = [];
                         }
                     } else {
                         // on zone is used, delete zones
