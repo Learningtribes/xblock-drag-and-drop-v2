@@ -687,7 +687,7 @@ function DragAndDropTemplates(configuration) {
                 (ctx.zones.length > 0 ? h('div.problem', [
                     h('p', {innerHTML: ctx.problem_html}),
                 ]) : null),
-                (ctx.zones.length > 0 ? h('div.drag-container', {style: drag_container_style}, [
+                (ctx.zones.length > 0 ? h('div.drag-container', [
                     h('div.target', {attributes: {'role': 'group', 'arial-label': gettext('Drop Targets')}}, [
                         itemFeedbackPopupTemplate(ctx),
                         h('div.target-img-wrapper', [
