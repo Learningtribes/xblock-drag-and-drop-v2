@@ -914,6 +914,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 return;
                             }
 
+                            _fn.build.set_tab_editing_status();
+                            _fn.build.refresh_save_button_status();
+
                             for (var old_index = 0; old_index < _fn.build.form.item.itemObjects.length; old_index++) {
                                 if (dragged_item_id === _fn.build.form.item.itemObjects[old_index].id) {
                                     if (new_index !== old_index) {
@@ -1221,11 +1224,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     isDown = false;
                                     if (element.offsetWidth !== 0 && element.offsetHeight !== 0) {
                                         update_zones_data(element);
+
+                                        _fn.build.set_tab_editing_status();
+                                        _fn.build.refresh_save_button_status();
                                     }
                                     document.removeEventListener("mouseup", arguments.callee);
-
-                                    _fn.build.set_tab_editing_status();
-                                    _fn.build.refresh_save_button_status();
                                 }, true);
 
                             }, true);
