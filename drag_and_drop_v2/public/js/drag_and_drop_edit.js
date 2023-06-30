@@ -63,6 +63,12 @@ function DragAndDropEditBlock(runtime, element, params) {
                     _fn.custom_background = params.custom_background;   // uploaded custom background image
                     _fn.new_selected_tpl_data = undefined;              // new selected template sample data ( replaced duplicated data )
                     _fn.tpl_summaries = params.tpl_summaries;
+                    _fn.tabs_editing_status = {
+                        '0': false,
+                        '1': false,
+                        '2': false,
+                        '3': false
+                    };
 
                     _fn.build.changeBackgroundSelect();
 
@@ -178,6 +184,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                         //     onCancelCallback: function () {}
                         // })
                     }
+
+                    _fn.build.set_tab_editing_status();
+                    _fn.build.refresh_save_button_status();
                 },
                 generatePredefinedTemplateData: function(tpl_data) {
                     // May get duplicated zone_uid/zone_title and item_id/item_title while adding template sample data into editor
@@ -724,6 +733,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                     }
 
                     _fn.selected_tab_id = tabId;    // Assign current selected tab ID
+                    _fn.build.refresh_save_button_status();
 
                     $tabPages.each(function () {
                         var pg = $(this);
@@ -791,6 +801,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                         let answerItemId = e.currentTarget.getAttribute('answer_item_id');
                         _fn.build.form.item.updateAnswerToZone(
                             parseInt(answerItemId), e.currentTarget.value, e.currentTarget.checked);
+
+                        _fn.build.set_tab_editing_status();
+                        _fn.build.refresh_save_button_status();
                     });
 
                     $element.find('.answer_text').bind('click', function (e) {
@@ -830,7 +843,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 item.displayName = new_answer_text;
                                 e.currentTarget.textContent = new_answer_text;
                             }
-                        })
+                        });
+
+                        _fn.build.set_tab_editing_status();
+                        _fn.build.refresh_save_button_status();
 
                     });
 
@@ -847,6 +863,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 _fn.build.form.item.itemObjects.splice(i, 1);
                                 // remove from UI
                                 answer_card.remove();
+
+                                _fn.build.set_tab_editing_status();
+                                _fn.build.refresh_save_button_status();
                                 break;
                             }
                         }
@@ -929,9 +948,47 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                 },
 
+                set_tab_editing_status: function() {
+                    var tab_id = _fn.selected_tab_id === undefined ? '0' : _fn.selected_tab_id;
+                    _fn.tabs_editing_status[tab_id] = true;
+                },
+
+                refresh_save_button_status: function() {
+                    var tab_id = _fn.selected_tab_id === undefined ? '0' : _fn.selected_tab_id;
+                    var save_button = document.getElementsByClassName('save-button')[0];
+                    var save_continue_button = document.getElementsByClassName('save-continue-button')[0];
+                    var should_be_shown = _fn.tabs_editing_status[tab_id];
+                    var is_disabled = document.getElementsByClassName('save-continue-button')[0].hasAttribute('disabled');
+
+                    if (!should_be_shown && !is_disabled) {
+                        save_continue_button.setAttribute('disabled', null);
+                        save_button.setAttribute('disabled', null);
+                    } else if (should_be_shown && is_disabled ){
+                        save_continue_button.removeAttribute('disabled');
+                        save_button.removeAttribute('disabled');
+                    }
+                },
+
                 clickHandlers: function() {
                     var $zoneTab = _fn.build.$el.zones.tab;
                     const $backgroundChoose = _fn.build.$el.backgroundChoose;
+
+                    $element.find('.supported-setting-tags .tab input').bind('change', function() {
+                        _fn.build.set_tab_editing_status();
+                        _fn.build.refresh_save_button_status();
+                    });
+                    $element.find('.supported-setting-tags .tab textarea').bind('change', function() {
+                        _fn.build.set_tab_editing_status();
+                        _fn.build.refresh_save_button_status();
+                    });
+                    $element.find('.switcher').bind('click', function() {
+                        _fn.build.set_tab_editing_status();
+                        _fn.build.refresh_save_button_status();
+                    });
+                    $element.find('.resizable_box .zone_title .title_edit_button').bind('click', function() {
+                        _fn.build.set_tab_editing_status();
+                        _fn.build.refresh_save_button_status();
+                    });
 
                     $element.find('.supported-setting-tags-nav > li').bind('click', function() {
                         var tabObj = $(this);
@@ -971,6 +1028,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                     $element.find('.save-continue-button').bind('click', '.save-continue-button', function saveContinueButtonHandler(e) {
                         e.preventDefault();
 
+                        if (e.currentTarget.hasAttribute('disabled')) {
+                            return;
+                        }
+
                         var tabID = _fn.selected_tab_id === undefined ? '0' : _fn.selected_tab_id;
 
                         if (!_fn.build.validate(tabID)) {
@@ -978,10 +1039,16 @@ function DragAndDropEditBlock(runtime, element, params) {
                         }
 
                         _fn.build.form.submit(tabID, continue_mode=true);
+
+                        _fn.tabs_editing_status[tabID] = false;
                     });
 
                     $element.find('.save-button').bind('click', function(e) {
                         e.preventDefault();
+
+                        if (e.currentTarget.hasAttribute('disabled')) {
+                            return;
+                        }
 
                         var tabID = _fn.selected_tab_id === undefined ? '0' : _fn.selected_tab_id;
 
@@ -990,6 +1057,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                         }
 
                         _fn.build.form.submit(tabID, continue_mode=false);
+
+                        _fn.tabs_editing_status[tabID] = false;
                     })
 
                     $element.find('.add_answer_button').bind('click', function(e) {
@@ -998,6 +1067,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                         _fn.build.form.item.createAnswerItem({}, true);
                         _fn.build.rebind_events_for_answers_tab();
                         _fn.build.refreshTabsStatus();  // redraw tabs
+
+                        _fn.build.set_tab_editing_status();
+                        _fn.build.refresh_save_button_status();
                     });
 
                     $backgroundChoose.templates
@@ -1011,6 +1083,9 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                             _fn.build.form.zone.makeResizableZone({x: left, y: top, width: 200, height: 100});
                             _fn.build.refreshTabsStatus();  // redraw tabs
+
+                            _fn.build.set_tab_editing_status();
+                            _fn.build.refresh_save_button_status();
                         });
                 },
                 form: {
@@ -1148,6 +1223,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                                         update_zones_data(element);
                                     }
                                     document.removeEventListener("mouseup", arguments.callee);
+
+                                    _fn.build.set_tab_editing_status();
+                                    _fn.build.refresh_save_button_status();
                                 }, true);
 
                             }, true);
@@ -1384,6 +1462,9 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                                     document.removeEventListener("mouseup", closeDragElement);
                                     document.removeEventListener("mousemove", elementDrag);
+
+                                    _fn.build.set_tab_editing_status();
+                                    _fn.build.refresh_save_button_status();
                                   }
                                 return dragMouseDown
                             }
@@ -1414,6 +1495,9 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                                     document.removeEventListener("mouseup", closeDragElement);
                                     document.removeEventListener("mousemove", elementDrag);
+
+                                    _fn.build.set_tab_editing_status();
+                                    _fn.build.refresh_save_button_status();
                                   }
                                 return dragMouseDown
                             }
@@ -1453,6 +1537,9 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                                     document.removeEventListener("mouseup", closeDragElement);
                                     document.removeEventListener("mousemove", elementDrag);
+
+                                    _fn.build.set_tab_editing_status();
+                                    _fn.build.refresh_save_button_status();
                                   }
                                 return dragMouseDown
                             }
@@ -1492,6 +1579,9 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                                     document.removeEventListener("mouseup", closeDragElement);
                                     document.removeEventListener("mousemove", elementDrag);
+
+                                    _fn.build.set_tab_editing_status();
+                                    _fn.build.refresh_save_button_status();
                                   }
                                 return dragMouseDown
                             }
@@ -1517,6 +1607,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 }
 
                                 _fn.build.refreshTabsStatus();  // redraw tabs
+
+                                _fn.build.set_tab_editing_status();
+                                _fn.build.refresh_save_button_status();
                             }
                         }
 
