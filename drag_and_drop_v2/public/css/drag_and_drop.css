@@ -677,19 +677,7 @@
 }
 
 .xblock--drag-and-drop .show-answer-button {
-    height: 40px;
-    display: flex !important;
-    color: #727272 !important;
-    background-color: white !important;
-    border-radius: 8px !important;
-    border: 1px solid #727272 !important;
-    cursor: pointer;
-}
-
-.xblock--drag-and-drop .show-answer-button:hover {
-    border-color: #d2d0d0 !important;
-    background-color: #f2f3f3 !important;
-    color: #676666;
+    font-size: 15px !important;
 }
 
 .xblock--drag-and-drop .btn-small {
