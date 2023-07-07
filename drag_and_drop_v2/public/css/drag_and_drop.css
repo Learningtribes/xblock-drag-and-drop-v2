@@ -678,6 +678,7 @@
 
 .xblock--drag-and-drop .show-answer-button {
     font-size: 15px !important;
+    font-weight: 700;
 }
 
 .xblock--drag-and-drop .btn-small {
@@ -759,7 +760,8 @@
 }
 
 .xblock--drag-and-drop .actions-toolbar .action-toolbar-item .submit-answer-button {
-    font-size: 15px;
+    font-size: 15px !important;
+    font-weight: 700 !important;
 }
 
 .xblock--drag-and-drop .actions-toolbar .action-toolbar-item .reset-button {
@@ -768,6 +770,8 @@
     margin-left: 8px !important;
     padding: 9px !important;
     color: white !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
 }
 
 .xblock--drag-and-drop .actions-toolbar .action-toolbar-item .reset-button:hover {
