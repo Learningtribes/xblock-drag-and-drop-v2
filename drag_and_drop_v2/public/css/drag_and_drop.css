@@ -833,6 +833,7 @@
 
 .xblock--drag-and-drop .actions-toolbar .action-toolbar-item.sidebar-buttons {
     display: block;
+    float: right;
 }
 
 .ltr .xblock--drag-and-drop .actions-toolbar .action-toolbar-item.sidebar-buttons {
