@@ -101,6 +101,18 @@ function DragAndDropEditBlock(runtime, element, params) {
                         })
                     }
                 },
+                getEditingStatus() {
+                    /**
+                     * Get editings status of all tags
+                     * If at least one page is edited return true, otherwise return false
+                     */
+                    for (let i=0;i< 4;i++) {
+                        if (_fn.tabs_editing_status[i.toString()] === true) {
+                            return true
+Ï                        }
+                    }
+                    return false
+                },
                 backgroundTemplateChoose: function(e) {
                     /**
                      * Handle select background
@@ -450,14 +462,14 @@ function DragAndDropEditBlock(runtime, element, params) {
                     // validate user input argument while clicking button "save"
                     var success = true;
 
-                    if (tabID === '0') {
+                    if (_fn.tabs_editing_status['0']) {
                         var display_name = $element.find('.display-name').val();
                         var weight = $element.find('.weight').val();
 
                         if (display_name === undefined || display_name === '' || weight === undefined) {
                             success = false;
                         }
-                    } else if (tabID === '1') {
+                    } else if (_fn.tabs_editing_status['1']) {
                         if (_fn.type_id === undefined || _fn.type_id === null) {
                             success = false;
                         } else {
@@ -465,11 +477,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 success = false;
                             }
                         }
-                    } else if (tabID === '2') {
+                    } else if (_fn.tabs_editing_status['2']) {
                         if (_fn.build.form.zone.zoneObjects.length === 0) {
                             success = false;
                         }
-                    } else if (tabID === '3') {
+                    } else if (_fn.tabs_editing_status['3']) {
                         if (_fn.build.form.item.itemObjects.length === 0 || _fn.build.form.zone.zoneObjects.length === 0) {
                             success = false;
                         } else {
@@ -638,8 +650,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                     if ('1' === tabId) {    // Background Image tab
                         pageFrame.height('750px');
 
-                        $('#id_xblock_save_button').className = 'action-item hidden';
-                        $('#id_xblock_save_and_continue_button').className = 'action-item ';
+                        $('#id_xblock_save_button').className = 'action-item';
 
                     } else if ('2' === tabId) { // Zones design tab
 
@@ -665,12 +676,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                             pageFrame.height('886px');
                         } else {
                             pageFrame.height('876px');
-                        }
-
-                        $('#id_xblock_save_and_continue_button').removeClass('hidden');
-                        var bt = $('#id_xblock_save_button');
-                        if (!bt.hasClass('hidden')) {
-                            bt.addClass('hidden');
                         }
 
                         _fn.build.renderTemplateZonesAreaBackgroud(canvas_element, tabId);
@@ -702,12 +707,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                     } else if ('3' === tabId) { // Item design tab
                         pageFrame.height('976px');
 
-                        $('#id_xblock_save_button').removeClass('hidden');
-                        var bt = $('#id_xblock_save_and_continue_button');
-                        if (!bt.hasClass('hidden')) {
-                            bt.addClass('hidden');
-                        }
-
                         // Render Preview Background
                         _fn.build.renderTemplateZonesAreaBackgroud(preview_canvas_element, tabId);
 
@@ -728,8 +727,7 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                     } else {
                         pageFrame.height('690px');
-                        $('#id_xblock_save_button').className = 'action-item hidden';
-                        $('#id_xblock_save_and_continue_button').className = 'action-item ';
+                        $('#id_xblock_save_button').className = 'action-item';
                     }
 
                     _fn.selected_tab_id = tabId;    // Assign current selected tab ID
@@ -957,17 +955,12 @@ function DragAndDropEditBlock(runtime, element, params) {
                 },
 
                 refresh_save_button_status: function() {
-                    var tab_id = _fn.selected_tab_id === undefined ? '0' : _fn.selected_tab_id;
                     var save_button = document.getElementsByClassName('save-button')[0];
-                    var save_continue_button = document.getElementsByClassName('save-continue-button')[0];
-                    var should_be_shown = _fn.tabs_editing_status[tab_id];
-                    var is_disabled = document.getElementsByClassName('save-continue-button')[0].hasAttribute('disabled');
+                    var is_disabled = _fn.build.getEditingStatus()
 
-                    if (!should_be_shown && !is_disabled) {
-                        save_continue_button.setAttribute('disabled', null);
+                    if (!is_disabled) {
                         save_button.setAttribute('disabled', null);
-                    } else if (should_be_shown && is_disabled ){
-                        save_continue_button.removeAttribute('disabled');
+                    } else if (is_disabled ){
                         save_button.removeAttribute('disabled');
                     }
                 },
@@ -997,7 +990,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                         var tabObj = $(this);
                         var tabID = tabObj.attr('id');
 
-                        _fn.build.refreshTabsStatus(false, tabID);
                         // Show hightlight if this tab button is disabled :
                         if (tabID === '2' && (_fn.type_id === undefined || _fn.type_id === null)) {
                             if (!tabObj.hasClass('disable-section-hightlight')) {
@@ -1020,30 +1012,13 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                             return;
                         }
+                        _fn.build.refreshTabsStatus(false, tabID);
 
                         if (!tabObj.hasClass('active-section')) {
                             tabObj.addClass('active-section');
                         }
                         _fn.build.selectTabPage(tabID);
 
-                    });
-
-                    $element.find('.save-continue-button').bind('click', '.save-continue-button', function saveContinueButtonHandler(e) {
-                        e.preventDefault();
-
-                        if (e.currentTarget.hasAttribute('disabled')) {
-                            return;
-                        }
-
-                        var tabID = _fn.selected_tab_id === undefined ? '0' : _fn.selected_tab_id;
-
-                        if (!_fn.build.validate(tabID)) {
-                            return;
-                        }
-
-                        _fn.build.form.submit(tabID, continue_mode=true);
-
-                        _fn.tabs_editing_status[tabID] = false;
                     });
 
                     $element.find('.save-button').bind('click', function(e) {
@@ -1859,36 +1834,33 @@ function DragAndDropEditBlock(runtime, element, params) {
                         // Save parts of data for a specified Tab
                         var post_data = {};
 
-                        if (tabID === '0') {
-                            post_data['display_name'] = $element.find('.display-name').val();
-                            post_data['weight'] = $element.find('.weight').val();
-                            post_data['max_attempts'] = $element.find(".max-attempts").val();
-                            post_data['problem_text'] = $element.find('.problem-text').val();
-                            post_data['feedback'] = {'finish': $element.find('.final-feedback').val()};
-                        } else if (tabID === '1') {
-                            post_data['type_id'] = parseInt(_fn.type_id);
-                            post_data['custom_background'] = _fn.custom_background;
-                            // Apply new selected template data to `_fn.data.zones/items` if user clicking save button
-                            // of Background Tab directly before he switch to Zones / Items Tab.
-                            if (_fn.new_selected_tpl_data !== undefined) {
-                                _fn.data.zones = _fn.data.zones.concat(_fn.new_selected_tpl_data.zones);
-                                _fn.data.items = _fn.data.items.concat(_fn.new_selected_tpl_data.items);
-                                _fn.new_selected_tpl_data = undefined;
-                            }
-                            post_data['data'] = _fn.data;
-                        } else if (tabID === '2' || tabID === '3') {
-                            if (_fn.build.form.item.itemObjects.length > 0) {
-                                _fn.data.items = _fn.build.form.item.itemObjects;
-                            }
-                            if (_fn.build.form.zone.zoneObjects.length > 0) {
-                                _fn.data.zones = _fn.build.form.zone.zoneObjects;
-                            }
-                            post_data['type_id'] = parseInt(_fn.type_id);           // Have to save this data assigned in Background Tab again
-                            post_data['custom_background'] = _fn.custom_background; // Save again
-                            post_data['data'] = _fn.data;
-                        } else {
-                            return;
+                        // tabID '0'
+                        post_data['display_name'] = $element.find('.display-name').val();
+                        post_data['weight'] = $element.find('.weight').val();
+                        post_data['max_attempts'] = $element.find(".max-attempts").val();
+                        post_data['problem_text'] = $element.find('.problem-text').val();
+                        post_data['feedback'] = {'finish': $element.find('.final-feedback').val()};
+                        // tabID '1'
+                        post_data['type_id'] = parseInt(_fn.type_id);
+                        post_data['custom_background'] = _fn.custom_background;
+                        // Apply new selected template data to `_fn.data.zones/items` if user clicking save button
+                        // of Background Tab directly before he switch to Zones / Items Tab.
+                        if (_fn.new_selected_tpl_data !== undefined) {
+                            _fn.data.zones = _fn.data.zones.concat(_fn.new_selected_tpl_data.zones);
+                            _fn.data.items = _fn.data.items.concat(_fn.new_selected_tpl_data.items);
+                            _fn.new_selected_tpl_data = undefined;
                         }
+                        // tabID '2' or '3'
+                        if (_fn.build.form.item.itemObjects.length > 0) {
+                            _fn.data.items = _fn.build.form.item.itemObjects;
+                        }
+                        if (_fn.build.form.zone.zoneObjects.length > 0) {
+                            _fn.data.zones = _fn.build.form.zone.zoneObjects;
+                        }
+                        post_data['type_id'] = parseInt(_fn.type_id);           // Have to save this data assigned in Background Tab again
+                        post_data['custom_background'] = _fn.custom_background; // Save again
+
+                        post_data['data'] = _fn.data;
 
                         var handlerUrl = runtime.handlerUrl(element, 'studio_submit');
 
