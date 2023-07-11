@@ -312,6 +312,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                     $(ID_AUTHOR_CANVAS).empty();
                     if (type_id === BLANK_TEMPLATE_TYPE) {
                         $(ID_AUTHOR_CANVAS).css("background-image", "url()");
+                        $(ID_PREVIEW_CANVAS).css("background-image", "url()");
                     }
 
                     if (usedZones.length > 0) {
