@@ -519,7 +519,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 obj.className = is_activated && (selected_tab_id!==undefined ? selected_tab_id === obj.id : true) ? 'nav-item active-section' : 'nav-item';
                             }
                         } else if (obj.id === "3") {
-                            if (_fn.type_id === undefined || _fn.type_id === null) {
+                            if (
+                                ((_fn.build.form.zone.zoneObjects === undefined || _fn.build.form.zone.zoneObjects.length === 0) && (_fn.data.zones === undefined || _fn.data.zones.length === 0))
+                                || _fn.type_id === null
+                            ) {
                                 obj.className = 'nav-item disable-section';
                             } else {
                                 obj.className = is_activated && (selected_tab_id!==undefined ? selected_tab_id === obj.id : true) ? 'nav-item active-section' : 'nav-item';
@@ -1001,7 +1004,9 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                             return;
                         }
-                        if (tabID === '3' && (_fn.type_id === undefined || _fn.type_id === null)) {
+                        if (tabID === '3' &&
+                            ((_fn.build.form.zone.zoneObjects === undefined || _fn.build.form.zone.zoneObjects.length === 0) && (_fn.data.zones === undefined || _fn.data.zones.length === 0))
+                        ) {
                             if (!tabObj.hasClass('disable-section-hightlight')) {
                                 tabObj.addClass('disable-section-hightlight');
                             }
@@ -1574,6 +1579,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     if (_fn.build.form.zone.zoneObjects[array_index].uid == zone_uid) break;
                                 }
                                 _fn.build.form.zone.zoneObjects.splice(array_index, 1);
+
+                                for (array_index = 0; array_index < _fn.data.zones.length; array_index++) {
+                                    if (_fn.data.zones[array_index].uid == zone_uid) break;
+                                }
+                                _fn.data.zones.splice(array_index, 1);
 
                                 // Remove related zones from Item in `_fn.data` if this zone is the removed one.
                                 for (var i = 0; i< _fn.data.items.length; i++) {
