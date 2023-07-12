@@ -1223,8 +1223,16 @@ function DragAndDropEditBlock(runtime, element, params) {
                                         x : event.clientX,
                                         y : event.clientY
                                     };
-                                    element.style.left = (mousePosition.x + offset[0]) + 'px';
-                                    element.style.top  = (mousePosition.y + offset[1]) + 'px';
+                                    var new_left = mousePosition.x + offset[0];
+                                    var new_top = mousePosition.y + offset[1];
+                                    var canvas_width = $('#id_author_canvas').width();
+                                    var canvas_height = $('#id_author_canvas').height();
+                                    if (new_left >= 0 && (new_left + element.offsetWidth) <= canvas_width) {
+                                        element.style.left = new_left + 'px';
+                                    }
+                                    if (new_top >= 0 && (new_top + element.offsetHeight) <= canvas_height) {
+                                        element.style.top = new_top + 'px';
+                                    }
                                 }
                             }, true);
 
@@ -1435,7 +1443,12 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                                   function elementDrag(e) {
                                         const {clientX} = e;
-                                        let x = clientX - element.offsetLeft - offsetX
+                                        let x = clientX - element.offsetLeft - offsetX;
+                                        var new_right = x + element.offsetLeft;
+                                        var canvas_width = $('#id_author_canvas').width();
+                                        if (new_right > canvas_width) {
+                                            return;
+                                        }
                                         if(x < minWidth) x = minWidth;
                                         element.style.width =  x + 'px';
                                   }
@@ -1469,6 +1482,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                                   function elementDrag(e) {
                                         const {clientY} = e;
                                         let y =  clientY - element.offsetTop - offsetY;
+                                        var new_bottom = y + element.offsetTop;
+                                        var canvas_height = $('#id_author_canvas').height();
+                                        if (new_bottom > canvas_height) {
+                                            return;
+                                        }
                                         if(y < minHeight) y = minHeight;
                                         element.style.height = y + 'px';
                                   }
@@ -1507,8 +1525,11 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                                   function elementDrag(e) {
                                         const {clientX} = e;
-                                        let x = clientX - offsetX
-                                        let w = startW + startX - x
+                                        let x = clientX - offsetX;
+                                        if (x < 0) {
+                                            return;
+                                        }
+                                        let w = startW + startX - x;
                                         if(w < minWidth) w = minWidth;
                                         if(x > maxX) x = maxX;
                                         element.style.left = x + 'px';
@@ -1549,8 +1570,11 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                                   function elementDrag(e) {
                                         const {clientY} = e;
-                                        let y =  clientY - offsetY
-                                        let h = startH + startY - y
+                                        let y =  clientY - offsetY;
+                                        if (y < 0) {
+                                            return;
+                                        }
+                                        let h = startH + startY - y;
                                         if(h < minHeight) h = minHeight;
                                         if(y > maxY) y = maxY;
                                         element.style.top = y + 'px';
