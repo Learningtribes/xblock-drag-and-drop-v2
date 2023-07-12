@@ -107,6 +107,21 @@
     padding-top: 45px;
 }
 
+.xblock--drag-and-drop--editor .switcher {
+    width: fit-content;
+    height: fit-content;
+}
+
+.xblock--drag-and-drop--editor .switcher .react-switch-bg {
+    height: 21px !important;
+    width: 34px !important;
+}
+
+.xblock--drag-and-drop--editor .switcher .react-switch-handle {
+    height: 19px !important;
+    width: 19px !important;
+}
+
 /*** Drop Target ***/
 .xblock--drag-and-drop--editor .zone {
     position: absolute;
@@ -251,6 +266,7 @@
     border-top: 1px solid #DCDCDC;
     display: flex;
     flex-direction: column;
+    padding-top: 8px;
 }
 
 .xblock--drag-and-drop--editor .zones_settings .setting_flag {
@@ -272,8 +288,7 @@
 .xblock--drag-and-drop--editor .zones_settings .setting_flag .switcher_text {
     font-weight: 700;
     font-size: 14px;
-    line-height: 29px;
-    margin-left: 32px;
+    margin-left: 23px;
     width: 100%;
 }
 
