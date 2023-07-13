@@ -587,7 +587,7 @@
     background: #FAFAFA;
     border: 1px solid #1D1D1D;
     border-radius: 4px;
-    position: relative;
+    position: static;
 }
 
 .xblock--drag-and-drop--editor .items-tab .answers_collection .add_answer_button {
@@ -650,7 +650,6 @@
     box-shadow: 1px 12px 20px 2px rgba(0,0,0,0.2);
     padding: 12px 16px;
     right: 0px;
-    top: 30px;
     line-height: 16px;
     font-size: 12px;
     font-weight: 400;
