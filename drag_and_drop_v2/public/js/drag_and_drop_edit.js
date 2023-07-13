@@ -799,6 +799,19 @@ function DragAndDropEditBlock(runtime, element, params) {
                     // For creating answer items dynamiclly, we rebind event for these new items.
                     var old_answer_text = undefined;
 
+                    $('.answer_zones_dropdown_menu').bind('mouseover', function(e) {
+                        if (e.currentTarget.classList.contains('fa-caret-down')) {
+                            e.currentTarget.classList.remove('fa-caret-down');
+                            e.currentTarget.classList.add('fa-caret-up');
+                        }
+                    });
+                    $('.answer_zones_dropdown_menu').bind('mouseleave', function(e) {
+                        if (e.currentTarget.classList.contains('fa-caret-up')) {
+                            e.currentTarget.classList.remove('fa-caret-up');
+                            e.currentTarget.classList.add('fa-caret-down');
+                        }
+                    });
+
                     $('input.option_checkbox').bind('click', function (e) {
                         let answerItemId = e.currentTarget.getAttribute('answer_item_id');
                         _fn.build.form.item.updateAnswerToZone(
@@ -887,7 +900,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             if ((button_top - container_top + button_height + menu_height) >= container_height) {
                                 dropdown_content_element.style.top = "-140px";
                             } else {
-                                dropdown_content_element.style.top = "34px";
+                                dropdown_content_element.style.top = "30px";
                             }
 
                         }
@@ -1693,8 +1706,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             let handle_icon = $('<i class="fa-solid fa-grip-dots-vertical" style="color: #1D1D1D"></i>');
                             let answer_text = $(`<div class="answer_text" id="${id_answer_name}" data-item_id="${item_uid}">${item_title}</div>`);
                             let linked_zones = $(`<div class="selected_zones" id="${id_answer_colored_zones}"></div>`);
-                            let dropdown_btn = $('<div class="answer_zones_dropdown_menu"></div>');
-                            let dropdown_icon = $('<i class="fa-solid fa-caret-down" style="color: #1D1D1D"></i>');
+                            let dropdown_btn = $('<div class="answer_zones_dropdown_menu fa-solid fa-caret-down"></div>');
 
                             // Options Menu
                             _fn.build.form.zone.zoneObjects.forEach(function(zoneObj){
@@ -1717,7 +1729,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                             var delete_the_answer = gettext('Delete the Answer');
                             options_list.append($(`<li data-item_id="${item_uid}" class="delete_answer_button">${delete_the_answer}</li>`));
                             options_menu.append(options_list);
-                            answer_element.append(options_menu);
                             // Card Icon
                             handle_el.append(handle_icon);
                             answer_element.append(handle_el);
@@ -1742,9 +1753,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 })
                             }
                             answer_element.append(linked_zones);
-                            // Dropdown menu of zones
-                            dropdown_btn.append(dropdown_icon);
                             answer_element.append(dropdown_btn);
+                            answer_element.append(options_menu);    // Element `options_menu` has to be behind element `dropdown_btn`
                             // Insert this New Answer Item into Collection
                             answer_element.insertBefore('#id_add_answer_item_btn');
 
