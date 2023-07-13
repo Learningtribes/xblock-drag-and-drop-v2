@@ -1173,8 +1173,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                             let zone_align = oldZone.align || 'center';
                             let zone_left = oldZone.x || 0;
                             let zone_top = oldZone.y || 0;
-                            let minWidth = 200;
-                            let minHeight = 100;
+                            let minWidth = 116;
+                            let minHeight = 66;
                             let zone_width = oldZone.width || 200;
                             let zone_height = oldZone.height || 100;
                             let size = oldZone.size || 20;
@@ -1460,7 +1460,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                                         let x = clientX - element.offsetLeft - offsetX;
                                         var new_right = x + element.offsetLeft;
                                         var canvas_width = $('#id_author_canvas').width();
-                                        if (new_right > canvas_width) {
+                                        var title_zone_width = new_div_title.clientWidth + 12;
+                                        if (new_right > canvas_width || x < title_zone_width) {
                                             return;
                                         }
                                         if(x < minWidth) x = minWidth;
@@ -1498,7 +1499,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                                         let y =  clientY - element.offsetTop - offsetY;
                                         var new_bottom = y + element.offsetTop;
                                         var canvas_height = $('#id_author_canvas').height();
-                                        if (new_bottom > canvas_height) {
+                                        var title_zone_height = new_div_title.clientHeight + 12;
+                                        if (new_bottom > canvas_height || y < title_zone_height) {
                                             return;
                                         }
                                         if(y < minHeight) y = minHeight;
@@ -1544,6 +1546,10 @@ function DragAndDropEditBlock(runtime, element, params) {
                                             return;
                                         }
                                         let w = startW + startX - x;
+                                        var title_zone_width = new_div_title.clientWidth + 12;
+                                        if (w < title_zone_width) {
+                                            return;
+                                        }
                                         if(w < minWidth) w = minWidth;
                                         if(x > maxX) x = maxX;
                                         element.style.left = x + 'px';
@@ -1585,10 +1591,14 @@ function DragAndDropEditBlock(runtime, element, params) {
                                   function elementDrag(e) {
                                         const {clientY} = e;
                                         let y =  clientY - offsetY;
+                                        var title_zone_height = new_div_title.clientHeight + 12;
                                         if (y < 0) {
                                             return;
                                         }
                                         let h = startH + startY - y;
+                                        if (h < title_zone_height) {
+                                            return;
+                                        }
                                         if(h < minHeight) h = minHeight;
                                         if(y > maxY) y = maxY;
                                         element.style.top = y + 'px';
