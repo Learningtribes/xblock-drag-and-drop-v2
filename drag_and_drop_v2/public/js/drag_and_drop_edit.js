@@ -805,10 +805,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                             e.currentTarget.classList.add('fa-caret-up');
                         }
                     });
-                    $('.answer_zones_dropdown_menu').bind('mouseleave', function(e) {
-                        if (e.currentTarget.classList.contains('fa-caret-up')) {
-                            e.currentTarget.classList.remove('fa-caret-up');
-                            e.currentTarget.classList.add('fa-caret-down');
+                    $('.answer_zones_dropdown_content').bind('mouseleave', function(e) {
+                        var dropdown_menu_button = e.currentTarget.previousElementSibling;
+                        if (dropdown_menu_button.classList.contains('fa-caret-up')) {
+                            dropdown_menu_button.classList.remove('fa-caret-up');
+                            dropdown_menu_button.classList.add('fa-caret-down');
                         }
                     });
 
