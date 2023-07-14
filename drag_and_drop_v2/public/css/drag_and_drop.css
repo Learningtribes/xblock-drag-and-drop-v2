@@ -127,7 +127,7 @@
     flex-direction: row;
     align-items: center;
     padding: 8px 16px;
-    margin: 12px 12px 0px 0px;
+    margin: 8px 8px 0px 0px;
     width: fit-content;
     cursor: pointer;
     height: 35px;
@@ -212,7 +212,7 @@
     box-sizing: border-box;
     align-items: center;
     padding: 8px 16px;
-    margin: 12px 12px 0px 0px;
+    margin: 0px;
     width: fit-content;
     cursor: pointer;
     height: 35px;
@@ -253,7 +253,7 @@
     flex-direction: row;
     align-items: center;
     padding: 8px 16px;
-    margin: 12px 12px 0px 0px;
+    margin: 0px;
     width: fit-content;
     cursor: pointer;
     height: 35px;
@@ -265,6 +265,7 @@
     font-weight: 700;
     font-size: 14px;
     line-height: 19px;
+    position: absolute;
 }
 
 /* Focused option */
@@ -356,7 +357,7 @@
         font-size: 11px;
         font-weight: 500;
         padding: 2px 3px;
-        margin: 3px 2px 0px 0px;
+        margin: 0px;
         height: 25px;
     }
 

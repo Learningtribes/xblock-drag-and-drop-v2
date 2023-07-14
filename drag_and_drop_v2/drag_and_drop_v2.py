@@ -704,6 +704,8 @@ class DragAndDropBlock(
             'location': zone.get("title"),
             'location_id': zone.get("uid"),
             'is_correct': is_correct,
+            'item_x': attempt['x'],
+            'item_y': attempt['y']
         })
 
     def _publish_item_to_bank_event(self, item_id, is_correct):

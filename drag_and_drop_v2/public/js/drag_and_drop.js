@@ -102,6 +102,12 @@ function DragAndDropTemplates(configuration) {
                 style.width = (item.imgNaturalWidth + 22) + "px"; // 22px is for 10px padding + 1px border each side
                 // ^ Hack to detect image width at runtime and make webkit consistent with Firefox
             }
+            if (item.item_x !== undefined) {
+                style.left = item.item_x + 'px';
+            }
+            if (item.item_y !== undefined) {
+                style.top = item.item_y + 'px';
+            }
         } else {
             $.extend(style, bankItemWidthStyles(item, ctx));
         }
@@ -180,6 +186,12 @@ function DragAndDropTemplates(configuration) {
         var style = bankItemWidthStyles(item, ctx);
         // Placeholder should never be visible.
         style.visibility = 'hidden';
+        if (item.item_x !== undefined) {
+            style.left = item.item_x + 'px';
+        }
+        if (item.item_y !== undefined) {
+            style.top = item.item_y + 'px';
+        }
         return (
             h(
                 'div.option',
@@ -1287,7 +1299,7 @@ function DragAndDropBlock(runtime, element, configuration) {
         $.post(url, JSON.stringify(data), 'json');
     };
 
-    var placeGrabbedItem = function($zone) {
+    var placeGrabbedItem = function($zone, item_x, item_y) {
         var zone = String($zone.data('uid'));
         var zone_align = $zone.data('zone_align');
         var items = configuration.items;
@@ -1317,10 +1329,12 @@ function DragAndDropBlock(runtime, element, configuration) {
             zone: zone,
             zone_align: zone_align,
             submitting_location: true,
+            item_x: item_x,
+            item_y: item_y
         };
 
         applyState();
-        submitLocation(item_id, zone);
+        submitLocation(item_id, zone, item_x, item_y);
     };
 
     var countItemsInZone = function(zone, exclude_ids) {
@@ -1353,7 +1367,7 @@ function DragAndDropBlock(runtime, element, configuration) {
                     if ($zone.is('.item-bank')) {
                         delete state.items[$selectedItem.data('value')];
                     } else {
-                        placeGrabbedItem($zone);
+                        placeGrabbedItem($zone, evt.offsetX, evt.offsetY);
                     }
                     releaseGrabbedItems();
                 }
@@ -1580,7 +1594,19 @@ function DragAndDropBlock(runtime, element, configuration) {
                     if ($zone.is('.item-bank')) {
                         returnItemToBank(item_id);
                     } else {
-                        placeGrabbedItem($zone);
+
+                        var answer_card = evt.target;
+
+                        for ( var i = 0; i < 3 && !answer_card.classList.contains('option'); i++) {
+                            answer_card = answer_card.parentElement;
+                            if (answer_card.classList.contains('option')) {
+                                break;
+                            }
+                        }
+
+                        var itemOffsetX = answer_card.offsetLeft - ($zone.offset().left - $zone.parent().parent().parent().offset().left);
+                        var itemOffsetY = answer_card.offsetTop - ($zone.offset().top - $zone.parent().parent().parent().offset().top);
+                        placeGrabbedItem($zone, itemOffsetX, itemOffsetY);
                     }
                     releaseGrabbedItems();
                 } else {
@@ -1658,6 +1684,22 @@ function DragAndDropBlock(runtime, element, configuration) {
         $container.on('touchmove', '.dragged-items .options[draggable=true]', function(evt) {
             evt.preventDefault();
         });
+
+        $container.on('click', '.zone .option', function(evt) {
+            evt.preventDefault();
+
+            $('.zone .option').css('zIndex', 99);
+
+            var answer_card = evt.target;
+
+            for ( var i = 0; i < 3 && !answer_card.classList.contains('option'); i++) {
+                answer_card = answer_card.parentElement;
+                if (answer_card.classList.contains('option')) {
+                    break;
+                }
+            }
+            answer_card.style.zIndex = 100;
+        });
     };
 
     var grabItem = function($item, interaction_type) {
@@ -1683,14 +1725,16 @@ function DragAndDropBlock(runtime, element, configuration) {
         applyState();
     };
 
-    var submitLocation = function(item_id, zone) {
+    var submitLocation = function(item_id, zone, item_x, item_y) {
         if (!zone) {
             return;
         }
         var url = runtime.handlerUrl(element, 'drop_item');
         var data = {
             val: item_id,
-            zone: zone
+            zone: zone,
+            x: item_x,
+            y: item_y
         };
 
         $.post(url, JSON.stringify(data), 'json')
@@ -1892,6 +1936,8 @@ function DragAndDropBlock(runtime, element, configuration) {
                 is_placed: Boolean(item_user_state),
                 widthPercent: item.widthPercent, // widthPercent may be undefined (auto width)
                 imgNaturalWidth: item.imgNaturalWidth,
+                item_x: (item_user_state === undefined || item_user_state.item_x === undefined) ? null : item_user_state.item_x,
+                item_y: (item_user_state === undefined || item_user_state.item_y === undefined) ? null : item_user_state.item_y
             };
             if (item_user_state) {
                 itemProperties.zone = item_user_state.zone;

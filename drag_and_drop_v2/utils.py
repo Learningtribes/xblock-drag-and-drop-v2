@@ -25,7 +25,9 @@ def make_state_from_attempt(attempt, correct):
     """
     return {
         'zone': attempt['zone'],
-        'correct': correct
+        'correct': correct,
+        'item_x': attempt.get('x'),
+        'item_y': attempt.get('y')
     }
 
 
