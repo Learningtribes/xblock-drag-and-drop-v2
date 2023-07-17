@@ -803,27 +803,27 @@ function DragAndDropEditBlock(runtime, element, params) {
                         if (e.currentTarget.classList.contains('fa-caret-down')) {
                             e.currentTarget.classList.remove('fa-caret-down');
                             e.currentTarget.classList.add('fa-caret-up');
+                        }
 
-                            let dropdown_content_elements = e.currentTarget.parentElement.getElementsByClassName('answer_zones_dropdown_content');
+                        let dropdown_content_elements = e.currentTarget.parentElement.getElementsByClassName('answer_zones_dropdown_content');
 
-                            if (dropdown_content_elements.length === 1) {
-                                let container_top = document.getElementById('id_answers_collection').offsetTop;
-                                let container_height = document.getElementById('id_answers_collection').clientHeight;
-                                let button_top = e.currentTarget.offsetTop;
-                                let button_height = e.currentTarget.clientHeight;
-                                let dropdown_content_element = dropdown_content_elements[0];
-                                let menu_height = dropdown_content_element.clientHeight;
+                        if (dropdown_content_elements.length === 1) {
+                            let container_top = document.getElementById('id_answers_collection').offsetTop;
+                            let container_height = document.getElementById('id_answers_collection').clientHeight;
+                            let button_top = e.currentTarget.offsetTop;
+                            let button_height = e.currentTarget.clientHeight;
+                            let dropdown_content_element = dropdown_content_elements[0];
+                            let menu_height = dropdown_content_element.clientHeight;
 
-                                if ((button_top - container_top + button_height + menu_height) >= container_height) {
-                                    dropdown_content_element.style.top = e.currentTarget.offsetTop - 140 + "px";
-                                    dropdown_content_element.style.left = e.currentTarget.offsetLeft - e.currentTarget.nextElementSibling.clientWidth + e.currentTarget.clientWidth + 8 + "px";
-                                } else {
-                                    dropdown_content_element.style.top = e.currentTarget.offsetTop + 30 + "px";
-                                    dropdown_content_element.style.left = e.currentTarget.offsetLeft - e.currentTarget.nextElementSibling.clientWidth + e.currentTarget.clientWidth + 8 + "px";
-                                }
-
+                            if ((button_top - container_top + button_height + menu_height) >= container_height) {
+                                dropdown_content_element.style.top = e.currentTarget.offsetTop - 140 + "px";
+                                dropdown_content_element.style.left = e.currentTarget.offsetLeft - e.currentTarget.nextElementSibling.clientWidth + e.currentTarget.clientWidth + 8 + "px";
+                            } else {
+                                dropdown_content_element.style.top = e.currentTarget.offsetTop + 27 + "px";
+                                dropdown_content_element.style.left = e.currentTarget.offsetLeft - e.currentTarget.nextElementSibling.clientWidth + e.currentTarget.clientWidth + 8 + "px";
                             }
                         }
+
                     });
                     $('.answer_zones_dropdown_content').bind('mouseleave', function(e) {
                         var dropdown_menu_button = e.currentTarget.previousElementSibling;
