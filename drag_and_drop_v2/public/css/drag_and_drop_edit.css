@@ -118,8 +118,10 @@
 }
 
 .xblock--drag-and-drop--editor .switcher .react-switch-handle {
-    height: 19px !important;
-    width: 19px !important;
+    height: 15px !important;
+    width: 15px !important;
+    top: 3px !important;
+    left: 2px !important;
 }
 
 /*** Drop Target ***/
