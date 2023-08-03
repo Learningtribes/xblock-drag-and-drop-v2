@@ -448,7 +448,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                      * Handle switcher display and default value
                      */
                     var switcherDisplayBorders =  $('#id_switcher_display_borders');
-                    if (_fn.type_id === BLANK_TEMPLATE_TYPE || _fn.type_id === CUSTOM_TEMPLATE_TYPE) {
+                    if (_fn.type_id === BLANK_TEMPLATE_TYPE) {
                         _fn.data.displayBorders = true;     // can't switch off
                         switcherDisplayBorders.addClass('hidden');
                     } else {
