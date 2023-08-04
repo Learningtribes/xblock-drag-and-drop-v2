@@ -1847,7 +1847,7 @@ function DragAndDropBlock(runtime, element, configuration) {
         }).done(function(data){
             state.attempts = data.attempts;
             state.grade = data.grade;
-            state.feedback = data.feedback;
+            // state.feedback = data.feedback;
             state.overall_feedback = data.overall_feedback;
             state.last_action_correct = data.correct;
 
