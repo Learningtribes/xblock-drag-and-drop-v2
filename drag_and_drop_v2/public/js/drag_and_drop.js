@@ -557,6 +557,23 @@ function DragAndDropTemplates(configuration) {
         );
     };
 
+    var introduction = function() {
+        return h('div.colorful-boxes',
+            [
+                h('div.blue-block', [
+                    h('span.icon', [h('span.far.fa-video', null)]),
+                    h('strong', [gettext('Use Drag & Drop Component')]),
+                    h('p', [gettext('Add this type of quiz to let learners answer to a question by dragging text or images to a specific location on an image.')])
+                ]),
+                h('div.yellow-block', [
+                    h('span.icon', [h('span.far.fa-play', null)]),
+                    h('strong', [gettext('You are now ready')]),
+                    h('p', [gettext('Integrate content by clicking on the pencil icon.')])
+                ]),
+            ]
+        );
+    };
+
     var progressTemplate = function(ctx) {
         // Formats a number to 4 decimals without trailing zeros
         // (1.00 -> '1'; 1.50 -> '1.5'; 1.333333333 -> '1.3333').
@@ -698,7 +715,7 @@ function DragAndDropTemplates(configuration) {
                 ]) : null),
                 (ctx.zones.length > 0 ? h('div.problem', [
                     h('p', {innerHTML: ctx.problem_html}),
-                ]) : null),
+                ]) : introduction()),
                 (ctx.zones.length > 0 ? h('div.drag-container', [
                     h('div.target', {attributes: {'role': 'group', 'arial-label': gettext('Drop Targets')}}, [
                         itemFeedbackPopupTemplate(ctx),
