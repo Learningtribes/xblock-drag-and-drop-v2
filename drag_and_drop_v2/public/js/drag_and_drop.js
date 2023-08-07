@@ -1685,10 +1685,8 @@ function DragAndDropBlock(runtime, element, configuration) {
             evt.preventDefault();
         });
 
-        $container.on('click', '.zone .option', function(evt) {
+        $container.on('mouseover', '.zone .option', function(evt) {
             evt.preventDefault();
-
-            $('.zone .option').css('zIndex', 99);
 
             var answer_card = evt.target;
 
@@ -1698,7 +1696,9 @@ function DragAndDropBlock(runtime, element, configuration) {
                     break;
                 }
             }
-            answer_card.style.zIndex = 100;
+
+            answer_card.style.setProperty('z-index', 100, 'important');
+            $(answer_card).siblings().css( 'zIndex', 10 );
         });
     };
 
