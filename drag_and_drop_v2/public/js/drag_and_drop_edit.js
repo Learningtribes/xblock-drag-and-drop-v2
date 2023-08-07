@@ -596,14 +596,16 @@ function DragAndDropEditBlock(runtime, element, params) {
                             _fn.tpl_summaries.forEach(function(tpl_summary) {
                                 if (tpl_summary.type_id === parseInt(_fn.type_id)) {
                                     $(drawing_area_selector).css("background-image", "url(" + tpl_summary.thumbnail + ")");
+                                    $(drawing_area_selector).css("background-size", "auto auto");
                                 }
                             });
                         } else if (_fn.type_id === 3) {     // Custom Background template
                             $(drawing_area_selector)
                                 .css("background-image", "url(" + _fn.data.targetImg + ")");    // paste uploaded image into background
-                            $(drawing_area_selector).css('max-height', '520px');
+                            $(drawing_area_selector).css("background-size", "auto auto");
+                            $(drawing_area_selector).css('max-height', '540px');
                         } else {
-                            $(drawing_area_selector).css('height', '523px');
+                            $(drawing_area_selector).css('height', '540px');
                         }
                     }
 
@@ -679,7 +681,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                         } else if (_fn.type_id === RECTANGLE_TEMPLATE_TYPE) {
                             pageFrame.height('886px');
                         } else {
-                            pageFrame.height('876px');
+                            pageFrame.height('896px');
                         }
 
                         _fn.build.renderTemplateZonesAreaBackgroud(canvas_element, tabId);
