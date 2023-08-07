@@ -1260,6 +1260,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 selection.removeAllRanges();
                                 selection.addRange(range);
                                 title_text.style.backgroundColor = '#fff';
+                                title_text.style.cursor = 'text';
                                 title_text.focus();
                             });
 
@@ -1269,6 +1270,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                                 isEditTitle = false;
                                 _titleText.contentEditable = 'false';
                                 _titleText.style.backgroundColor = "";
+                                _titleText.style.cursor = 'move';
 
                                 if (oldZoneTitleText !== _titleText.textContent) {
                                     var has_one = false;
@@ -1316,7 +1318,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             top.style.position = 'absolute';
                             top.style.top = - (size/2) + 'px';
                             top.style.left = '0px';
-                            top.style.cursor = 'n-resize';
+                            top.style.cursor = 'ns-resize';
 
                             top.addEventListener('mousedown', resizeYNegative());
 
@@ -1329,7 +1331,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             bottom.style.position = 'absolute';
                             bottom.style.bottom = - (size/2) + 'px';
                             bottom.style.left = '0px';
-                            bottom.style.cursor = 'n-resize';
+                            bottom.style.cursor = 'ns-resize';
 
                             bottom.addEventListener('mousedown',resizeYPositive())
 
@@ -1342,7 +1344,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             left.style.position = 'absolute';
                             left.style.top = '0px';
                             left.style.left = - (size/2) + 'px';
-                            left.style.cursor = 'e-resize';
+                            left.style.cursor = 'ew-resize';
 
                             left.addEventListener('mousedown', resizeXNegative());
 
@@ -1355,7 +1357,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                             right.style.position = 'absolute';
                             right.style.top = '0px';
                             right.style.right = - (size/2) + 'px';
-                            right.style.cursor = 'e-resize';
+                            right.style.cursor = 'ew-resize';
 
                             right.addEventListener('mousedown',resizeXPositive());
 
