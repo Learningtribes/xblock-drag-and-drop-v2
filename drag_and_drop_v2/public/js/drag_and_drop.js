@@ -89,7 +89,7 @@ function DragAndDropTemplates(configuration) {
             style.left = item.drag_position.left + 'px';
             style.top = item.drag_position.top + 'px';
         }
-        if (item.is_placed) {
+        if (item.is_placed && !item.is_dragged) {
             var maxWidth = (item.widthPercent || 40) / 100;
             var widthPercent = zone.width_percent / 100;
             style.maxWidth = ((1 / (widthPercent / maxWidth)) * 100) + '%';
@@ -1700,22 +1700,6 @@ function DragAndDropBlock(runtime, element, configuration) {
         // Prevent touchmove events fired on the dragged item causing scroll.
         $container.on('touchmove', '.dragged-items .options[draggable=true]', function(evt) {
             evt.preventDefault();
-        });
-
-        $container.on('mouseover', '.zone .option', function(evt) {
-            evt.preventDefault();
-
-            var answer_card = evt.target;
-
-            for ( var i = 0; i < 3 && !answer_card.classList.contains('option'); i++) {
-                answer_card = answer_card.parentElement;
-                if (answer_card.classList.contains('option')) {
-                    break;
-                }
-            }
-
-            answer_card.style.setProperty('z-index', 100, 'important');
-            $(answer_card).siblings().css( 'zIndex', 10 );
         });
     };
 
