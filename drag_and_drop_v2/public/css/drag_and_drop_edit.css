@@ -385,10 +385,14 @@
 
 .xblock--drag-and-drop--editor .feedback-tab .question-mark-wrapper {
     position: absolute;
+    margin-top: 8px;
 }
 
 .xblock--drag-and-drop--editor .feedback-tab .question-mark-wrapper .after {
-    right: 300px !important;
+    position: static;
+    width: fit-content !important;
+    max-width: 360px;
+    margin-left: -260px;
 }
 
 .xblock--drag-and-drop--editor .feedback-tab input[type=checkbox] {
