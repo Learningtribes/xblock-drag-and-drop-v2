@@ -599,9 +599,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                         // Create new background
                         if (_fn.type_id === PYRAMID_TEMPLATE_TYPE || _fn.type_id === RECTANGLE_TEMPLATE_TYPE) {           // Triangle template and Two rectangle template
                             if (_fn.type_id === PYRAMID_TEMPLATE_TYPE) {
-                                $(drawing_area_selector).css('height', '486px');
+                                $(drawing_area_selector).css('height', '500px');
                             } else if (_fn.type_id === RECTANGLE_TEMPLATE_TYPE) {
-                                $(drawing_area_selector).css('height', '533px');
+                                $(drawing_area_selector).css('height', '500px');
                             }
                             _fn.tpl_summaries.forEach(function(tpl_summary) {
                                 if (tpl_summary.type_id === parseInt(_fn.type_id)) {

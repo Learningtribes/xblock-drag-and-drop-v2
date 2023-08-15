@@ -209,7 +209,7 @@
 .xblock--drag-and-drop--editor .zones-tab .tab-content .drag_drop_area {
     display: flex;
     width: 950px;
-    height: 533px;
+    height: 500px;
     margin: 15px 0px 15px 0px;
     position: relative;
     background-repeat: no-repeat;
@@ -541,7 +541,7 @@
 .xblock--drag-and-drop--editor .items-tab .tab-content .drag_drop_area {
     display: flex;
     width: 950px;
-    height: 533px;
+    height: 500px;
     margin: 15px 0px 15px 0px;
     transform: scale(0.8) translate(-50px, -50px);
     background-repeat: no-repeat;
