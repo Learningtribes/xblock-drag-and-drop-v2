@@ -7,8 +7,8 @@
 }
 
 .xblock-student_view {
-    max-width: 940px !important;
-    width: 940px !important;
+    max-width: 950px !important;
+    width: 950px !important;
 }
 
 .xblock--drag-and-drop .drap-drop-tips-info {
@@ -320,9 +320,11 @@
 
 .xblock--drag-and-drop .target-img {
     display: table-cell;
-    width: 100%;
-    max-width: 100%;
-    height: auto;
+    width: 950px;
+    max-width: 950px;
+    height: 500px;
+    object-fit: contain;
+    object-position: left center;
 }
 
 @media screen and (max-width: 480px) {
@@ -415,7 +417,7 @@
     right: 0;
     top: 0;
     bottom: 0;
-    padding: 10px;
+    padding: 0;
     margin: 0;
     display: flex;
     align-items: center;

@@ -611,9 +611,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                         } else if (_fn.type_id === 3) {     // Custom Background template
                             $(drawing_area_selector)
                                 .css("background-image", "url(" + _fn.data.targetImg + ")");    // paste uploaded image into background
-                            $(drawing_area_selector).css('max-height', '540px');
+                            $(drawing_area_selector).css('max-height', '500px');
                         } else {
-                            $(drawing_area_selector).css('height', '540px');
+                            $(drawing_area_selector).css('height', '500px');
                         }
                     }
 
@@ -669,9 +669,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                     } else if ('2' === tabId) { // Zones design tab
 
                         if (_fn.type_id === PYRAMID_TEMPLATE_TYPE) {
-                            canvas_element.css('height', '486px');
+                            canvas_element.css('height', '500px');
                         } else if (_fn.type_id === RECTANGLE_TEMPLATE_TYPE) {
-                            canvas_element.css('height', '533px');
+                            canvas_element.css('height', '500px');
                         } else if (_fn.type_id === CUSTOM_TEMPLATE_TYPE) {
                             // for test image height
                             // var img = new Image();
@@ -679,9 +679,9 @@ function DragAndDropEditBlock(runtime, element, params) {
                             //     canvas_element.css('height', img.height + 'px');
                             // }, false);
                             // img.src = _fn.custom_background;
-                            canvas_element.css('height', '540px');
+                            canvas_element.css('height', '500px');
                         } else {
-                            canvas_element.css('height', '523px');
+                            canvas_element.css('height', '500px');
                         }
 
                         if (_fn.type_id === BLANK_TEMPLATE_TYPE) {
