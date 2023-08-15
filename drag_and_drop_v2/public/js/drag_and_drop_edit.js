@@ -528,6 +528,16 @@ function DragAndDropEditBlock(runtime, element, params) {
                             } else {
                                 obj.className = is_activated && (selected_tab_id!==undefined ? selected_tab_id === obj.id : true) ? 'nav-item active-section' : 'nav-item';
                             }
+
+                            var readonlyBoxes = $('.readonly_zone_box');
+                            if (_fn.data.displayBorders === true) {
+                                readonlyBoxes.removeClass('no-border');
+                            } else {
+                                if (!readonlyBoxes.hasClass('no-border')) {
+                                    readonlyBoxes.addClass('no-border');
+                                }
+                            }
+
                         } else {
                             if (init_flag === true && obj.id === "0") {
                                 obj.className = 'nav-item active-section';
