@@ -713,6 +713,10 @@
     font-weight: 700;
 }
 
+.xblock--drag-and-drop button.show-answer-button:disabled {
+    display: none !important;
+}
+
 .xblock--drag-and-drop .btn-small {
   padding: 0.625em 0.625em;
   font-size: 0.875em;
