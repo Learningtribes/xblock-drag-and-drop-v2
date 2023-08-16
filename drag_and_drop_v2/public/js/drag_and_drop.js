@@ -414,7 +414,7 @@ function DragAndDropTemplates(configuration) {
                 spinner: ctx.show_answer_spinner
             };
             showAnswerButton = sidebarButtonTemplate(
-                "show-answer-button",
+                (ctx.max_attempts && ctx.attempts >= ctx.max_attempts) ? "show-answer-button" : "show-answer-button hidden",
                 "fa-info-circle",
                 gettext('Show Answer'),
                 options

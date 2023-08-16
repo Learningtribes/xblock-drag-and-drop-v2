@@ -713,7 +713,7 @@
     font-weight: 700;
 }
 
-.xblock--drag-and-drop button.show-answer-button:disabled {
+.xblock--drag-and-drop .hidden {
     display: none !important;
 }
 
