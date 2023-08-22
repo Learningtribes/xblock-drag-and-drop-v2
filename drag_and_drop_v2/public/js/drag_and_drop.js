@@ -811,7 +811,7 @@ function DragAndDropBlock(runtime, element, configuration) {
         ).done(function(stateResult, bgImg){
             // Render problem
             configuration.zones.forEach(function (zone) {
-                computeZoneDimension(zone, bgImg.width, bgImg.height);
+                computeZoneDimension(zone);
             });
             state = stateResult[0]; // stateResult is an array of [data, statusText, jqXHR]
             migrateConfiguration(bgImg.width);
@@ -1089,7 +1089,7 @@ function DragAndDropBlock(runtime, element, configuration) {
     };
 
     /** Zones are specified in the configuration via pixel values - convert to percentages */
-    var computeZoneDimension = function(zone, bg_image_width, bg_image_height) {
+    var computeZoneDimension = function(zone) {
         if (zone.x_percent === undefined) {
             // We can assume that if 'x_percent' is not set, 'y_percent', 'width_percent', and
             // 'height_percent' will also not be set.
