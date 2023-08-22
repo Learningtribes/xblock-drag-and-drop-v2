@@ -1091,24 +1091,15 @@ function DragAndDropBlock(runtime, element, configuration) {
     /** Zones are specified in the configuration via pixel values - convert to percentages */
     var computeZoneDimension = function(zone, bg_image_width, bg_image_height) {
         if (zone.x_percent === undefined) {
-            // set a max-height
-            if (bg_image_width > 950) {
-                var scale = 950 / bg_image_width;
-                bg_image_width = scale * bg_image_width;
-                bg_image_height = bg_image_height * scale;
-            } else {
-                bg_image_width = 950;
-                bg_image_height = 500;
-            }
             // We can assume that if 'x_percent' is not set, 'y_percent', 'width_percent', and
             // 'height_percent' will also not be set.
-            zone.x_percent = (+zone.x) / bg_image_width * 100;
+            zone.x_percent = (+zone.x) / 950 * 100;
             delete zone.x;
-            zone.y_percent = (+zone.y) / bg_image_height * 100;
+            zone.y_percent = (+zone.y) / 500 * 100;
             delete zone.y;
-            zone.width_percent = (+zone.width) / bg_image_width * 100;
+            zone.width_percent = (+zone.width) / 950 * 100;
             delete zone.width;
-            zone.height_percent = (+zone.height) / bg_image_height * 100;
+            zone.height_percent = (+zone.height) / 500 * 100;
             delete zone.height;
             // Generate an HTML ID value that's unique within the DOM and not containing spaces etc:
             zone.prefixed_uid = configuration.url_name + '-' + zone.uid.replace(/([^\w\-])/g, "_");
