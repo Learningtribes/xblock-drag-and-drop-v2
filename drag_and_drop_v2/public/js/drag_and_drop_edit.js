@@ -863,36 +863,37 @@ function DragAndDropEditBlock(runtime, element, params) {
                         selection.addRange(range);
                         e.currentTarget.style.backgroundColor = '#fff';
                         e.currentTarget.focus();
-                    });
 
-                    $element.find('.answer_text').bind('focusout', function(e) {
-                        let answer_item_id = parseInt(e.currentTarget.getAttribute('data-item_id'));
-                        let new_answer_text = e.currentTarget.textContent;
+                        $(e.target).unbind('focusout').focusout(function() {
+                            let answer_item_id = parseInt(e.currentTarget.getAttribute('data-item_id'));
+                            let new_answer_text = e.currentTarget.textContent;
 
-                        e.currentTarget.textContent.contentEditable = 'false';
-                        e.currentTarget.style.backgroundColor = '';
+                            e.currentTarget.textContent.contentEditable = 'false';
+                            e.currentTarget.style.backgroundColor = '';
 
-                        old_answer_text = old_answer_text || _fn.build.form.item.grabItemName();
-                        e.currentTarget.textContent = new_answer_text || old_answer_text; // replace with new answer text on UI
-                        var has_one = false;
-                        _fn.build.form.item.itemObjects.forEach(function(item) {
-                            if (item.displayName === new_answer_text) {
-                                has_one = true;
+                            old_answer_text = old_answer_text || _fn.build.form.item.grabItemName();
+                            e.currentTarget.textContent = new_answer_text || old_answer_text; // replace with new answer text on UI
+                            var has_one = false;
+                            _fn.build.form.item.itemObjects.forEach(function(item) {
+                                if (item.displayName === new_answer_text) {
+                                    has_one = true;
+                                }
+                            });
+                            if (has_one === true) {
+                                new_answer_text = old_answer_text;
                             }
-                        });
-                        if (has_one === true) {
-                            new_answer_text = old_answer_text;
-                        }
-                        // replacing in data
-                        _fn.build.form.item.itemObjects.forEach(function(item) {
-                            if (item.id === answer_item_id) {
-                                item.displayName = new_answer_text;
-                                e.currentTarget.textContent = new_answer_text;
-                            }
+                            // replacing in data
+                            _fn.build.form.item.itemObjects.forEach(function(item) {
+                                if (item.id === answer_item_id) {
+                                    item.displayName = new_answer_text;
+                                    e.currentTarget.textContent = new_answer_text;
+                                }
+                            });
+
+                            _fn.build.set_tab_editing_status();
+                            _fn.build.refresh_save_button_status();
                         });
 
-                        _fn.build.set_tab_editing_status();
-                        _fn.build.refresh_save_button_status();
 
                     });
 
