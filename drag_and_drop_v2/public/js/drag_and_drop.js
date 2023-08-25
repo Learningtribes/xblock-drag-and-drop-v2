@@ -1,3 +1,6 @@
+const BLANK_IMAGE_WIDTH = 514;
+const BLANK_IMAGE_HEIGHT = 486;
+
 function DragAndDropTemplates(configuration) {
     "use strict";
     var h = virtualDom.h;
@@ -48,21 +51,15 @@ function DragAndDropTemplates(configuration) {
     };
 
     var itemContentTemplate = function(item) {
-        var item_content_html = item.displayName;
-        if (item.imageURL) {
-            item_content_html = '<img src="' + item.imageURL + '" alt="' + item.imageDescription + '" />';
-        }
         var key = item.value + '-content';
-        return h('div', { key: key, innerHTML: item_content_html, className: "item-content" });
+        return h('div', { key: key, innerHTML: gettext(item.displayName) || 'Unknown Answer', className: "item-content" });
     };
 
     var itemTemplate = function(item, ctx) {
         // Define properties
         var className = (item.class_name) ? item.class_name : "";
         var zone = getZone(item.zone, ctx) || {};
-        if (item.has_image) {
-            className += " " + "option-with-image";
-        }
+
         if (item.widthPercent) {
             className += " specified-width";  // The author has specified a width for this item.
         }
@@ -92,8 +89,8 @@ function DragAndDropTemplates(configuration) {
             style.left = item.drag_position.left + 'px';
             style.top = item.drag_position.top + 'px';
         }
-        if (item.is_placed) {
-            var maxWidth = (item.widthPercent || 30) / 100;
+        if (item.is_placed && !item.is_dragged) {
+            var maxWidth = (item.widthPercent || 40) / 100;
             var widthPercent = zone.width_percent / 100;
             style.maxWidth = ((1 / (widthPercent / maxWidth)) * 100) + '%';
             if (item.widthPercent) {
@@ -104,6 +101,12 @@ function DragAndDropTemplates(configuration) {
             if (item.imgNaturalWidth && !item.widthPercent) {
                 style.width = (item.imgNaturalWidth + 22) + "px"; // 22px is for 10px padding + 1px border each side
                 // ^ Hack to detect image width at runtime and make webkit consistent with Firefox
+            }
+            if (item.item_x !== undefined) {
+                style.left = item.item_x + 'px';
+            }
+            if (item.item_y !== undefined) {
+                style.top = item.item_y + 'px';
             }
         } else {
             $.extend(style, bankItemWidthStyles(item, ctx));
@@ -139,7 +142,9 @@ function DragAndDropTemplates(configuration) {
         );
 
         var children = [
-            itemSpinnerTemplate(item), item_content, itemSRNote, item_description
+            h('div', { innerHTML: '<i class=\"fa-solid fa-grip-dots-vertical\" style=\"color: #1D1D1D; font-style: normal;\"/>', className: "handler_style" }),
+            itemSpinnerTemplate(item),
+            item_content, itemSRNote, item_description
         ];
 
         // Unique key for virtual dom change tracking. Key must be different for
@@ -175,15 +180,18 @@ function DragAndDropTemplates(configuration) {
     // all items out.
     var itemPlaceholderTemplate = function(item, ctx) {
         var className = "";
-        if (item.has_image) {
-            className += " " + "option-with-image";
-        }
         if (item.widthPercent) {
             className += " specified-width";  // The author has specified a width for this item.
         }
         var style = bankItemWidthStyles(item, ctx);
         // Placeholder should never be visible.
         style.visibility = 'hidden';
+        if (item.item_x !== undefined) {
+            style.left = item.item_x + 'px';
+        }
+        if (item.item_y !== undefined) {
+            style.top = item.item_y + 'px';
+        }
         return (
             h(
                 'div.option',
@@ -247,7 +255,7 @@ function DragAndDropTemplates(configuration) {
                         'p',
                         { className: className },
                         [
-                            zone.title,
+                            gettext(zone.title),
                             h('span.sr', gettext(', dropzone'))
                         ]
                     ),
@@ -267,7 +275,7 @@ function DragAndDropTemplates(configuration) {
             if (message.message_class) {
                 selector += "."+message.message_class;
             }
-            return h(selector, {innerHTML: message.message}, []);
+            return h(selector, {innerHTML: gettext(message.message)}, []);
         });
 
         return (
@@ -276,8 +284,8 @@ function DragAndDropTemplates(configuration) {
                     "div.feedback-content",
                     {},
                     [
-                        h('h3.title1', { style: { display: feedback_display } }, gettext('Feedback')),
-                        h('div.messages', { style: { display: feedback_display } }, feedback_messages),
+                        h('h3.title1', { style: { display: gettext(feedback_display) } }, gettext('Feedback')),
+                        h('div.messages', { style: { display: gettext(feedback_display) } }, feedback_messages),
                     ]
                 )
             ])
@@ -354,6 +362,28 @@ function DragAndDropTemplates(configuration) {
         );
     };
 
+    var resetButtonTemplate = function(ctx) {
+        var options = {
+            disabled: ctx.disable_reset_button
+        };
+        return (
+            h('div.action-toolbar-item', {}, [
+                h(
+                    'button.btn-brand',
+                    {
+                        className: 'reset-button',
+                        disabled: options.disabled || options.spinner || false
+                    },
+                    [
+                        h('span.btn-icon.fa', {className: 'fa-refresh', attributes: {"aria-hidden": true}, style: {'font-size': "18px"}}),
+                        ' ',
+                        gettext('Reset')
+                    ]
+                )
+            ])
+        );
+    };
+
     var sidebarButtonTemplate = function(buttonClass, iconClass, buttonText, options) {
         options = options || {};
         if (options.spinner) {
@@ -384,7 +414,7 @@ function DragAndDropTemplates(configuration) {
                 spinner: ctx.show_answer_spinner
             };
             showAnswerButton = sidebarButtonTemplate(
-                "show-answer-button",
+                (ctx.max_attempts && ctx.attempts >= ctx.max_attempts) ? "show-answer-button" : "show-answer-button hidden",
                 "fa-info-circle",
                 gettext('Show Answer'),
                 options
@@ -401,12 +431,6 @@ function DragAndDropTemplates(configuration) {
                     "fa-arrow-up",
                     gettext("Go to Beginning"),
                     {disabled: ctx.disable_go_to_beginning_button}
-                ),
-                sidebarButtonTemplate(
-                    "reset-button",
-                    "fa-refresh",
-                    gettext('Reset'),
-                    {disabled: ctx.disable_reset_button}
                 ),
                 showAnswerButton,
             ])
@@ -428,7 +452,7 @@ function DragAndDropTemplates(configuration) {
                 (!ctx.last_action_correct) ? h("p", {}, gettext("Some of your answers were not correct.")) : null,
                 h("p", {}, gettext("Hints:")),
                 h("ul", {}, msgs.map(function(message) {
-                    return h("li", {innerHTML: message.message});
+                    return h("li", {innerHTML: gettext(message.message)});
                 }))
             ];
             popup_content = h(
@@ -441,7 +465,7 @@ function DragAndDropTemplates(configuration) {
                 ctx.last_action_correct ? "div.popup-content" : "div.popup-content.popup-content-incorrect",
                 {},
                 msgs.map(function(message) {
-                    return h("p", {innerHTML: message.message});
+                    return h("p", {innerHTML: gettext(message.message)});
                 })
             );
         }
@@ -529,6 +553,23 @@ function DragAndDropTemplates(configuration) {
                 // them underlined together on hover. When margin was used there was a gap in underlining
                 " ",
                 gettext('Keyboard Help')
+            ]
+        );
+    };
+
+    var introduction = function() {
+        return h('div.colorful-boxes',
+            [
+                h('div.blue-block', [
+                    h('span.icon', [h('span.far.fa-video', null)]),
+                    h('strong', [gettext('Use Drag & Drop Component')]),
+                    h('p', [gettext('Add this type of quiz to let learners answer to a question by dragging text or images to a specific location on an image.')])
+                ]),
+                h('div.yellow-block', [
+                    h('span.icon', [h('span.far.fa-play', null)]),
+                    h('strong', [gettext('You are now ready')]),
+                    h('p', [gettext('Integrate content by clicking on the pencil icon.')])
+                ]),
             ]
         );
     };
@@ -654,6 +695,8 @@ function DragAndDropTemplates(configuration) {
         // image to 100%, so that it doesn't expand the container.
         if (ctx.drag_container_max_width === null) {
             target_img_style.maxWidth = '100%';
+            target_img_style.width = BLANK_IMAGE_WIDTH + 'px';
+            target_img_style.height = BLANK_IMAGE_HEIGHT + 'px';
             item_bank_properties.style = {display: 'none'};
         } else {
             drag_container_style.maxWidth = ctx.drag_container_max_width + 'px';
@@ -663,25 +706,17 @@ function DragAndDropTemplates(configuration) {
                 h('object.resize-detector', {
                     attributes: {type: 'text/html', tabindex: -1, data: 'about:blank'}
                 }),
-                h('div.block-header-wrapper.drag-and-drop-header-wrapper', [
+                (ctx.zones.length > 0 ? h('div.block-header-wrapper.drag-and-drop-header-wrapper', [
                     problemTitle,
                     h('div.problem-progress-wrapper', [
                         h('span.fal.fa-bullseye-pointer'),
                         problemProgress,
                     ]),
-                ]),
-                h('div.block-label.problem-label', [
-                    h('span.fal.fa-clipboard-list.block-label-icon'),
-                    h('span.block-label-text', gettext('Drag & Drop')),
-                ]),
-                h('hr.sep-line'),
-                h('div', [forwardKeyboardHelpButtonTemplate(ctx)]),
-                h('div.problem', [
-                    problemHeader,
+                ]) : null),
+                (ctx.zones.length > 0 ? h('div.problem', [
                     h('p', {innerHTML: ctx.problem_html}),
-                ]),
-                h('div.drag-container', {style: drag_container_style}, [
-                    h('div.item-bank', item_bank_properties, bank_children),
+                ]) : introduction()),
+                (ctx.zones.length > 0 ? h('div.drag-container', [
                     h('div.target', {attributes: {'role': 'group', 'arial-label': gettext('Drop Targets')}}, [
                         itemFeedbackPopupTemplate(ctx),
                         h('div.target-img-wrapper', [
@@ -694,13 +729,14 @@ function DragAndDropTemplates(configuration) {
                         ]),
                     ]),
                     h('div.dragged-items', renderCollection(itemTemplate, items_dragged, ctx)),
-                ]),
-                h("div.actions-toolbar", {attributes: {'role': 'group', 'aria-label': gettext('Actions')}}, [
+                    h('div.item-bank', item_bank_properties, bank_children),
+                ]) : null ),
+                (ctx.zones.length > 0 ? h("div.actions-toolbar", {attributes: {'role': 'group', 'aria-label': gettext('Actions')}}, [
                     (ctx.show_submit_answer ? submitAnswerTemplate(ctx) : null),
+                    resetButtonTemplate(ctx),
                     sidebarTemplate(ctx),
-                ]),
-                keyboardHelpPopupTemplate(ctx),
-                feedbackTemplate(ctx),
+                ]) : null),
+                (ctx.zones.length > 0 ? feedbackTemplate(ctx) : null),
                 h('div.sr.reader-feedback-area', {
                     attributes: {'aria-live': 'polite', 'aria-atomic': true},
                     innerHTML: ctx.screen_reader_messages
@@ -775,7 +811,7 @@ function DragAndDropBlock(runtime, element, configuration) {
         ).done(function(stateResult, bgImg){
             // Render problem
             configuration.zones.forEach(function (zone) {
-                computeZoneDimension(zone, bgImg.width, bgImg.height);
+                computeZoneDimension(zone);
             });
             state = stateResult[0]; // stateResult is an array of [data, statusText, jqXHR]
             migrateConfiguration(bgImg.width);
@@ -1024,6 +1060,13 @@ function DragAndDropBlock(runtime, element, configuration) {
     var loadBackgroundImage = function() {
         var promise = $.Deferred();
         var img = new Image();
+        if (!configuration.target_img_expanded_url) {
+            // for 2-rectangle and blank background
+            img.width = BLANK_IMAGE_WIDTH;
+            img.height = BLANK_IMAGE_HEIGHT;
+            promise.resolve(img);
+            return promise;
+        }
         img.addEventListener("load", function() {
             if (img.width == 0 || img.height == 0) {
                 // Workaround for IE11 issue with SVG images
@@ -1046,17 +1089,17 @@ function DragAndDropBlock(runtime, element, configuration) {
     };
 
     /** Zones are specified in the configuration via pixel values - convert to percentages */
-    var computeZoneDimension = function(zone, bg_image_width, bg_image_height) {
+    var computeZoneDimension = function(zone) {
         if (zone.x_percent === undefined) {
             // We can assume that if 'x_percent' is not set, 'y_percent', 'width_percent', and
             // 'height_percent' will also not be set.
-            zone.x_percent = (+zone.x) / bg_image_width * 100;
+            zone.x_percent = (+zone.x) / 950 * 100;
             delete zone.x;
-            zone.y_percent = (+zone.y) / bg_image_height * 100;
+            zone.y_percent = (+zone.y) / 500 * 100;
             delete zone.y;
-            zone.width_percent = (+zone.width) / bg_image_width * 100;
+            zone.width_percent = (+zone.width) / 950 * 100;
             delete zone.width;
-            zone.height_percent = (+zone.height) / bg_image_height * 100;
+            zone.height_percent = (+zone.height) / 500 * 100;
             delete zone.height;
             // Generate an HTML ID value that's unique within the DOM and not containing spaces etc:
             zone.prefixed_uid = configuration.url_name + '-' + zone.uid.replace(/([^\w\-])/g, "_");
@@ -1267,7 +1310,7 @@ function DragAndDropBlock(runtime, element, configuration) {
         $.post(url, JSON.stringify(data), 'json');
     };
 
-    var placeGrabbedItem = function($zone) {
+    var placeGrabbedItem = function($zone, item_x, item_y) {
         var zone = String($zone.data('uid'));
         var zone_align = $zone.data('zone_align');
         var items = configuration.items;
@@ -1297,10 +1340,12 @@ function DragAndDropBlock(runtime, element, configuration) {
             zone: zone,
             zone_align: zone_align,
             submitting_location: true,
+            item_x: item_x,
+            item_y: item_y
         };
 
         applyState();
-        submitLocation(item_id, zone);
+        submitLocation(item_id, zone, item_x, item_y);
     };
 
     var countItemsInZone = function(zone, exclude_ids) {
@@ -1333,7 +1378,7 @@ function DragAndDropBlock(runtime, element, configuration) {
                     if ($zone.is('.item-bank')) {
                         delete state.items[$selectedItem.data('value')];
                     } else {
-                        placeGrabbedItem($zone);
+                        placeGrabbedItem($zone, evt.offsetX, evt.offsetY);
                     }
                     releaseGrabbedItems();
                 }
@@ -1560,7 +1605,19 @@ function DragAndDropBlock(runtime, element, configuration) {
                     if ($zone.is('.item-bank')) {
                         returnItemToBank(item_id);
                     } else {
-                        placeGrabbedItem($zone);
+
+                        var answer_card = evt.target;
+
+                        for ( var i = 0; i < 3 && !answer_card.classList.contains('option'); i++) {
+                            answer_card = answer_card.parentElement;
+                            if (answer_card.classList.contains('option')) {
+                                break;
+                            }
+                        }
+
+                        var itemOffsetX = answer_card.offsetLeft - ($zone.offset().left - $zone.parent().parent().parent().offset().left);
+                        var itemOffsetY = answer_card.offsetTop - ($zone.offset().top - $zone.parent().parent().parent().offset().top);
+                        placeGrabbedItem($zone, itemOffsetX, itemOffsetY);
                     }
                     releaseGrabbedItems();
                 } else {
@@ -1663,14 +1720,16 @@ function DragAndDropBlock(runtime, element, configuration) {
         applyState();
     };
 
-    var submitLocation = function(item_id, zone) {
+    var submitLocation = function(item_id, zone, item_x, item_y) {
         if (!zone) {
             return;
         }
         var url = runtime.handlerUrl(element, 'drop_item');
         var data = {
             val: item_id,
-            zone: zone
+            zone: zone,
+            x: item_x,
+            y: item_y
         };
 
         $.post(url, JSON.stringify(data), 'json')
@@ -1783,7 +1842,7 @@ function DragAndDropBlock(runtime, element, configuration) {
         }).done(function(data){
             state.attempts = data.attempts;
             state.grade = data.grade;
-            state.feedback = data.feedback;
+            // state.feedback = data.feedback;
             state.overall_feedback = data.overall_feedback;
             state.last_action_correct = data.correct;
 
@@ -1872,6 +1931,8 @@ function DragAndDropBlock(runtime, element, configuration) {
                 is_placed: Boolean(item_user_state),
                 widthPercent: item.widthPercent, // widthPercent may be undefined (auto width)
                 imgNaturalWidth: item.imgNaturalWidth,
+                item_x: (item_user_state === undefined || item_user_state.item_x === undefined) ? null : item_user_state.item_x,
+                item_y: (item_user_state === undefined || item_user_state.item_y === undefined) ? null : item_user_state.item_y
             };
             if (item_user_state) {
                 itemProperties.zone = item_user_state.zone;

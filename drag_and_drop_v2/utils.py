@@ -2,6 +2,9 @@
 """ Drag and Drop v2 XBlock - Utils """
 import copy
 from collections import namedtuple
+import urllib
+
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 
 def _(text):
@@ -15,6 +18,56 @@ def ngettext_fallback(text_singular, text_plural, number):
         return text_singular
     else:
         return text_plural
+
+
+def make_state_from_attempt(attempt, correct):
+    """Converts "attempt" data coming from browser into "state" entry stored in item_state
+    """
+    return {
+        'zone': attempt['zone'],
+        'correct': correct,
+        'item_x': attempt.get('x'),
+        'item_y': attempt.get('y')
+    }
+
+
+def get_max_items_per_zone(raw_max_items_per_zone):
+    """Parses Max items per zone value coming from editor.
+
+    Returns:
+        * None if invalid value is passed (i.e. not an integer)
+        * None if value is parsed into zero or negative integer
+        * Positive integer otherwise.
+
+    Examples:
+        * _get_max_items_per_zone(None) -> None
+        * _get_max_items_per_zone('string') -> None
+        * _get_max_items_per_zone('-1') -> None
+        * _get_max_items_per_zone(-1) -> None
+        * _get_max_items_per_zone('0') -> None
+        * _get_max_items_per_zone('') -> None
+        * _get_max_items_per_zone('42') -> 42
+        * _get_max_items_per_zone(42) -> 42
+    """
+    # Entries that aren't numbers should be treated as null. We assume that if we can
+    # turn it into an int, a number was submitted.
+    try:
+        max_attempts = int(raw_max_items_per_zone)
+        if max_attempts > 0:
+            return max_attempts
+        else:
+            return None
+    except (ValueError, TypeError):
+        return None
+
+
+def get_storage_url(file_path, raw=False):
+    try:
+        url = staticfiles_storage.url(file_path)
+    except:
+        url = file_path
+    ## HTML-escaping must be handled by caller
+    return url if raw else urllib.quote(url)
 
 
 class DummyTranslationService(object):
@@ -94,6 +147,16 @@ ItemStats = namedtuple(  # pylint: disable=invalid-name
     'ItemStats',
     ["required", "placed", "correctly_placed", "decoy", "decoy_in_bank"]
 )
+
+
+def present_feedback(feedback_messages):
+    """Transforms feedback messages into format expected by frontend code
+    """
+    return [
+        {"message": msg.message, "message_class": msg.message_class}
+        for msg in feedback_messages
+        if msg.message
+    ]
 
 
 class Constants(object):

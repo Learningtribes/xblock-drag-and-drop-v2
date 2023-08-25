@@ -19,7 +19,7 @@ from xblockutils.base_test import SeleniumBaseTest
 from drag_and_drop_v2.utils import Constants
 
 from drag_and_drop_v2.default_data import (
-    DEFAULT_DATA, START_FEEDBACK, FINISH_FEEDBACK,
+    DEFAULT_EMPTY_DATA, START_FEEDBACK, FINISH_FEEDBACK,
     TOP_ZONE_ID, TOP_ZONE_TITLE, MIDDLE_ZONE_ID, MIDDLE_ZONE_TITLE, BOTTOM_ZONE_ID, BOTTOM_ZONE_TITLE,
     ITEM_CORRECT_FEEDBACK, ITEM_INCORRECT_FEEDBACK, ITEM_ANY_ZONE_FEEDBACK, ITEM_NO_ZONE_FEEDBACK,
     ITEM_TOP_ZONE_NAME, ITEM_MIDDLE_ZONE_NAME, ITEM_BOTTOM_ZONE_NAME,
@@ -63,7 +63,7 @@ class BaseIntegrationTest(SeleniumBaseTest):
         show_problem_header=True, max_items_per_zone=0, data=None, mode=Constants.STANDARD_MODE
     ):
         if not data:
-            data = json.dumps(DEFAULT_DATA)
+            data = json.dumps(DEFAULT_EMPTY_DATA)
         return """
             <vertical_demo>
                 <drag-and-drop-v2

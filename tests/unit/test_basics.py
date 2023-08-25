@@ -5,7 +5,7 @@ import random
 from drag_and_drop_v2.utils import Constants
 from drag_and_drop_v2.default_data import (
     TARGET_IMG_DESCRIPTION, TOP_ZONE_ID, MIDDLE_ZONE_ID, BOTTOM_ZONE_ID,
-    START_FEEDBACK, FINISH_FEEDBACK, DEFAULT_DATA
+    START_FEEDBACK, FINISH_FEEDBACK, DEFAULT_EMPTY_DATA
 )
 from ..utils import make_block, TestCaseMixin
 
@@ -74,7 +74,7 @@ class BasicTests(TestCaseMixin, unittest.TestCase):
             "item_text_color": None,
             "url_name": "",
         })
-        self.assertEqual(zones, DEFAULT_DATA["zones"])
+        self.assertEqual(zones, DEFAULT_EMPTY_DATA["zones"])
         # Items should contain no answer data:
         self.assertEqual(items, [
             {"id": i, "displayName": display_name, "imageURL": "", "expandedImageURL": ""}

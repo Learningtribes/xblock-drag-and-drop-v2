@@ -1,9 +1,20 @@
 .xblock--drag-and-drop {
     width: auto;
-    max-width: 770px;
+    max-width: none;
     margin: 0;
     padding: 0;
     position: relative;
+}
+
+.xblock-student_view {
+    max-width: 950px !important;
+    width: 950px !important;
+}
+
+.xblock--drag-and-drop .drap-drop-tips-info {
+    font-size: 16px;
+    font-weight: 400;
+    margin: 8px 0px 8px 0px;
 }
 
 .xblock--drag-and-drop .resize-detector {
@@ -78,9 +89,8 @@
 
 .xblock--drag-and-drop .drag-container {
     box-sizing: border-box;
-    width: auto;
-    padding: 1%;
-    background-color: #ebf0f2;
+    width: fit-content;
+    background-color: #ffffff !important;
     position: relative;
 }
 
@@ -89,7 +99,7 @@
 .xblock--drag-and-drop .item-bank {
     display: -ms-flexbox;
     display: flex;
-
+    align-content: flex-start;
     -ms-flex-flow: row wrap;
     flex-flow: row wrap;
 
@@ -102,29 +112,33 @@
     position: relative;
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 3px;
-    padding: 0; /* padding: 5px looks better but makes some blocks to change in size when dropped onto the target; */
+    padding: 6px 10px 6px 10px; /* padding: 5px looks better but makes some blocks to change in size when dropped onto the target; */
+    margin: 15px 0px 15px 0px;
+    height: 166px;
+    border: 2px dashed #727272;
+    border-radius: 4px;
+    box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .xblock--drag-and-drop .drag-container .option {
-    display: inline-block;
-    width: auto;
-    min-width: 4em;
-    max-width: 30%;
-    border: 1px solid transparent;
-    border-radius: 3px;
     box-sizing: border-box;
-    margin: 5px;
-    padding: 10px;
-    text-align: center;
-    background-color: #1d5280;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 16px;
+    margin: 8px 8px 0px 0px;
+    width: fit-content;
+    cursor: pointer;
+    height: 35px;
+    background: #FAFAFA !important;
+    border: 1px solid #1D1D1D;
+    border-radius: 4px;
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 700;
     font-size: 14px;
-    color: #fff;
-    opacity: 1;
-    outline-color: #fff;
-    outline-style: none;
-    /* Some versions of the drag and drop library try to fiddle with this */
-    z-index: 10 !important;
-    -webkit-touch-callout: none;
+    line-height: 19px;
 }
 
 @media screen and (max-width: 480px) {
@@ -139,7 +153,13 @@
         flex-shrink: 0;
         flex-grow: 0;
         max-width: 80%;
+        font-size: 10px;
     }
+}
+
+.xblock--drag-and-drop .drag-container .handler_style {
+    cursor: pointer;
+    margin: 0px 5px 0px 5px;
 }
 
 .xblock--drag-and-drop .drag-container .option.specified-width img {
@@ -168,11 +188,12 @@
                  /* (this can happen if item displays image whose width exceeds computed max-width of item) */
     overflow-wrap: break-word;
     word-wrap: break-word;
+    color: #1D1D1D;
 }
 
 /* Placed option */
 .xblock--drag-and-drop .drag-container .target .option {
-    position: absolute;
+    position: relative;
     margin: 0;
     transform: translate(-50%, -50%); /* These blocks are to be centered on their absolute x,y position */
 }
@@ -188,25 +209,63 @@
     position: relative;
 }
 .xblock--drag-and-drop .zone .item-align .option {
+    box-sizing: border-box;
+    align-items: center;
+    padding: 8px 16px;
+    margin: 0px;
+    width: fit-content;
+    cursor: pointer;
+    height: 35px;
+    background: #FAFAFA !important;
+    border: 1px solid #1D1D1D;
+    border-radius: 4px;
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 19px;
     transform: none;
-    position: relative;
-    vertical-align: top;
-    margin-right: 2px;
-    margin-bottom: 2px;
 }
+
+.xblock--drag-and-drop .zone .item-align .option .handler_style {
+    cursor: pointer;
+    margin: 0px 5px 0px 5px;
+}
+
 .xblock--drag-and-drop .zone .item-align-left {
     text-align: left;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 .xblock--drag-and-drop .zone .item-align-right {
     text-align: right;
 }
 .xblock--drag-and-drop .zone .item-align-center {
+    display: flex;
     text-align: center;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 .xblock--drag-and-drop .zone .item-align-center .option {
-    display: inline-block;
-    margin-left: 1px;
-    margin-right: 1px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 16px;
+    margin: 0px;
+    width: fit-content;
+    cursor: pointer;
+    height: 35px;
+    background: #FAFAFA !important;
+    border: 1px solid #1D1D1D;
+    border-radius: 4px;
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 19px;
+    position: absolute;
 }
 
 /* Focused option */
@@ -261,12 +320,26 @@
 
 .xblock--drag-and-drop .target-img {
     display: table-cell;
-    width: 100%;
-    max-width: 100%;
-    height: auto;
+    width: 950px;
+    max-width: 950px;
+    height: 500px;
+    object-fit: contain;
+    object-position: left center;
 }
 
 @media screen and (max-width: 480px) {
+    .xblock--drag-and-drop {
+        width: 100vw;
+    }
+
+    .xblock--drag-and-drop .block-header-wrapper {
+        display: flex;
+    }
+
+    .xblock--drag-and-drop .drag-container {
+        width: 100%;
+    }
+
     .xblock--drag-and-drop .target {
         overflow: auto;
         display: block;
@@ -274,12 +347,28 @@
 
     .xblock--drag-and-drop .target-img {
         max-width: none;
-        width: auto;
+        width: 100%;
     }
 
     .xblock--drag-and-drop .target-img-wrapper {
         display: inline-block;
         position: relative;
+    }
+
+    .xblock--drag-and-drop .zone .item-align-center .option {
+        font-size: 11px;
+        font-weight: 500;
+        padding: 2px 3px;
+        margin: 0px;
+        height: 25px;
+    }
+
+    .xblock--drag-and-drop .zone .item-align .option .handler_style {
+        margin: 0px 3px 0px 1px;
+    }
+
+    .xblock--drag-and-drop .drag-container .option .item-content {
+        line-height: 10px;
     }
 }
 
@@ -328,7 +417,7 @@
     right: 0;
     top: 0;
     bottom: 0;
-    padding: 10px;
+    padding: 0;
     margin: 0;
     display: flex;
     align-items: center;
@@ -619,6 +708,15 @@
   color: #0075b4;
 }
 
+.xblock--drag-and-drop .show-answer-button {
+    font-size: 15px !important;
+    font-weight: 700;
+}
+
+.xblock--drag-and-drop .hidden {
+    display: none !important;
+}
+
 .xblock--drag-and-drop .btn-small {
   padding: 0.625em 0.625em;
   font-size: 0.875em;
@@ -652,18 +750,21 @@
 }
 
 .xblock--drag-and-drop .btn-brand {
-    border-color: #0074b4;
-    background: #0074b4;
-    color: #fcfcfc
+    border-color: #E7413C;
+    background: #E7413C;
+    color: #fcfcfc;
+    border-radius: 10px;
 }
 
 .xblock--drag-and-drop .btn-brand:hover,
 .xblock--drag-and-drop .btn-brand.is-hovered,
 .xblock--drag-and-drop .btn-brand:focus,
 .xblock--drag-and-drop .btn-brand.is-focused {
-    border-color: #008bd8;
-    background-color: #008bd8;
-    color: #fcfcfc
+    border-color: #fff;
+    background-color: #fff;
+    color: #09092D;
+    text-shadow: 0.25px 0.25px 0 #09092D;
+    box-shadow: 1px 1px 4px #e3e3e3;
 }
 
 .xblock--drag-and-drop .btn-brand:active,
@@ -676,8 +777,8 @@
 .xblock--drag-and-drop .btn-brand:disabled,
 .xblock--drag-and-drop .btn-brand.is-disabled {
     border-color: #d2d0d0;
-    background: #f2f3f3;
-    color: #676666
+    background: #A3A3A3;
+    color: #ffffff
 }
 
 
@@ -694,9 +795,39 @@
     margin: 10px 0;
 }
 
+.xblock--drag-and-drop .actions-toolbar .action-toolbar-item .submit-answer-button {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+}
+
+.xblock--drag-and-drop .actions-toolbar .action-toolbar-item .reset-button {
+    border: 0 !important;
+    display: flex !important;
+    margin-left: 8px !important;
+    padding: 9px !important;
+    color: white !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+}
+
+.xblock--drag-and-drop .actions-toolbar .action-toolbar-item .reset-button:hover {
+    border-color: #fff !important;
+    background-color: #fff !important;
+    color: #09092D !important;
+    text-shadow: 0.25px 0.25px 0 #09092D;
+    box-shadow: 1px 1px 4px #e3e3e3;
+}
+
 .xblock--drag-and-drop .attempts-used {
     font-size: 0.875em;
     color: #666;
+    position: absolute;
+    left: 0px;
+    top: 70px;
+}
+
+.xblock--drag-and-drop .feedback-content {
+    margin-top: 36px;
 }
 
 .ltr .xblock--drag-and-drop .attempts-used {
@@ -709,6 +840,7 @@
 
 .xblock--drag-and-drop .actions-toolbar .action-toolbar-item.sidebar-buttons {
     display: block;
+    float: right;
 }
 
 .ltr .xblock--drag-and-drop .actions-toolbar .action-toolbar-item.sidebar-buttons {
@@ -781,6 +913,9 @@
 
 .xblock--drag-and-drop .btn-icon {
     display: block;
+    margin-right: 8px;
+    font-size: 18px;
+    border-radius: 10px;
 }
 
 .xblock--drag-and-drop .btn-link .btn-icon {

@@ -602,22 +602,14 @@ msgstr "تم استنفاد آخر محاولة، أعلى درجة هي {score}
 #: utils.py:24
 msgid "Correctly placed {correct_count} item."
 msgid_plural "Correctly placed {correct_count} items."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
-msgstr[4] ""
-msgstr[5] ""
+msgstr[0] "تم وضع {correct_count} عنصر بشكل صحيح."
+msgstr[1] "تم وضع {correct_count} عناصر بشكل صحيح."
 
 #: utils.py:62
 msgid "Misplaced {misplaced_count} item."
 msgid_plural "Misplaced {misplaced_count} items."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
-msgstr[4] ""
-msgstr[5] ""
+msgstr[0] "لم يتم وضع {misplaced_count} عنصر بشكل صحيح."
+msgstr[1] "لم يتم وضع {misplaced_count} عناصر بشكل صحيح."
 
 #: utils.py:73
 msgid ""
@@ -625,12 +617,8 @@ msgid ""
 msgid_plural ""
 "Misplaced {misplaced_count} items. Misplaced items were returned to item "
 "bank."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
-msgstr[4] ""
-msgstr[5] ""
+msgstr[0] "لم يتم وضع {misplaced_count} عناصر بشكل صحيح."
+msgstr[1] "لم يتم وضع {misplaced_count} عناصر بشكل صحيح. تمت إعادة العناصر المُضلَّلة إلى بنك العناصر."
 
 #: utils.py:40
 msgid "Did not place {missing_count} required item."
