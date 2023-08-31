@@ -1067,6 +1067,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                         _fn.build.form.submit(tabID, continue_mode=false);
 
                         _fn.tabs_editing_status[tabID] = false;
+
+                        var root_div = document.getElementById('tmp_root');
+                        if (root_div != null) {
+                            document.getElementById('tmp_root').id = 'root';
+                        }
                     })
 
                     $element.find('.add_answer_button').bind('click', function(e) {
@@ -1961,6 +1966,11 @@ function DragAndDropEditBlock(runtime, element, params) {
     $element.find('.cancel-button').bind('click', function(e) {
         e.preventDefault();
         runtime.notify('cancel', {});
+
+        var root_div = document.getElementById('tmp_root');
+        if (root_div != null) {
+            document.getElementById('tmp_root').id = 'root';
+        }
     });
 
     // Initialize js component
