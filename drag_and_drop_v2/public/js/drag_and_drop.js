@@ -720,7 +720,7 @@ function DragAndDropTemplates(configuration) {
                     h('div.target', {attributes: {'role': 'group', 'arial-label': gettext('Drop Targets')}}, [
                         itemFeedbackPopupTemplate(ctx),
                         h('div.target-img-wrapper', [
-                            h('img.target-img', {
+                            h(configuration.is_old_version === undefined || configuration.is_old_version === true ? 'img.target-img--oldversion' : 'img.target-img', {
                                 src: ctx.target_img_src,
                                 alt: ctx.target_img_description,
                                 style: target_img_style
@@ -811,7 +811,7 @@ function DragAndDropBlock(runtime, element, configuration) {
         ).done(function(stateResult, bgImg){
             // Render problem
             configuration.zones.forEach(function (zone) {
-                computeZoneDimension(zone);
+                computeZoneDimension(zone, bgImg.width, bgImg.height, configuration.is_old_version);
             });
             state = stateResult[0]; // stateResult is an array of [data, statusText, jqXHR]
             migrateConfiguration(bgImg.width);
@@ -1089,17 +1089,17 @@ function DragAndDropBlock(runtime, element, configuration) {
     };
 
     /** Zones are specified in the configuration via pixel values - convert to percentages */
-    var computeZoneDimension = function(zone) {
+    var computeZoneDimension = function(zone, bg_image_width, bg_image_height, is_old_version) {
         if (zone.x_percent === undefined) {
             // We can assume that if 'x_percent' is not set, 'y_percent', 'width_percent', and
             // 'height_percent' will also not be set.
-            zone.x_percent = (+zone.x) / 950 * 100;
+            zone.x_percent = (+zone.x) / (is_old_version === undefined || is_old_version === true ? bg_image_width : 950) * 100;
             delete zone.x;
-            zone.y_percent = (+zone.y) / 500 * 100;
+            zone.y_percent = (+zone.y) / (is_old_version === undefined || is_old_version === true ? bg_image_height : 500) * 100;
             delete zone.y;
-            zone.width_percent = (+zone.width) / 950 * 100;
+            zone.width_percent = (+zone.width) / (is_old_version === undefined || is_old_version === true ? bg_image_width : 950) * 100;
             delete zone.width;
-            zone.height_percent = (+zone.height) / 500 * 100;
+            zone.height_percent = (+zone.height) / (is_old_version === undefined || is_old_version === true ? bg_image_height : 500) * 100;
             delete zone.height;
             // Generate an HTML ID value that's unique within the DOM and not containing spaces etc:
             zone.prefixed_uid = configuration.url_name + '-' + zone.uid.replace(/([^\w\-])/g, "_");
