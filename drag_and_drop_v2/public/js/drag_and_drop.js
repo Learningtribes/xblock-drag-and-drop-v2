@@ -1605,7 +1605,7 @@ function DragAndDropBlock(runtime, element, configuration) {
                     if ($zone.is('.item-bank')) {
                         returnItemToBank(item_id);
                     } else {
-
+                        // placeGrabbedItem($zone);
                         var answer_card = evt.target;
 
                         for ( var i = 0; i < 3 && !answer_card.classList.contains('option'); i++) {
