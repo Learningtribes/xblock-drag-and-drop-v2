@@ -327,6 +327,13 @@
     object-position: left center;
 }
 
+.xblock--drag-and-drop .target-img--oldversion {
+    display: table-cell;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+}
+
 @media screen and (max-width: 480px) {
     .xblock--drag-and-drop {
         width: 100vw;

@@ -351,6 +351,7 @@ class DragAndDropBlock(
             "item_background_color": self.item_background_color or None,
             "item_text_color": self.item_text_color or None,
             # final feedback (data.feedback.finish) is not included - it may give away answers.
+            "is_old_version": _is_old_version
         }
 
     def studio_view(self, view_context):
