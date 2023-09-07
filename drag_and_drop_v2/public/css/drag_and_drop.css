@@ -247,7 +247,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     position: absolute;
-    width: 600px;
+    width: 1000px;
 }
 .xblock--drag-and-drop .zone .item-align-center .option {
     box-sizing: border-box;
