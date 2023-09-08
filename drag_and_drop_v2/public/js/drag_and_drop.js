@@ -1605,6 +1605,7 @@ function DragAndDropBlock(runtime, element, configuration) {
                     if ($zone.is('.item-bank')) {
                         returnItemToBank(item_id);
                     } else {
+
                         var answer_card = evt.target;
 
                         for ( var i = 0; i < 3 && !answer_card.classList.contains('option'); i++) {
@@ -1819,7 +1820,43 @@ function DragAndDropBlock(runtime, element, configuration) {
             url: runtime.handlerUrl(element, 'show_answer'),
             data: '{}',
         }).done(function(data) {
-            state.items = data.items;
+            // we calculate x/y for each item in zone according the number of cards in that zone
+            var zones_heights = {};
+            var zone_items_count = {};
+            for (const [item_id, item] of Object.entries(data.items)) {
+                var zone_div_id = configuration.url_name + '-' + item.zone;
+                if (zone_div_id in zone_items_count) {
+                    zone_items_count[zone_div_id] += 1;
+                } else {
+                    zone_items_count[zone_div_id] = 1;
+                }
+                if (!(zone_div_id in zones_heights)) {
+                    var zone = document.getElementById(zone_div_id);
+                    zones_heights[zone_div_id] = zone.clientHeight;
+                }
+            };
+
+            state.items = [];
+            var added_items_count = {};
+            for (const [item_id, item] of Object.entries(data.items)) {
+                var zone_div_id = configuration.url_name + '-' + item.zone;
+                var cloned_item = JSON.parse(JSON.stringify(item));
+                var zone_height = zones_heights[zone_div_id];
+                var zone_item_count = zone_items_count[zone_div_id];
+                var added_item_count = 0;
+                if(zone_div_id in added_items_count) {
+                    added_item_count = added_items_count[zone_div_id];
+                } else {
+                    added_items_count[zone_div_id] = 0;
+                }
+
+                cloned_item.item_x = 0;
+                cloned_item.item_y = added_item_count * Math.min(35, zone_height/zone_item_count);
+                state.items.push(cloned_item);
+
+                added_items_count[zone_div_id] += 1;
+            };
+
             state.showing_answer = true;
             delete state.feedback;
         }).always(function() {
