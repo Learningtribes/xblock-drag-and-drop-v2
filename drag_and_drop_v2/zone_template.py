@@ -185,8 +185,8 @@ class ZonesDefinition(object):
                     'item_x': _positions[zone]['item_x'],
                     'item_y': _positions[zone]['item_y']
                 }
-                _positions[zone]['item_x'] += 15
-                _positions[zone]['item_y'] += 15
+                _positions[zone]['item_x'] = 0
+                _positions[zone]['item_y'] += 35
 
         return {'items': _state}
 
