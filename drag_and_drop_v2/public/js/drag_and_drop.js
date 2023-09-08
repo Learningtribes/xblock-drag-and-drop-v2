@@ -1695,6 +1695,22 @@ function DragAndDropBlock(runtime, element, configuration) {
         $container.on('touchmove', '.dragged-items .options[draggable=true]', function(evt) {
             evt.preventDefault();
         });
+
+        $container.on('mouseover', '.option.fade', function(evt) {
+            var answer_card = evt.target;
+
+            evt.preventDefault();
+
+            for ( var i = 0; i < 3 && !answer_card.classList.contains('option'); i++) {
+                answer_card = answer_card.parentElement;
+                if (answer_card.classList.contains('option')) {
+                    break;
+                }
+            }
+            // set the hovered answer card with a largest z-index
+            answer_card.style.setProperty('z-index', 100, 'important');
+            $(answer_card).siblings().css( 'zIndex', 10 );
+        });
     };
 
     var grabItem = function($item, interaction_type) {
