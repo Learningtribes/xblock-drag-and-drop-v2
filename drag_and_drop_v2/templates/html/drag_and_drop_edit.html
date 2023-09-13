@@ -8,6 +8,14 @@
 }
 </script>
 
+<script>
+// Rename existing element : https://github.com/Learningtribes/platform/blob/23161b25f0ead715a691de00e52c240eb5bcb217/cms/templates/container.html#L180
+var root_div = document.getElementById('root');
+if (root_div != null) {
+    document.getElementById('root').id = 'tmp_root';
+}
+</script>
+
 <script type="application/javascript" id='studioContext'>
     var studioContext = {
       course: {
