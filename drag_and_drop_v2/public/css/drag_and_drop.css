@@ -323,7 +323,6 @@
 .xblock--drag-and-drop .target-img {
     display: table-cell;
     width: 950px;
-    max-width: 950px;
     height: 500px;
     object-fit: contain;
     object-position: left center;
@@ -332,6 +331,7 @@
 .xblock--drag-and-drop .target-img--oldversion {
     display: table-cell;
     width: 100%;
+    max-width: 100%;
     height: auto;
 }
 
