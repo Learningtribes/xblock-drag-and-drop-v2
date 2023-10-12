@@ -332,7 +332,6 @@
 .xblock--drag-and-drop .target-img--oldversion {
     display: table-cell;
     width: 100%;
-    max-width: 100%;
     height: auto;
 }
 
