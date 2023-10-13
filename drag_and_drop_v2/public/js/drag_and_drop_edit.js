@@ -60,6 +60,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                     _fn.selected_tab_id = undefined;
                     _fn.zone_tab_used_tpl_id = _fn.data.template_type;  // activated template id in Zone Tab
                     _fn.type_id = params.type_id;                       // selected template id in Background Tab
+                    _fn.target_img_expanded_url = params.target_img_expanded_url;
                     _fn.custom_background = params.custom_background;   // uploaded custom background image
                     _fn.new_selected_tpl_data = undefined;              // new selected template sample data ( replaced duplicated data )
                     _fn.tpl_summaries = params.tpl_summaries;
@@ -514,15 +515,17 @@ function DragAndDropEditBlock(runtime, element, params) {
                         var is_activated = obj.className.includes('active-section');
 
                         if ( obj.id === "2") {
-                            if (_fn.type_id === undefined || _fn.type_id === null) {
+                            // If var. `target_img_expanded_url` defined & type_id is null, that also means the data is Old version.
+                            if ((_fn.type_id === undefined || _fn.type_id === null) && _fn.target_img_expanded_url === null) {
                                 obj.className = 'nav-item disable-section';
                             } else {
                                 obj.className = is_activated && (selected_tab_id!==undefined ? selected_tab_id === obj.id : true) ? 'nav-item active-section' : 'nav-item';
                             }
                         } else if (obj.id === "3") {
                             if (
+                                // If var. `target_img_expanded_url` defined & type_id is null, that also means the data is Old version.
                                 ((_fn.build.form.zone.zoneObjects === undefined || _fn.build.form.zone.zoneObjects.length === 0) && (_fn.data.zones === undefined || _fn.data.zones.length === 0))
-                                || _fn.type_id === null
+                                || (_fn.type_id === null && _fn.target_img_expanded_url === null)
                             ) {
                                 obj.className = 'nav-item disable-section';
                             } else {
@@ -608,9 +611,14 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     $(drawing_area_selector).css("background-image", "url(" + tpl_summary.thumbnail + ")");
                                 }
                             });
-                        } else if (_fn.type_id === 3) {     // Custom Background template
-                            $(drawing_area_selector)
-                                .css("background-image", "url(" + _fn.data.targetImg + ")");    // paste uploaded image into background
+                        } else if (_fn.type_id === 3 || (_fn.type_id === null && _fn.target_img_expanded_url != null) ) {     // Custom Background template
+                            if (_fn.type_id === 3) {
+                                $(drawing_area_selector)
+                                    .css("background-image", "url(" + _fn.data.targetImg + ")");    // paste uploaded image into background
+                            } else {
+                                $(drawing_area_selector)
+                                    .css("background-image", "url(" + _fn.target_img_expanded_url + ")");    // paste uploaded image into background
+                            }
                             $(drawing_area_selector).css('max-height', '500px');
                         } else {
                             $(drawing_area_selector).css('height', '500px');
@@ -1020,7 +1028,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                         var tabID = tabObj.attr('id');
 
                         // Show hightlight if this tab button is disabled :
-                        if (tabID === '2' && (_fn.type_id === undefined || _fn.type_id === null)) {
+                        // If var. `target_img_expanded_url` defined & type_id is null, that also means the data is Old version. To be compatible with this format.
+                        if (tabID === '2' && ((_fn.type_id === undefined || _fn.type_id === null) && _fn.target_img_expanded_url === null) ) {
                             if (!tabObj.hasClass('disable-section-hightlight')) {
                                 tabObj.addClass('disable-section-hightlight');
                             }
