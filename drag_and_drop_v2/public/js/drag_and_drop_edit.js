@@ -362,7 +362,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
                      * Checks for the type of template selected and updates the background image accordingly
                      */
 
-                    if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE) {
+                    if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE && _fn.is_old_version===false) {
                         // PYRAMID RECTANGLE BLANK clean background image use template default background
                         _fn.data.targetImg = "";
                     }
@@ -1975,6 +1975,9 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         post_data['problem_text'] = $element.find('.problem-text').val();
                         post_data['feedback'] = {'finish': $element.find('.final-feedback').val()};
                         // tabID '1'
+                        if (_fn.type_id === undefined || _fn.type_id === null) {
+                            _fn.type_id = CUSTOM_TEMPLATE_TYPE;
+                        }
                         post_data['type_id'] = parseInt(_fn.type_id);
                         post_data['custom_background'] = _fn.custom_background;
                         // Apply new selected template data to `_fn.data.zones/items` if user clicking save button
@@ -1991,7 +1994,6 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         if (_fn.build.form.zone.zoneObjects.length > 0) {
                             _fn.data.zones = _fn.build.form.zone.zoneObjects;
                         }
-                        post_data['type_id'] = parseInt(_fn.type_id);           // Have to save this data assigned in Background Tab again
                         post_data['custom_background'] = _fn.custom_background; // Save again
 
                         post_data['data'] = _fn.data;
