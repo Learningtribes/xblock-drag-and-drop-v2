@@ -776,6 +776,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
 
                 adjustDataScaleForOldVersion() {
                     if (_fn.is_old_version === true) {
+                        var resized_flag = false;
                         var imgRawWidth = zones_tab_bk_image_width;
                         var imgRawHeight = zones_tab_bk_image_height;
                         var imgRealWidth = 0;
@@ -786,30 +787,36 @@ async function DragAndDropEditBlock(runtime, element, params) {
                             var percent = $('#id_author_canvas').width() / imgRawWidth;
                             imgRealWidth = $('#id_author_canvas').width();
                             imgRealHeight = imgRawHeight * percent;
+                            resized_flag = true;
                         } else if (imgRawHeight > $('#id_author_canvas').height()) {
                             var percent = $('#id_author_canvas').height() / imgRawHeight;
                             imgRealHeight = $('#id_author_canvas').height();
                             imgRealWidth = imgRawWidth * percent;
+                            resized_flag = true;
                         }
 
                         if (imgRealWidth > $('#id_author_canvas').width()) {
                             var percent = $('#id_author_canvas').width() / imgRealWidth;
                             imgRealWidth = $('#id_author_canvas').width();
                             imgRealHeight = imgRealHeight * percent;
+                            resized_flag = true;
                         } else if (imgRealHeight > $('#id_author_canvas').height()) {
                             var percent = $('#id_author_canvas').height() / imgRealHeight;
                             imgRealHeight = $('#id_author_canvas').height();
                             imgRealWidth = imgRealWidth * percent;
+                            resized_flag = true;
                         }
 
-                        _fn.data.zones.forEach(function(zone) {
-                            var x_percent = imgRealWidth / imgRawWidth;
-                            zone.x = x_percent * zone.x;
-                            zone.width = x_percent * zone.width;
-                            var y_percent = imgRealHeight / imgRawHeight;
-                            zone.y = y_percent * zone.y;
-                            zone.height = y_percent * zone.height;
-                        });
+                        if (resized_flag === true) {
+                            _fn.data.zones.forEach(function (zone) {
+                                var x_percent = imgRealWidth / imgRawWidth;
+                                zone.x = x_percent * zone.x;
+                                zone.width = x_percent * zone.width;
+                                var y_percent = imgRealHeight / imgRawHeight;
+                                zone.y = y_percent * zone.y;
+                                zone.height = y_percent * zone.height;
+                            });
+                        }
 
                     }
                 },
