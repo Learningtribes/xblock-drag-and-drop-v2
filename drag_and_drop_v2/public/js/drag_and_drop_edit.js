@@ -1975,8 +1975,11 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         post_data['problem_text'] = $element.find('.problem-text').val();
                         post_data['feedback'] = {'finish': $element.find('.final-feedback').val()};
                         // tabID '1'
-                        if (_fn.type_id === undefined || _fn.type_id === null) {
+                        if (_fn.is_old_version === true &&(_fn.type_id === undefined || _fn.type_id === null)) {
                             _fn.type_id = CUSTOM_TEMPLATE_TYPE;
+                            if ((_fn.custom_background === null || _fn.custom_background === "") && _fn.data.targetImg != null && _fn.data.targetImg != "") {
+                                _fn.custom_background = _fn.data.targetImg;
+                            }
                         }
                         post_data['type_id'] = parseInt(_fn.type_id);
                         post_data['custom_background'] = _fn.custom_background;
