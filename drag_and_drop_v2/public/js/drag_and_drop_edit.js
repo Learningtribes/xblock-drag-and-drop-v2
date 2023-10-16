@@ -1,4 +1,4 @@
-function DragAndDropEditBlock(runtime, element, params) {
+async function DragAndDropEditBlock(runtime, element, params) {
 
     // Set up gettext in case it isn't available in the client runtime:
     if (typeof gettext == "undefined") {
@@ -30,6 +30,9 @@ function DragAndDropEditBlock(runtime, element, params) {
 
     const ID_AUTHOR_CANVAS = '#id_author_canvas';
     const ID_PREVIEW_CANVAS = '#id_preview_canvas';
+
+    var zones_tab_bk_image_width = 0;
+    var zones_tab_bk_image_height = 0;
 
     var dragAndDrop = (function($) {
         var _fn = {
@@ -64,6 +67,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                     _fn.custom_background = params.custom_background;   // uploaded custom background image
                     _fn.new_selected_tpl_data = undefined;              // new selected template sample data ( replaced duplicated data )
                     _fn.tpl_summaries = params.tpl_summaries;
+                    _fn.is_old_version = params.is_old_version;
                     _fn.tabs_editing_status = {
                         '0': false,
                         '1': false,
@@ -91,16 +95,17 @@ function DragAndDropEditBlock(runtime, element, params) {
                     $element.find('input:first').select();
 
                     // generate zoneObjects from data.zones
+                    _fn.build.adjustDataScaleForOldVersion();
                     _fn.build.generateZoneObjectsFromZones();
                     // Create existing zones
                     _fn.build.recoverZonesFromZoneObjects();
 
                     if (LearningTribes && LearningTribes.QuestionMark) {
-                        $wrappers = $('.drag-builder .tab .tab-content .question-mark-wrapper')
+                        $wrappers = $('.drag-builder .tab .tab-content .question-mark-wrapper');
                         $wrappers.each(function(i, wrapper){
-                            new LearningTribes.QuestionMark(wrapper)
-                        })
-                    }
+                            new LearningTribes.QuestionMark(wrapper);
+                        });
+                    };
                 },
                 getEditingStatus() {
                     /**
@@ -767,6 +772,46 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                     })
 
+                },
+
+                adjustDataScaleForOldVersion() {
+                    if (_fn.is_old_version === true) {
+                        var imgRawWidth = zones_tab_bk_image_width;
+                        var imgRawHeight = zones_tab_bk_image_height;
+                        var imgRealWidth = 0;
+                        var imgRealHeight = 0;
+
+                        // Background Image real size calculation
+                        if (imgRawWidth > $('#id_author_canvas').width()) {
+                            var percent = $('#id_author_canvas').width() / imgRawWidth;
+                            imgRealWidth = $('#id_author_canvas').width();
+                            imgRealHeight = imgRawHeight * percent;
+                        } else if (imgRawHeight > $('#id_author_canvas').height()) {
+                            var percent = $('#id_author_canvas').height() / imgRawHeight;
+                            imgRealHeight = $('#id_author_canvas').height();
+                            imgRealWidth = imgRawWidth * percent;
+                        }
+
+                        if (imgRealWidth > $('#id_author_canvas').width()) {
+                            var percent = $('#id_author_canvas').width() / imgRealWidth;
+                            imgRealWidth = $('#id_author_canvas').width();
+                            imgRealHeight = imgRealHeight * percent;
+                        } else if (imgRealHeight > $('#id_author_canvas').height()) {
+                            var percent = $('#id_author_canvas').height() / imgRealHeight;
+                            imgRealHeight = $('#id_author_canvas').height();
+                            imgRealWidth = imgRealWidth * percent;
+                        }
+
+                        _fn.data.zones.forEach(function(zone) {
+                            var x_percent = imgRealWidth / imgRawWidth;
+                            zone.x = x_percent * zone.x;
+                            zone.width = x_percent * zone.width;
+                            var y_percent = imgRealHeight / imgRawHeight;
+                            zone.y = y_percent * zone.y;
+                            zone.height = y_percent * zone.height;
+                        });
+
+                    }
                 },
 
                 generateZoneObjectsFromZones() {
@@ -1983,6 +2028,30 @@ function DragAndDropEditBlock(runtime, element, params) {
     });
 
     // Initialize js component
+    const loadImageSize = path => {
+      return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.crossOrigin = 'Anonymous' // to avoid CORS if used with Canvas
+        img.src = path
+        img.onload = () => {
+            zones_tab_bk_image_width = img.width;
+            zones_tab_bk_image_height = img.height;
+            resolve(img);
+        }
+        img.onerror = e => {
+          reject(e)
+        }
+      })
+    }
+
+    if (params.is_old_version === true) {
+        try {
+            await loadImageSize(params.target_img_expanded_url)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     dragAndDrop.init();
 
 }
