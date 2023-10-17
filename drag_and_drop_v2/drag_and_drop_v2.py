@@ -433,7 +433,8 @@ class DragAndDropBlock(
             item.pop('zone', None)
 
         # To be compatible with old version
-        _is_old_version = self.type_id not in ZONE_TPL_DEFINITIONS.ALL_SUPPORTED_TEMPLATES
+        _is_old_version = self.type_id not in ZONE_TPL_DEFINITIONS.ALL_SUPPORTED_TEMPLATES \
+                          and (len(self.data.get('items', [])) != 0 or len(self.data.get('zones', [])) != 0)
 
         fragment.initialize_js('DragAndDropEditBlock', {
             'data': self.data,

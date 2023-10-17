@@ -521,7 +521,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
 
                         if ( obj.id === "2") {
                             // If var. `target_img_expanded_url` defined & type_id is null, that also means the data is Old version.
-                            if ((_fn.type_id === undefined || _fn.type_id === null) && _fn.target_img_expanded_url === null) {
+                            if ((_fn.type_id === undefined || _fn.type_id === null) && _fn.is_old_version === false) {
                                 obj.className = 'nav-item disable-section';
                             } else {
                                 obj.className = is_activated && (selected_tab_id!==undefined ? selected_tab_id === obj.id : true) ? 'nav-item active-section' : 'nav-item';
@@ -530,7 +530,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
                             if (
                                 // If var. `target_img_expanded_url` defined & type_id is null, that also means the data is Old version.
                                 ((_fn.build.form.zone.zoneObjects === undefined || _fn.build.form.zone.zoneObjects.length === 0) && (_fn.data.zones === undefined || _fn.data.zones.length === 0))
-                                || (_fn.type_id === null && _fn.target_img_expanded_url === null)
+                                || (_fn.type_id === null && _fn.is_old_version === false)
                             ) {
                                 obj.className = 'nav-item disable-section';
                             } else {
@@ -616,7 +616,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
                                     $(drawing_area_selector).css("background-image", "url(" + tpl_summary.thumbnail + ")");
                                 }
                             });
-                        } else if (_fn.type_id === 3 || (_fn.type_id === null && _fn.target_img_expanded_url != null) ) {     // Custom Background template
+                        } else if (_fn.type_id === 3 || (_fn.is_old_version === true && _fn.target_img_expanded_url != null) ) {     // Custom Background template
                             if (_fn.type_id === 3) {
                                 $(drawing_area_selector)
                                     .css("background-image", "url(" + _fn.data.targetImg + ")");    // paste uploaded image into background
@@ -1082,7 +1082,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
 
                         // Show hightlight if this tab button is disabled :
                         // If var. `target_img_expanded_url` defined & type_id is null, that also means the data is Old version. To be compatible with this format.
-                        if (tabID === '2' && ((_fn.type_id === undefined || _fn.type_id === null) && _fn.target_img_expanded_url === null) ) {
+                        if (tabID === '2' && _fn.is_old_version === false && (_fn.type_id === undefined || _fn.type_id === null)) {
                             if (!tabObj.hasClass('disable-section-hightlight')) {
                                 tabObj.addClass('disable-section-hightlight');
                             }
