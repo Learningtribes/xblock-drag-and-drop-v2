@@ -1999,7 +1999,6 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         if (_fn.build.form.zone.zoneObjects.length > 0) {
                             _fn.data.zones = _fn.build.form.zone.zoneObjects;
                         }
-                        post_data['custom_background'] = _fn.custom_background; // Save again
 
                         post_data['data'] = _fn.data;
 
