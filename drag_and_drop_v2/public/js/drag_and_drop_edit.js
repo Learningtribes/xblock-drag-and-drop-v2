@@ -775,6 +775,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
                 },
 
                 adjustDataScaleForOldVersion() {
+                    // It's different from New version. the old version using Percentage between BkgImage & Zones to locate the x,y,width,height of zones.
                     if (_fn.is_old_version === true) {
                         var resized_flag = false;
                         var imgRawWidth = zones_tab_bk_image_width;
@@ -1976,6 +1977,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         post_data['feedback'] = {'finish': $element.find('.final-feedback').val()};
                         // tabID '1'
                         if (_fn.is_old_version === true &&(_fn.type_id === undefined || _fn.type_id === null)) {
+                            // For saving data from Old version. We assign type_id with CUSTOM_TEMPLATE_TYPE && set template image
                             _fn.type_id = CUSTOM_TEMPLATE_TYPE;
                             if ((_fn.custom_background === null || _fn.custom_background === "") && _fn.data.targetImg != null && _fn.data.targetImg != "") {
                                 _fn.custom_background = _fn.data.targetImg;
@@ -2057,6 +2059,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
     }
 
     if (params.is_old_version === true) {
+        // To be compatible with old version, we need to get Image size before calculation of zones location.
         try {
             await loadImageSize(params.target_img_expanded_url)
         } catch (e) {
