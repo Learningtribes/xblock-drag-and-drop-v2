@@ -2059,8 +2059,19 @@ async function DragAndDropEditBlock(runtime, element, params) {
 
     if (params.is_old_version === true) {
         // To be compatible with old version, we need to get Image size before calculation of zones location.
+        var bk_url = params.target_img_expanded_url;
+
         try {
-            await loadImageSize(params.target_img_expanded_url)
+            try {
+                let domain = (new URL(bk_url));
+                if (domain.origin != '') {
+                    bk_url = bk_url.replace(domain.origin, ''); // Make sure request from CMS / root.
+                }
+            } catch (e) {
+                console.log(e)
+            }
+
+            await loadImageSize(bk_url)
         } catch (e) {
             console.log(e)
         }
