@@ -432,6 +432,10 @@ class DragAndDropBlock(
             item['zones'] = zones
             item.pop('zone', None)
 
+        # To be compatible with old version
+        _is_old_version = self.type_id not in ZONE_TPL_DEFINITIONS.ALL_SUPPORTED_TEMPLATES \
+                          and (len(self.data.get('items', [])) != 0 or len(self.data.get('zones', [])) != 0)
+
         fragment.initialize_js('DragAndDropEditBlock', {
             'data': self.data,
             'type_id': self.type_id,
@@ -440,6 +444,7 @@ class DragAndDropBlock(
             'predefined_templates': ZONE_TPL_DEFINITIONS.predefined_templates,
             'target_img_expanded_url': self.target_img_expanded_url,
             'pyramid_background_image_url': self.pyramid_background_image_url,
+            "is_old_version": _is_old_version
         })
 
         return fragment

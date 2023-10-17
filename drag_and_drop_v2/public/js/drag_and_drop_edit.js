@@ -1,4 +1,4 @@
-function DragAndDropEditBlock(runtime, element, params) {
+async function DragAndDropEditBlock(runtime, element, params) {
 
     // Set up gettext in case it isn't available in the client runtime:
     if (typeof gettext == "undefined") {
@@ -31,6 +31,9 @@ function DragAndDropEditBlock(runtime, element, params) {
     const ID_AUTHOR_CANVAS = '#id_author_canvas';
     const ID_PREVIEW_CANVAS = '#id_preview_canvas';
 
+    var zones_tab_bk_image_width = 0;
+    var zones_tab_bk_image_height = 0;
+
     var dragAndDrop = (function($) {
         var _fn = {
             build: {
@@ -60,9 +63,11 @@ function DragAndDropEditBlock(runtime, element, params) {
                     _fn.selected_tab_id = undefined;
                     _fn.zone_tab_used_tpl_id = _fn.data.template_type;  // activated template id in Zone Tab
                     _fn.type_id = params.type_id;                       // selected template id in Background Tab
+                    _fn.target_img_expanded_url = params.target_img_expanded_url;
                     _fn.custom_background = params.custom_background;   // uploaded custom background image
                     _fn.new_selected_tpl_data = undefined;              // new selected template sample data ( replaced duplicated data )
                     _fn.tpl_summaries = params.tpl_summaries;
+                    _fn.is_old_version = params.is_old_version;
                     _fn.tabs_editing_status = {
                         '0': false,
                         '1': false,
@@ -90,16 +95,17 @@ function DragAndDropEditBlock(runtime, element, params) {
                     $element.find('input:first').select();
 
                     // generate zoneObjects from data.zones
+                    _fn.build.adjustDataScaleForOldVersion();
                     _fn.build.generateZoneObjectsFromZones();
                     // Create existing zones
                     _fn.build.recoverZonesFromZoneObjects();
 
                     if (LearningTribes && LearningTribes.QuestionMark) {
-                        $wrappers = $('.drag-builder .tab .tab-content .question-mark-wrapper')
+                        $wrappers = $('.drag-builder .tab .tab-content .question-mark-wrapper');
                         $wrappers.each(function(i, wrapper){
-                            new LearningTribes.QuestionMark(wrapper)
-                        })
-                    }
+                            new LearningTribes.QuestionMark(wrapper);
+                        });
+                    };
                 },
                 getEditingStatus() {
                     /**
@@ -356,7 +362,7 @@ function DragAndDropEditBlock(runtime, element, params) {
                      * Checks for the type of template selected and updates the background image accordingly
                      */
 
-                    if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE) {
+                    if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE && _fn.is_old_version===false) {
                         // PYRAMID RECTANGLE BLANK clean background image use template default background
                         _fn.data.targetImg = "";
                     }
@@ -514,15 +520,17 @@ function DragAndDropEditBlock(runtime, element, params) {
                         var is_activated = obj.className.includes('active-section');
 
                         if ( obj.id === "2") {
-                            if (_fn.type_id === undefined || _fn.type_id === null) {
+                            // If var. `target_img_expanded_url` defined & type_id is null, that also means the data is Old version.
+                            if ((_fn.type_id === undefined || _fn.type_id === null) && _fn.is_old_version === false) {
                                 obj.className = 'nav-item disable-section';
                             } else {
                                 obj.className = is_activated && (selected_tab_id!==undefined ? selected_tab_id === obj.id : true) ? 'nav-item active-section' : 'nav-item';
                             }
                         } else if (obj.id === "3") {
                             if (
+                                // If var. `target_img_expanded_url` defined & type_id is null, that also means the data is Old version.
                                 ((_fn.build.form.zone.zoneObjects === undefined || _fn.build.form.zone.zoneObjects.length === 0) && (_fn.data.zones === undefined || _fn.data.zones.length === 0))
-                                || _fn.type_id === null
+                                || (_fn.type_id === null && _fn.is_old_version === false)
                             ) {
                                 obj.className = 'nav-item disable-section';
                             } else {
@@ -608,9 +616,14 @@ function DragAndDropEditBlock(runtime, element, params) {
                                     $(drawing_area_selector).css("background-image", "url(" + tpl_summary.thumbnail + ")");
                                 }
                             });
-                        } else if (_fn.type_id === 3) {     // Custom Background template
-                            $(drawing_area_selector)
-                                .css("background-image", "url(" + _fn.data.targetImg + ")");    // paste uploaded image into background
+                        } else if (_fn.type_id === 3 || (_fn.is_old_version === true && _fn.target_img_expanded_url != null) ) {     // Custom Background template
+                            if (_fn.type_id === 3) {
+                                $(drawing_area_selector)
+                                    .css("background-image", "url(" + _fn.data.targetImg + ")");    // paste uploaded image into background
+                            } else {
+                                $(drawing_area_selector)
+                                    .css("background-image", "url(" + _fn.target_img_expanded_url + ")");    // paste uploaded image into background
+                            }
                             $(drawing_area_selector).css('max-height', '500px');
                         } else {
                             $(drawing_area_selector).css('height', '500px');
@@ -759,6 +772,54 @@ function DragAndDropEditBlock(runtime, element, params) {
 
                     })
 
+                },
+
+                adjustDataScaleForOldVersion() {
+                    // It's different from New version. the old version using Percentage between BkgImage & Zones to locate the x,y,width,height of zones.
+                    if (_fn.is_old_version === true) {
+                        var resized_flag = false;
+                        var imgRawWidth = zones_tab_bk_image_width;
+                        var imgRawHeight = zones_tab_bk_image_height;
+                        var imgRealWidth = 0;
+                        var imgRealHeight = 0;
+
+                        // Background Image real size calculation
+                        if (imgRawWidth > $('#id_author_canvas').width()) {
+                            var percent = $('#id_author_canvas').width() / imgRawWidth;
+                            imgRealWidth = $('#id_author_canvas').width();
+                            imgRealHeight = imgRawHeight * percent;
+                            resized_flag = true;
+                        } else if (imgRawHeight > $('#id_author_canvas').height()) {
+                            var percent = $('#id_author_canvas').height() / imgRawHeight;
+                            imgRealHeight = $('#id_author_canvas').height();
+                            imgRealWidth = imgRawWidth * percent;
+                            resized_flag = true;
+                        }
+
+                        if (imgRealWidth > $('#id_author_canvas').width()) {
+                            var percent = $('#id_author_canvas').width() / imgRealWidth;
+                            imgRealWidth = $('#id_author_canvas').width();
+                            imgRealHeight = imgRealHeight * percent;
+                            resized_flag = true;
+                        } else if (imgRealHeight > $('#id_author_canvas').height()) {
+                            var percent = $('#id_author_canvas').height() / imgRealHeight;
+                            imgRealHeight = $('#id_author_canvas').height();
+                            imgRealWidth = imgRealWidth * percent;
+                            resized_flag = true;
+                        }
+
+                        if (resized_flag === true) {
+                            _fn.data.zones.forEach(function (zone) {
+                                var x_percent = imgRealWidth / imgRawWidth;
+                                zone.x = x_percent * zone.x;
+                                zone.width = x_percent * zone.width;
+                                var y_percent = imgRealHeight / imgRawHeight;
+                                zone.y = y_percent * zone.y;
+                                zone.height = y_percent * zone.height;
+                            });
+                        }
+
+                    }
                 },
 
                 generateZoneObjectsFromZones() {
@@ -1020,7 +1081,8 @@ function DragAndDropEditBlock(runtime, element, params) {
                         var tabID = tabObj.attr('id');
 
                         // Show hightlight if this tab button is disabled :
-                        if (tabID === '2' && (_fn.type_id === undefined || _fn.type_id === null)) {
+                        // If var. `target_img_expanded_url` defined & type_id is null, that also means the data is Old version. To be compatible with this format.
+                        if (tabID === '2' && _fn.is_old_version === false && (_fn.type_id === undefined || _fn.type_id === null)) {
                             if (!tabObj.hasClass('disable-section-hightlight')) {
                                 tabObj.addClass('disable-section-hightlight');
                             }
@@ -1914,6 +1976,13 @@ function DragAndDropEditBlock(runtime, element, params) {
                         post_data['problem_text'] = $element.find('.problem-text').val();
                         post_data['feedback'] = {'finish': $element.find('.final-feedback').val()};
                         // tabID '1'
+                        if (_fn.is_old_version === true &&(_fn.type_id === undefined || _fn.type_id === null)) {
+                            // For saving data from Old version. We assign type_id with CUSTOM_TEMPLATE_TYPE && set template image
+                            _fn.type_id = CUSTOM_TEMPLATE_TYPE;
+                            if ((_fn.custom_background === null || _fn.custom_background === "") && _fn.data.targetImg != null && _fn.data.targetImg != "") {
+                                _fn.custom_background = _fn.data.targetImg;
+                            }
+                        }
                         post_data['type_id'] = parseInt(_fn.type_id);
                         post_data['custom_background'] = _fn.custom_background;
                         // Apply new selected template data to `_fn.data.zones/items` if user clicking save button
@@ -1930,8 +1999,6 @@ function DragAndDropEditBlock(runtime, element, params) {
                         if (_fn.build.form.zone.zoneObjects.length > 0) {
                             _fn.data.zones = _fn.build.form.zone.zoneObjects;
                         }
-                        post_data['type_id'] = parseInt(_fn.type_id);           // Have to save this data assigned in Background Tab again
-                        post_data['custom_background'] = _fn.custom_background; // Save again
 
                         post_data['data'] = _fn.data;
 
@@ -1974,6 +2041,42 @@ function DragAndDropEditBlock(runtime, element, params) {
     });
 
     // Initialize js component
+    const loadImageSize = path => {
+      return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.crossOrigin = 'Anonymous' // to avoid CORS if used with Canvas
+        img.src = path
+        img.onload = () => {
+            zones_tab_bk_image_width = img.width;
+            zones_tab_bk_image_height = img.height;
+            resolve(img);
+        }
+        img.onerror = e => {
+          reject(e)
+        }
+      })
+    }
+
+    if (params.is_old_version === true) {
+        // To be compatible with old version, we need to get Image size before calculation of zones location.
+        var bk_url = params.target_img_expanded_url;
+
+        try {
+            try {
+                let domain = (new URL(bk_url));
+                if (domain.origin != '') {
+                    bk_url = bk_url.replace(domain.origin, ''); // Make sure request from CMS / root.
+                }
+            } catch (e) {
+                console.log(e)
+            }
+
+            await loadImageSize(bk_url)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     dragAndDrop.init();
 
 }
