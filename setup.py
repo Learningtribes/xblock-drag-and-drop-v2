@@ -30,7 +30,7 @@ setup(
         'XBlock==1.2.9',
         'ddt==0.8.0',
         'mock==1.0.1',
-        'lxml==3.8.0',
+        'lxml==4.9.1',
         'web-fragments==0.2.2',
     ],
     dependency_links=[
