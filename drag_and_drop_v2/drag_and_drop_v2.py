@@ -375,7 +375,7 @@ class DragAndDropBlock(
         context = {
             'course_id': "{}".format(self.course_id),
             'course': {
-                'lang': course_module.language,
+                'lang': course_module.languages,
                 'org': self.course_id.org,
                 'number': self.course_id.course,
                 'run': self.course_id.run,
