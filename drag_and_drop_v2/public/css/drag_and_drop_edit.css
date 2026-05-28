@@ -15,14 +15,15 @@
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .supported-setting-tags-nav {
-	margin: 3px 3px 3px 30px;
+	margin: 8px 30px 0;
 	font-size: 0;
-    border: 1px solid #DCDCDC;
-    border-radius: 5px;
-    width: 95%;
+    border: none;
+    border-bottom: 1px solid #DCDCDC;
+    width: calc(100% - 60px);
     display: flex;
     justify-content: space-around;
     flex-flow: row nowrap;
+    padding: 0 0 6px;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .supported-setting-tags-nav .nav-item {
@@ -33,24 +34,26 @@
 	font-family: 'Open Sans';
 	font-size: 14px;
 	color: #727272;
-	font-weight: bolder;
+	font-weight: 600;
 	text-decoration: none !important;
 	letter-spacing: normal;
-	padding: 10px 0 10px 0;
+	padding: 8px 0;
 	line-height: 20px;
 	border: none;
-	background-color: white;
+	background-color: transparent;
     cursor: pointer;
+    border-bottom: 2px solid transparent;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .supported-setting-tags-nav .nav-item:not(:last-of-type) {
-    border-right: 1px solid #DCDCDC;
+    border-right: none;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .supported-setting-tags-nav .nav-item.active-section {
-	color: #E7413C;
-	border: 1px solid #E7413C;
-    background-color: #FFCFD4;
+	color: #5B5BFC;
+	border: none;
+    background-color: transparent;
+    border-bottom-color: #5B5BFC;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .supported-setting-tags-nav .nav-item.disable-section {
@@ -66,45 +69,156 @@
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns {
 	border: 0;
-	margin: 3px;
+	margin: 12px 0 0;
 	font-size: 0;
     display: flex;
-    justify-content: left;
+    justify-content: flex-start;
     flex-flow: row nowrap;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 0 6px 8px;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item {
     flex-grow: 0;
-    width: 230px;
-    height: 120px;
+    width: 120px;
     text-align: center;
     vertical-align: middle;
-    border: 1px solid #DCDCDC;
-    border-radius: 5px;
 	background-color: white;
     cursor: pointer;
     position: relative;
 }
 
-.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item:not(:last-child) {
-    margin-right: 15px;
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item .dnd-file-preview {
+    width: 120px;
+    height: 90px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    background-color: #F5F5F5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item.is-selected .dnd-file-preview {
+    border-color: #5B5BFC;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item .pattern-image {
     width: 100%;
     height: 100%;
-    border-radius: 4px 4px 0 0;
+    border-radius: 4px;
     background-position: center center;
-    background-size: contain;
+    background-size: cover;
     background-repeat: no-repeat;
-    box-sizing: content-box;
+    box-sizing: border-box;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item .pattern-no-background {
     color: #1D1D1D;
-    font-size: 14px;
-    font-weight: 700;
-    padding-top: 45px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item .dnd-file-info {
+    margin-top: 6px;
+    text-align: left;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item .dnd-file-name {
+    font-size: 12px;
+    color: #1D1D1D;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item .dnd-file-size {
+    font-size: 11px;
+    color: #8C8C8C;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item .dnd-file-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+    background-color: #E9E0FF;
+    color: #6E57E0;
+    z-index: 1;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-background-upload {
+    margin: 8px 30px 0;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-upload-area {
+    border: 1px dashed #DCDCDC;
+    border-radius: 8px;
+    padding: 18px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #FFFFFF;
+    transition: all 0.3s ease;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-upload-area.is-dragover,
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-upload-area:hover {
+    border-color: #5B5BFC;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-upload-area .upload-icon {
+    font-size: 28px;
+    color: #1D1D1D;
+    margin-bottom: 6px;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-upload-area .upload-prompt {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-upload-area .upload-prompt-primary {
+    color: #5B5BFC;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-upload-area .upload-prompt-secondary {
+    color: #6B7280;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-upload-area .upload-info {
+    font-size: 12px;
+    color: #9CA3AF;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-upload-area .dnd-upload-input {
+    display: none;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-files-message {
+    font-size: 12px;
+    margin-top: 8px;
+    color: #6B7280;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-files-message.is-error {
+    color: #E11D48;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-files-message.is-success {
+    color: #16A34A;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-sfe-root {
+    display: none;
 }
 
 .xblock--drag-and-drop--editor .switcher {
@@ -404,47 +518,6 @@
 
 }
 
-.xblock--drag-and-drop--editor .background-image-tab .drag-drop-tip {
-    margin: 10px 0 0 10px;
-}
-
-.xblock--drag-and-drop--editor .background-image-tab .pattern-item .item-delete-circle {
-    float: left;
-    position: absolute;
-    left: 95%;
-    top: -10px;
-    background-color:#A3A3A3;
-    color:#FFF;
-    -webkit-border-radius: 20px;
-    -moz-border-radius: 20px;
-    border-radius: 20px;
-    width:20px;
-    height:20px;
-    text-align:center;
-}
-
-.xblock--drag-and-drop--editor .background-image-tab .pattern-item .item-delete-circle svg {
-    padding-top: 0;
-}
-
-.xblock--drag-and-drop--editor .background-image-tab .pattern-item .item-selected-circle {
-    float: left;
-    position: absolute;
-    left: 95%;
-    top: -10px;
-    background-color:#29CB97;
-    color:#FFF;
-    -webkit-border-radius: 20px;
-    -moz-border-radius: 20px;
-    border-radius: 20px;
-    width:20px;
-    height:20px;
-    text-align:center;
-}
-
-.xblock--drag-and-drop--editor .background-image-tab .pattern-item .item-selected-circle svg {
-    padding-top: 6px;
-}
 
 /* Zones Tab */
 .xblock--drag-and-drop--editor .zones-tab .zone-editor {
