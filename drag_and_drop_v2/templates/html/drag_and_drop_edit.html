@@ -30,7 +30,7 @@ if (root_div != null) {
       },
       showFilterAndList: false,
       collapseBorder: true,
-      supportedFileTypes: ".pdf, .jpg, .png",
+      supportedFileTypes: ".jpg, .jpeg, .png",
       imageSize: "950x500",
       help_tokens: {
         files: "http://edx.readthedocs.io/projects/open\u002Dedx\u002Dbuilding\u002Dand\u002Drunning\u002Da\u002Dcourse/en/latest/course_assets/course_files.html",
@@ -125,9 +125,9 @@ if (root_div != null) {
                                 <span class="upload-prompt-secondary">{% trans "or drag and drop" %}</span>
                             </div>
                             <div class="upload-info">
-                                {% trans "Maximum file size: 5 GB Supported file types: pdf, jpg, png Size recommandation: 950x500" %}
+                                {% trans "Maximum file size: 5 GB Supported file types: jpg, png Size recommandation: 950x500" %}
                             </div>
-                            <input class="dnd-upload-input" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/png,image/jpeg" />
+                            <input class="dnd-upload-input" type="file" accept=".jpg,.jpeg,.png,image/png,image/jpeg" />
                         </div>
                         <div class="dnd-files-message" role="status" aria-live="polite"></div>
                     </div>

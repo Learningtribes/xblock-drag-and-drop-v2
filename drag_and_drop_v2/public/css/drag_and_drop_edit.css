@@ -201,11 +201,6 @@
     color: var(--fds-global-color-primary-60, #1717ab);
 }
 
-.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item .dnd-file-badge.type-document {
-    background-color: var(--fds-global-color-success-5, #aaefb9);
-    color: var(--fds-global-color-success-70, #007018);
-}
-
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-background-upload {
     margin: 0 0 var(--fds-global-space-lg, 20px);
 }

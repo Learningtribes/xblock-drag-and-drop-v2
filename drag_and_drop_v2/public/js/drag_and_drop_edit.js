@@ -111,8 +111,8 @@ async function DragAndDropEditBlock(runtime, element, params) {
                      */
                     for (let i=0;i< 4;i++) {
                         if (_fn.tabs_editing_status[i.toString()] === true) {
-                            return true
-Ï                        }
+                            return true;
+                        }
                     }
                     return false
                 },
@@ -148,6 +148,10 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     if (type_id === undefined || type_id === _fn.type_id) {
                         if (type_id === CUSTOM_TEMPLATE_TYPE) {
                             _fn.build.changeBackgroundConfirmHandler(type_id, onConfirmHandler);
+                            // Already Custom, so the calls below the type-change branch never run.
+                            // Selecting or uploading another image still has to enable Save.
+                            _fn.build.set_tab_editing_status();
+                            _fn.build.refresh_save_button_status();
                         }
                         return;
                     }
@@ -431,8 +435,8 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         maxSizeBytes = maxSizeInMbs ? maxSizeInMbs * 1024 * 1024 : null,
                         extension = file.name.slice(file.name.lastIndexOf('.') + 1).toLowerCase();
 
-                    if (['jpg', 'jpeg', 'png', 'pdf'].indexOf(extension) === -1) {
-                        _fn.build.setBackgroundMessage(gettext('Unsupported file format. Please upload a PDF, JPG, or PNG.'), 'error');
+                    if (['jpg', 'jpeg', 'png'].indexOf(extension) === -1) {
+                        _fn.build.setBackgroundMessage(gettext('Unsupported file format. Please upload a JPG or PNG.'), 'error');
                         return;
                     }
 
@@ -558,14 +562,13 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         fileSize = _fn.build.formatFileSize(asset.size),
                         extension = _fn.build.getFileExtension(displayName),
                         badgeText = extension || 'jpg',
-                        badgeType = extension === 'pdf' ? 'type-document' : 'type-image',
                         escapeHtml = _fn.build.escapeHtml,
                         existingItem,
                         itemHtml = '' +
                             '<li class="pattern-item dnd-asset-item" role="listitem" data-template-type="' + CUSTOM_TEMPLATE_TYPE + '"' +
                                 ' data-background-url="' + escapeHtml(asset.url) + '" data-asset-id="' + escapeHtml(asset.id || '') + '">' +
                                 '<div class="dnd-file-preview">' +
-                                    '<span class="dnd-file-badge ' + badgeType + '">' + escapeHtml(badgeText) + '</span>' +
+                                    '<span class="dnd-file-badge type-image">' + escapeHtml(badgeText) + '</span>' +
                                     '<div class="pattern-image" style="background-image: url(\'' + escapeHtml(thumbnail) + '\')"></div>' +
                                 '</div>' +
                                 '<div class="dnd-file-info">' +
@@ -639,11 +642,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     return '/uploads/' + courseId;
                 },
                 getAssetsUrl: function() {
-                    var courseId = _fn.build.getCourseId();
-                    if (!courseId) {
-                        return '';
-                    }
-                    return '/assets/' + courseId + '/';
+                    return params.assets_url || '';
                 },
                 getCsrfToken: function() {
                     if (window.Cookies && Cookies.get) {

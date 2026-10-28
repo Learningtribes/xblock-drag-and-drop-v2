@@ -357,6 +357,11 @@ class DragAndDropBlock(
     def studio_view(self, view_context):
         """Editing view in Studio
         """
+        # CMS route requires the trailing slash. A hard-coded path without it
+        # 301s the upload POST and the file body is dropped.
+        from contentstore.utils import reverse_course_url
+        assets_url = reverse_course_url('assets_handler', self.course_id)
+
         # Get an 'id_suffix' string that is unique for this block.
         # We append it to HTML element ID attributes to ensure multiple instances of the DnDv2 block
         # on the same page don't share the same ID value.
@@ -437,6 +442,7 @@ class DragAndDropBlock(
 
         fragment.initialize_js('DragAndDropEditBlock', {
             'data': self.data,
+            'assets_url': assets_url,
             'type_id': self.type_id,
             'custom_background': self.custom_background,
             'tpl_summaries': ZONE_TPL_DEFINITIONS.get_templates_summary(self, self.runtime.local_resource_url),
