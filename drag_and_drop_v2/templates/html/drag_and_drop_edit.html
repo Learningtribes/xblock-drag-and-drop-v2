@@ -1,45 +1,11 @@
 {% load i18n %}
 {% load l10n %}
 
-<script type="application/json" id="SFE_i18n_data">
-{
-    "locale": "{{language_code}}",
-    "messages": {{studio_frontend_messages | safe}}
-}
-</script>
-
-<script>
-// Rename existing element : https://github.com/Learningtribes/platform/blob/23161b25f0ead715a691de00e52c240eb5bcb217/cms/templates/container.html#L180
-var root_div = document.getElementById('root');
-if (root_div != null) {
-    document.getElementById('root').id = 'tmp_root';
-}
-</script>
-
-<script type="application/javascript" id='studioContext'>
+<script type="application/javascript" id="studioContext">
     var studioContext = {
       course: {
-        url_name: "{{ course.url_name }}",      // "course",
-        name: "{{ course.display_name }}",      //"My Course Drag and Drop",
-        display_course_number: "",
-        num: "{{ course.number }}",             // "NOAH-001",
-        org: "{{ course.org }}",                // "edX",
-        id: "{{ course_id }}",                  // "course-v1:edX+NOAH-001+course",
-        revision: "",
-        base_url: "http://localhost:18010",
-      },
-      showFilterAndList: false,
-      collapseBorder: true,
-      supportedFileTypes: ".jpg, .jpeg, .png",
-      imageSize: "950x500",
-      help_tokens: {
-        files: "http://edx.readthedocs.io/projects/open\u002Dedx\u002Dbuilding\u002Dand\u002Drunning\u002Da\u002Dcourse/en/latest/course_assets/course_files.html",
-        image_accessibility: "http://edx.readthedocs.io/projects/open\u002Dedx\u002Dbuilding\u002Dand\u002Drunning\u002Da\u002Dcourse/en/latest/accessibility/best_practices_course_content_dev.html#use\u002Dbest\u002Dpractices\u002Dfor\u002Ddescribing\u002Dimages",
-      },
-      upload_settings: {
-        max_file_size_in_mbs: 10,
-      },
-      lang: "{{language_code}}"
+        id: "{{ course_id }}"
+      }
     };
 </script>
 
@@ -125,7 +91,9 @@ if (root_div != null) {
                                 <span class="upload-prompt-secondary">{% trans "or drag and drop" %}</span>
                             </div>
                             <div class="upload-info">
-                                {% trans "Maximum file size: 5 GB Supported file types: jpg, png Size recommandation: 950x500" %}
+                                <div>{% blocktrans with max_file_size=max_file_size_in_mbs %}Maximum file size: {{ max_file_size }} MB{% endblocktrans %}</div>
+                                <div>{% trans "Supported file types: JPG, PNG" %}</div>
+                                <div>{% trans "Size recommendation: 950x500" %}</div>
                             </div>
                             <input class="dnd-upload-input" type="file" accept=".jpg,.jpeg,.png,image/png,image/jpeg" />
                         </div>
@@ -135,7 +103,7 @@ if (root_div != null) {
                         <ul class="supported-template-patterns dnd-files-grid" role="list">
                             {% for tpl_summary in tpl_summaries %}
                             {% if tpl_summary.type_id == 0 or tpl_summary.type_id == 1 or tpl_summary.type_id == 2 %}
-                            <li class="pattern-item dnd-template-item" id="background-type-{{ tpl_summary.type_id }}" data-template-type="{{ tpl_summary.type_id }}">
+                            <li class="pattern-item dnd-template-item" id="background-type-{{ tpl_summary.type_id }}" data-template-type="{{ tpl_summary.type_id }}" role="button" tabindex="0">
                                 <div class="dnd-file-preview">
                                     {% if tpl_summary.type_id == 0 or tpl_summary.type_id == 1 %}
                                     <div class="pattern-image" style="background-image: url('{{ tpl_summary.thumbnail }}')"></div>
@@ -148,12 +116,6 @@ if (root_div != null) {
                             {% endfor %}
                         </ul>
                     </div>
-                    <div id="root" class="SFE dnd-sfe-root"></div>
-                    <link rel="stylesheet" type="text/css" href="{{ common_min_css }}" />
-                    <link rel="stylesheet" type="text/css" href="{{ assets_min_css }}" />
-                    <script type="text/javascript" src="{{ runtime_min_js }}"></script>
-                    <script type="text/javascript" src="{{ common_min_js }}"></script>
-                    <script type="text/javascript" src="{{ assets_min_js }}"></script>
                 </div>
             </section>
 

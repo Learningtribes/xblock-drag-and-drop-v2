@@ -113,6 +113,11 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item:focus {
+    outline: 2px solid var(--fds-global-color-primary-40, #5959eb);
+    outline-offset: 2px;
+}
+
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item .dnd-file-preview {
     width: 100px;
     height: 100px;
@@ -269,10 +274,6 @@
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-files-message.is-success {
     color: #16A34A;
-}
-
-.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-sfe-root {
-    display: none;
 }
 
 .xblock--drag-and-drop--editor .switcher {

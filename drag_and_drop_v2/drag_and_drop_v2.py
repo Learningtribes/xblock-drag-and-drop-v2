@@ -3,14 +3,11 @@
 
 
 import copy
-from django.utils.translation import get_language
+from django.conf import settings
 from django.utils.translation import gettext, ngettext, ugettext
 import json
-import logging
 import urllib
 import webob
-
-from pipeline_mako.helpers.studiofrontend import load_sfe_i18n_messages
 
 from xblock.core import XBlock
 from xblock.exceptions import JsonHandlerError
@@ -20,11 +17,10 @@ from xblock.scorable import ScorableXBlockMixin, Score
 from xblockutils.resources import ResourceLoader
 from xblockutils.settings import XBlockWithSettingsMixin, ThemableXBlockMixin
 from xmodule.modulestore.django import modulestore
-from opaque_keys.edx.keys import AssetKey, CourseKey
 
 from .utils import (
     _, DummyTranslationService, FeedbackMessage, FeedbackMessages,
-    ItemStats, StateMigration, Constants, get_storage_url,
+    ItemStats, StateMigration, Constants,
     make_state_from_attempt, get_max_items_per_zone, present_feedback
 )
 from .default_data import DEFAULT_EMPTY_DATA
@@ -33,7 +29,6 @@ from .zone_template import TriangleTemplate, RectangleTemplate, BlankTemplate, Z
 
 
 loader = ResourceLoader(__name__)
-logger = logging.getLogger(__name__)
 
 
 @XBlock.wants('settings')
@@ -361,6 +356,7 @@ class DragAndDropBlock(
         # 301s the upload POST and the file body is dropped.
         from contentstore.utils import reverse_course_url
         assets_url = reverse_course_url('assets_handler', self.course_id)
+        max_file_size_in_mbs = getattr(settings, 'MAX_ASSET_UPLOAD_FILE_SIZE_IN_MB', 10)
 
         # Get an 'id_suffix' string that is unique for this block.
         # We append it to HTML element ID attributes to ensure multiple instances of the DnDv2 block
@@ -376,7 +372,6 @@ class DragAndDropBlock(
             return xblock.location.html_id() if hasattr(xblock, 'location') else unicode(xblock.scope_ids.usage_id)
 
         course_module = modulestore().get_course(self.course_id)
-        language_code = get_language()
         context = {
             'course_id': "{}".format(self.course_id),
             'course': {
@@ -393,15 +388,8 @@ class DragAndDropBlock(
             'data': urllib.quote(json.dumps(self.data)),
             'type_id': self.type_id,
             'tpl_summaries': ZONE_TPL_DEFINITIONS.get_templates_summary(self, self.runtime.local_resource_url),
-            ### For editImageModal rendering
-            'common_min_css': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/common.min.css'),
-            'assets_min_css': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/assets.min.css'),
-            'runtime_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/runtime.min.js'),
-            'common_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/common.min.js'),
-            'assets_min_js': get_storage_url('common/js/vendor/learningtribes-studio-frontend/dist/assets.min.js'),
             'default_finish_feedback': ZonesDefinition.FINISH_FEEDBACK,
-            'language_code': language_code,
-            'studio_frontend_messages': load_sfe_i18n_messages(language_code)
+            'max_file_size_in_mbs': max_file_size_in_mbs,
         }
 
         fragment = Fragment()
@@ -443,6 +431,7 @@ class DragAndDropBlock(
         fragment.initialize_js('DragAndDropEditBlock', {
             'data': self.data,
             'assets_url': assets_url,
+            'max_file_size_in_mbs': max_file_size_in_mbs,
             'type_id': self.type_id,
             'custom_background': self.custom_background,
             'tpl_summaries': ZONE_TPL_DEFINITIONS.get_templates_summary(self, self.runtime.local_resource_url),
@@ -453,51 +442,6 @@ class DragAndDropBlock(
         })
 
         return fragment
-
-    @XBlock.json_handler
-    def background_check(self, request_data, suffix=''):
-        def _get_block_id(xblock):
-            """Return unique ID of this block. Useful for HTML ID attributes.
-                Works both in LMS/Studio and workbench runtimes:
-                - In LMS/Studio, use the location.html_id method.
-                - In the workbench, use the usage_id.
-            """
-            return xblock.location.html_id() if hasattr(xblock, 'location') else unicode(xblock.scope_ids.usage_id)
-
-        xblock_id = _get_block_id(self)
-        xblocks = modulestore().get_items(self.course_id, qualifiers={'category': 'drag-and-drop-v2'})
-
-        asset_id = request_data['asset_id']
-
-        for xblock in xblocks:
-            other_xblock_id = _get_block_id(xblock)
-            data = getattr(xblock, 'data', '')
-            # other_xblock_asset_id = data['targetImg'] if 'targetImg' in data else None
-            other_xblock_asset_id = getattr(xblock, 'custom_background', '')
-
-            if other_xblock_id != xblock_id:
-                if other_xblock_asset_id and other_xblock_asset_id[1:] == asset_id:
-                    return {
-                        'result': 'success',
-                    }
-
-        course_key = CourseKey.from_string('{}'.format(self.course_id))
-        asset_key = AssetKey.from_string(asset_id) if asset_id else None
-
-        try:
-            from contentstore.views.assets import delete_asset
-            delete_asset(course_key, asset_key)
-            logging.info('Deleted unused asset: {file_name}, asset_key: {asset_key}, '
-                         'course_id: {course_id}'.format(file_name=asset_key.name,
-                                                         asset_key=asset_key,
-                                                         course_id=course_key))
-            return {
-                'result': 'success',
-            }
-        except Exception as e:
-            return {
-                'result': 'background_check to delete: ' + str(e),
-            }
 
     @XBlock.json_handler
     def studio_submit(self, submissions, suffix=''):

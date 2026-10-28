@@ -432,7 +432,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
 
                     var file = files[0],
                         maxSizeInMbs = _fn.build.getMaxBackgroundFileSize(),
-                        maxSizeBytes = maxSizeInMbs ? maxSizeInMbs * 1024 * 1024 : null,
+                        maxSizeBytes = maxSizeInMbs ? maxSizeInMbs * 1000 * 1000 : null,
                         extension = file.name.slice(file.name.lastIndexOf('.') + 1).toLowerCase();
 
                     if (['jpg', 'jpeg', 'png'].indexOf(extension) === -1) {
@@ -470,20 +470,32 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     })
                     .then(function(response) {
                         if (!response.ok) {
-                            throw new Error('Upload failed');
+                            return response.json().then(function(body) {
+                                var message = body && body.error ? String(body.error) : gettext('Upload failed');
+                                throw new Error(message);
+                            }, function() {
+                                throw new Error(gettext('Upload failed'));
+                            });
                         }
                         return response.json();
                     })
                     .then(function(data) {
-                        if (data && data.asset) {
-                            _fn.build.setBackgroundMessage(gettext('Upload completed'), 'success');
-                            _fn.build.onBackgroundUploadSuccessHandler(data.asset);
-                        } else {
-                            throw new Error('Upload failed');
+                        if (!data || !data.asset) {
+                            throw new Error(gettext('Upload failed'));
                         }
+                        return data.asset;
                     })
-                    .catch(function() {
-                        _fn.build.setBackgroundMessage(gettext('Upload failed'), 'error');
+                    .then(function(asset) {
+                        _fn.build.setBackgroundMessage(gettext('Upload completed'), 'success');
+                        return asset;
+                    }, function(error) {
+                        _fn.build.setBackgroundMessage(error && error.message ? error.message : gettext('Upload failed'), 'error');
+                    })
+                    .then(function(asset) {
+                        if (!asset) {
+                            return;
+                        }
+                        _fn.build.onBackgroundUploadSuccessHandler(asset);
                     });
                 },
                 fetchBackgroundAssets: function() {
@@ -519,7 +531,9 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         var uploads = data.assets || [];
                         _fn.build.renderBackgroundAssets(uploads);
                     })
-                    .catch(function() {});
+                    .catch(function() {
+                        _fn.build.setBackgroundMessage(gettext('Could not load uploaded images.'), 'error');
+                    });
                 },
                 renderBackgroundAssets: function(uploads) {
                     var backgroundChoose = _fn.build.$el.backgroundChoose;
@@ -565,17 +579,20 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         escapeHtml = _fn.build.escapeHtml,
                         existingItem,
                         itemHtml = '' +
-                            '<li class="pattern-item dnd-asset-item" role="listitem" data-template-type="' + CUSTOM_TEMPLATE_TYPE + '"' +
+                            '<li class="pattern-item dnd-asset-item" role="button" tabindex="0" data-template-type="' + CUSTOM_TEMPLATE_TYPE + '"' +
                                 ' data-background-url="' + escapeHtml(asset.url) + '" data-asset-id="' + escapeHtml(asset.id || '') + '">' +
                                 '<div class="dnd-file-preview">' +
                                     '<span class="dnd-file-badge type-image">' + escapeHtml(badgeText) + '</span>' +
-                                    '<div class="pattern-image" style="background-image: url(\'' + escapeHtml(thumbnail) + '\')"></div>' +
+                                    '<div class="pattern-image"></div>' +
                                 '</div>' +
                                 '<div class="dnd-file-info">' +
                                     '<div class="dnd-file-name" title="' + escapeHtml(displayName) + '">' + escapeHtml(displayName) + '</div>' +
                                     '<div class="dnd-file-size">' + escapeHtml(fileSize) + '</div>' +
                                 '</div>' +
                             '</li>';
+
+                    var $item = $(itemHtml);
+                    $item.find('.pattern-image').css('background-image', _fn.build.cssImageValue(thumbnail));
 
                     existingItem = backgroundChoose.templates.find('.dnd-asset-item').filter(function() {
                         return $(this).attr('data-background-url') === asset.url;
@@ -585,12 +602,12 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     if (isFirstAfterDefaults) {
                         var $defaultItems = backgroundChoose.templates.find('.dnd-template-item');
                         if ($defaultItems.length) {
-                            $defaultItems.last().after(itemHtml);
+                            $defaultItems.last().after($item);
                         } else {
-                            backgroundChoose.templates.append(itemHtml);
+                            backgroundChoose.templates.append($item);
                         }
                     } else {
-                        backgroundChoose.templates.append(itemHtml);
+                        backgroundChoose.templates.append($item);
                     }
                 },
                 getFileExtension: function(filename) {
@@ -623,8 +640,9 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     return size.toFixed(size >= 10 || index === 0 ? 0 : 1) + ' ' + units[index];
                 },
                 getMaxBackgroundFileSize: function() {
-                    if (window.studioContext && studioContext.upload_settings && studioContext.upload_settings.max_file_size_in_mbs) {
-                        return studioContext.upload_settings.max_file_size_in_mbs;
+                    var maxSize = Number(params.max_file_size_in_mbs);
+                    if (maxSize > 0) {
+                        return maxSize;
                     }
                     return null;
                 },
@@ -664,6 +682,17 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         .replace(/>/g, '&gt;')
                         .replace(/"/g, '&quot;')
                         .replace(/'/g, '&#39;');
+                },
+                cssImageValue: function(url) {
+                    if (!url) {
+                        return 'none';
+                    }
+                    var encoded = encodeURI(String(url).replace(/\\/g, '%5C'))
+                        .replace(/"/g, '%22')
+                        .replace(/'/g, '%27')
+                        .replace(/\(/g, '%28')
+                        .replace(/\)/g, '%29');
+                    return 'url("' + encoded + '")';
                 },
                 setBackgroundMessage: function(message, type) {
                     var backgroundChoose = _fn.build.$el.backgroundChoose;
@@ -840,16 +869,16 @@ async function DragAndDropEditBlock(runtime, element, params) {
                             }
                             _fn.tpl_summaries.forEach(function(tpl_summary) {
                                 if (tpl_summary.type_id === parseInt(_fn.type_id)) {
-                                    $(drawing_area_selector).css("background-image", "url(" + tpl_summary.thumbnail + ")");
+                                    $(drawing_area_selector).css('background-image', _fn.build.cssImageValue(tpl_summary.thumbnail));
                                 }
                             });
                         } else if (_fn.type_id === 3 || (_fn.is_old_version === true && _fn.target_img_expanded_url != null) ) {     // Custom Background template
                             if (_fn.type_id === 3) {
                                 $(drawing_area_selector)
-                                    .css("background-image", "url(" + _fn.data.targetImg + ")");    // paste uploaded image into background
+                                    .css('background-image', _fn.build.cssImageValue(_fn.data.targetImg));
                             } else {
                                 $(drawing_area_selector)
-                                    .css("background-image", "url(" + _fn.target_img_expanded_url + ")");    // paste uploaded image into background
+                                    .css('background-image', _fn.build.cssImageValue(_fn.target_img_expanded_url));
                             }
                             $(drawing_area_selector).css('max-height', '500px');
                         } else {
@@ -1356,11 +1385,6 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         _fn.build.form.submit(tabID, continue_mode=false);
 
                         _fn.tabs_editing_status[tabID] = false;
-
-                        var root_div = document.getElementById('tmp_root');
-                        if (root_div != null) {
-                            document.getElementById('tmp_root').id = 'root';
-                        }
                     })
 
                     $element.find('.add_answer_button').bind('click', function(e) {
@@ -1375,7 +1399,13 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     });
 
                     $backgroundChoose.templates
-                        .on('click', '.pattern-item', _fn.build.backgroundTemplateChoose);
+                        .on('click', '.pattern-item', _fn.build.backgroundTemplateChoose)
+                        .on('keydown', '.pattern-item', function(e) {
+                            if (e.keyCode === 13 || e.keyCode === 32) {
+                                e.preventDefault();
+                                _fn.build.backgroundTemplateChoose(e);
+                            }
+                        });
 
                     $zoneTab
                         .on('click', '#id_add_zone_bt', function(e) {
@@ -2166,32 +2196,6 @@ async function DragAndDropEditBlock(runtime, element, params) {
                             }
                         },
                     },
-                    background_check(oldAssetId, callback) {
-                        /**
-                         * Handle check and delete unused custom background asset
-                         */
-                        const data = {
-                            asset_id: oldAssetId
-                        }
-                        var handlerUrl = runtime.handlerUrl(element, 'background_check');
-                        $.post(handlerUrl, JSON.stringify(data), 'json')
-                            .done(function(response) {
-                                if (response.result === 'success') {
-                                    // runtime.notify('save', continue_mode ? {state: 'save_and_continue'} : {state: 'end'});
-                                } else {
-                                    var result = response.result;
-                                    runtime.notify('error', {
-                                        'title': window.gettext("There was an error with your form."),
-                                        'message': result
-                                    });
-                                }
-                            })
-                            .always(function() {
-                                if (callback) {
-                                    callback.apply(this);
-                                }
-                            });
-                    },
                     submit: function(tabID, continue_mode=false) {
                         // Save parts of data for a specified Tab
                         var post_data = {};
@@ -2260,11 +2264,6 @@ async function DragAndDropEditBlock(runtime, element, params) {
     $element.find('.cancel-button').bind('click', function(e) {
         e.preventDefault();
         runtime.notify('cancel', {});
-
-        var root_div = document.getElementById('tmp_root');
-        if (root_div != null) {
-            document.getElementById('tmp_root').id = 'root';
-        }
     });
 
     // Initialize js component
