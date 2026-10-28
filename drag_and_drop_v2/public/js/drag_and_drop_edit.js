@@ -407,13 +407,13 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     backgroundChoose.uploadArea.on('dragenter dragover', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        backgroundChoose.uploadArea.addClass('is-dragover');
+                        backgroundChoose.uploadArea.addClass('drag-over');
                     });
 
                     backgroundChoose.uploadArea.on('dragleave dragend drop', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        backgroundChoose.uploadArea.removeClass('is-dragover');
+                        backgroundChoose.uploadArea.removeClass('drag-over');
                     });
 
                     backgroundChoose.uploadArea.on('drop', function(e) {
@@ -558,17 +558,18 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         fileSize = _fn.build.formatFileSize(asset.size),
                         extension = _fn.build.getFileExtension(displayName),
                         badgeText = extension || 'jpg',
+                        badgeType = extension === 'pdf' ? 'type-document' : 'type-image',
                         escapeHtml = _fn.build.escapeHtml,
                         existingItem,
                         itemHtml = '' +
                             '<li class="pattern-item dnd-asset-item" role="listitem" data-template-type="' + CUSTOM_TEMPLATE_TYPE + '"' +
                                 ' data-background-url="' + escapeHtml(asset.url) + '" data-asset-id="' + escapeHtml(asset.id || '') + '">' +
                                 '<div class="dnd-file-preview">' +
-                                    '<span class="dnd-file-badge">' + escapeHtml(badgeText) + '</span>' +
+                                    '<span class="dnd-file-badge ' + badgeType + '">' + escapeHtml(badgeText) + '</span>' +
                                     '<div class="pattern-image" style="background-image: url(\'' + escapeHtml(thumbnail) + '\')"></div>' +
                                 '</div>' +
                                 '<div class="dnd-file-info">' +
-                                    '<div class="dnd-file-name">' + escapeHtml(displayName) + '</div>' +
+                                    '<div class="dnd-file-name" title="' + escapeHtml(displayName) + '">' + escapeHtml(displayName) + '</div>' +
                                     '<div class="dnd-file-size">' + escapeHtml(fileSize) + '</div>' +
                                 '</div>' +
                             '</li>';
@@ -642,7 +643,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     if (!courseId) {
                         return '';
                     }
-                    return '/assets/' + courseId;
+                    return '/assets/' + courseId + '/';
                 },
                 getCsrfToken: function() {
                     if (window.Cookies && Cookies.get) {
