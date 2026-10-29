@@ -7,11 +7,19 @@
   width: 100%;
   height: 690px;
 }
+
+.modal-lg.modal-editor.modal-type-drag-and-drop-v2 {
+    width: 1060px;
+    max-width: 96%;
+}
+
 .modal-window .drag-builder  {
     width: 980px;
+    max-width: 100%;
     height: calc(100% - 60px);
     position: absolute;
     margin: 15px 30px 15px 0px;
+    box-sizing: border-box;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .supported-setting-tags-nav {
@@ -205,6 +213,9 @@
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-upload-area {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
     border: 1px dashed var(--fds-global-color-neutral-10, #ebebf1);
     border-radius: var(--fds-global-border-radius-lg, 8px);
     padding: var(--fds-global-space-lg, 20px);
@@ -215,7 +226,7 @@
     text-align: center;
     cursor: pointer;
     background-color: var(--fds-global-color-neutral-0, #ffffff);
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-upload-area.drag-over,
@@ -416,7 +427,9 @@
 }
 
 .xblock--drag-and-drop--editor .tab-content {
-    width: 96%;
+    box-sizing: border-box;
+    width: calc(100% - 30px);
+    max-width: calc(100% - 30px);
     margin-left: 30px;
 }
 
