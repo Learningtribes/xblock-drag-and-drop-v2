@@ -1058,3 +1058,32 @@
 .xblock-actions-separator {
     border-top: 1px solid #DCDCDC;
 }
+
+.xblock--drag-and-drop--editor .xblock-actions button.ds-button.ds-button--neutral.cancel-button {
+    border: none !important;
+    box-shadow: none !important;
+    background-image: none !important;
+    text-shadow: none !important;
+    color: var(--fds-global-color-neutral-140) !important;
+    background-color: var(--fds-global-color-neutral-10) !important;
+}
+
+.xblock--drag-and-drop--editor .xblock-actions button.ds-button.ds-button--neutral.cancel-button:hover,
+.xblock--drag-and-drop--editor .xblock-actions button.ds-button.ds-button--neutral.cancel-button:focus {
+    color: var(--fds-global-color-neutral-140) !important;
+    background-color: var(--fds-global-color-neutral-20) !important;
+    box-shadow: none !important;
+}
+
+.xblock--drag-and-drop--editor .xblock-actions button.ds-button.ds-button--neutral.cancel-button:active {
+    color: var(--fds-global-color-neutral-140) !important;
+    background-color: var(--fds-global-color-neutral-30) !important;
+    box-shadow: none !important;
+}
+
+.xblock--drag-and-drop--editor .xblock-actions button.ds-button.save-button:disabled {
+    cursor: not-allowed;
+    pointer-events: none;
+    background-color: var(--fds-global-color-neutral-10) !important;
+    color: var(--fds-global-color-neutral-50) !important;
+}
