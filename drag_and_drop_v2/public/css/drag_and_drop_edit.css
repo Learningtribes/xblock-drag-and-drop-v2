@@ -524,7 +524,13 @@
     width: 50px;
 }
 
-.xblock--drag-and-drop--editor .zones_settings .setting_flag input[type=checkbox] {
+.xblock--drag-and-drop--editor .zones_settings .setting_flag .switcher .ds-switch {
+    display: inline-grid !important;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.xblock--drag-and-drop--editor .zones_settings .setting_flag > input[type=checkbox] {
     display: none !important;
     -webkit-appearance: none;
     appearance: none;
@@ -1059,11 +1065,19 @@
     border-top: 1px solid #DCDCDC;
 }
 
-.xblock--drag-and-drop--editor .xblock-actions button.ds-button.ds-button--neutral.cancel-button {
+.xblock--drag-and-drop--editor .xblock-actions button.ds-button {
     border: none !important;
+    border-radius: var(--fds-global-border-radius-md) !important;
     box-shadow: none !important;
     background-image: none !important;
     text-shadow: none !important;
+    padding: var(--fds-global-space-xs) var(--fds-global-space-md) !important;
+    font-weight: 400 !important;
+    font-size: 14px !important;
+    line-height: 20px !important;
+}
+
+.xblock--drag-and-drop--editor .xblock-actions button.ds-button.ds-button--neutral.cancel-button {
     color: var(--fds-global-color-neutral-140) !important;
     background-color: var(--fds-global-color-neutral-10) !important;
 }
