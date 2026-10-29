@@ -379,6 +379,11 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     backgroundChoose.uploadArea = $('.drag-builder .dnd-upload-area', element);
                     backgroundChoose.uploadInput = $('.drag-builder .dnd-upload-input', element);
                     backgroundChoose.filesMessage = $('.drag-builder .dnd-files-message', element);
+                    backgroundChoose.filesMessage.find('.close').on('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        _fn.build.setBackgroundMessage('');
+                    });
 
                     _fn.build.bindBackgroundUploadEvents();
                     _fn.build.fetchBackgroundAssets();
@@ -695,15 +700,25 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     return 'url("' + encoded + '")';
                 },
                 setBackgroundMessage: function(message, type) {
-                    var backgroundChoose = _fn.build.$el.backgroundChoose;
+                    var backgroundChoose = _fn.build.$el.backgroundChoose,
+                        hasMessage;
                     if (!backgroundChoose.filesMessage || !backgroundChoose.filesMessage.length) {
                         return;
                     }
 
+                    hasMessage = Boolean(message);
                     backgroundChoose.filesMessage
-                        .removeClass('is-error is-success is-info')
-                        .addClass(type ? 'is-' + type : '')
-                        .text(message || '');
+                        .removeClass('is-shown is-error is-success is-info')
+                        .toggleClass('is-shown', hasMessage)
+                        .toggleClass('is-error', type === 'error' && hasMessage)
+                        .toggleClass('is-success', type === 'success' && hasMessage)
+                        .toggleClass('is-info', type === 'info' && hasMessage);
+                    backgroundChoose.filesMessage.find('.alert-dialog').text(message || '');
+                    if (hasMessage) {
+                        backgroundChoose.filesMessage.removeAttr('hidden');
+                    } else {
+                        backgroundChoose.filesMessage.attr('hidden', 'hidden');
+                    }
                 },
                 updateSwitchers() {
                     /**

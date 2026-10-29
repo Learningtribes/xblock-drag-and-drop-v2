@@ -106,16 +106,10 @@
     background-color: transparent;
     cursor: pointer;
     position: relative;
-    transition: all 0.2s ease;
-}
-
-.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item:hover .dnd-file-preview {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item:focus {
-    outline: 2px solid var(--fds-global-color-primary-40, #5959eb);
-    outline-offset: 2px;
+    outline: none;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item .dnd-file-preview {
@@ -130,11 +124,11 @@
     overflow: hidden;
     position: relative;
     box-sizing: content-box;
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item.is-selected .dnd-file-preview {
     border-color: var(--fds-global-color-primary-40, #5959eb);
+    box-shadow: none;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .supported-template-patterns .pattern-item.is-selected .dnd-file-name {
@@ -263,17 +257,72 @@
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-files-message {
-    font-size: 12px;
-    margin-top: 8px;
-    color: #6B7280;
+    display: none;
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0 0 1rem;
+    padding: 1.2rem 6.4rem 1.2rem 2rem;
+    color: #5d0308;
+    background-color: #f0cdcf;
+    border: 1px solid #e9b9bc;
+    border-radius: 1px;
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
 }
 
-.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-files-message.is-error {
-    color: #E11D48;
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-files-message.is-shown {
+    display: block;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-files-message .alert-dialog {
+    color: inherit;
 }
 
 .xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-files-message.is-success {
-    color: var(--fds-global-color-success-70, #007018); /* $fds-global-color-success-70 */
+    color: var(--fds-global-color-success-70, #007018);
+    background-color: #f4f4f4;
+    border-color: transparent;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-files-message.is-info {
+    color: var(--fds-global-color-neutral-140, #1f1f59);
+    background-color: #f4f4f4;
+    border-color: transparent;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-files-message .close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 1.2rem 2rem;
+    float: none;
+    background-color: transparent;
+    border: 0;
+    box-shadow: none;
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1;
+    color: inherit;
+    text-shadow: 0 1px 0 #fff;
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-files-message .close:hover,
+.xblock--drag-and-drop--editor .drag-builder .supported-setting-tags .background-image-tab .dnd-files-message .close:focus {
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.75;
+    outline: none;
 }
 
 .xblock--drag-and-drop--editor .switcher {

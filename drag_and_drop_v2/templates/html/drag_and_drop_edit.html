@@ -82,6 +82,12 @@
             <section id="1" class="tab background-image-tab hidden">
                 <div class="tab-content">
                     <div class="dnd-background-upload">
+                        <div class="dnd-files-message" role="alert" hidden>
+                            <button type="button" class="close" aria-label="{% trans 'Close' %}">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <div class="alert-dialog"></div>
+                        </div>
                         <div class="dnd-upload-area" role="button" tabindex="0">
                             <div class="upload-icon">
                                 <i class="far fa-images"></i>
@@ -97,7 +103,6 @@
                             </div>
                             <input class="dnd-upload-input" type="file" accept=".jpg,.jpeg,.png,image/png,image/jpeg" />
                         </div>
-                        <div class="dnd-files-message" role="status" aria-live="polite"></div>
                     </div>
                     <div class="dnd-background-list">
                         <ul class="supported-template-patterns dnd-files-grid" role="list">
