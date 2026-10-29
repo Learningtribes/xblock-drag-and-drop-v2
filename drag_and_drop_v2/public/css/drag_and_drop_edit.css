@@ -525,7 +525,17 @@
 }
 
 .xblock--drag-and-drop--editor .zones_settings .setting_flag input[type=checkbox] {
-    display: none;
+    display: none !important;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
 }
 
 .xblock--drag-and-drop--editor .zones_settings .setting_flag .switcher_text {
