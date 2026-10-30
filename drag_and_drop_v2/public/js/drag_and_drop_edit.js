@@ -64,10 +64,12 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     _fn.zone_tab_used_tpl_id = _fn.data.template_type;  // activated template id in Zone Tab
                     _fn.type_id = params.type_id;                       // selected template id in Background Tab
                     _fn.target_img_expanded_url = params.target_img_expanded_url;
-                    _fn.custom_background = params.custom_background;   // uploaded custom background image
+                    _fn.custom_background = params.custom_background;   // portable /static/... path saved with the block
+                    _fn.background_display_url = '';                    // servable preview URL for the current editing session
                     _fn.new_selected_tpl_data = undefined;              // new selected template sample data ( replaced duplicated data )
                     _fn.tpl_summaries = params.tpl_summaries;
                     _fn.is_old_version = params.is_old_version;
+                    _fn.selected_asset_id = null;
                     _fn.tabs_editing_status = {
                         '0': false,
                         '1': false,
@@ -76,17 +78,13 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     };
 
                     _fn.build.changeBackgroundSelect();
+                    _fn.build.initBackgroundAssets();
 
                     // Display target image
                     _fn.build.$el.targetImage.show();
 
                     _fn.build.refreshTabsStatus(init_flag=true);
                     _fn.build.clickHandlers();
-
-                    // upload success handler
-                    const rootDiv = document.getElementById('root');
-                    rootDiv.addEventListener('uploadAssetsSuccessEvent', _fn.build.onBackgroundUploadSuccessHandler);
-                    rootDiv.addEventListener('getAssetsSuccessEvent', _fn.build.onBackgroundGetAssetsSuccessHandler);
 
                     // Hide settings that are specific to assessment mode
                     _fn.build.$el.feedback.form.find('.problem-mode').trigger('change');
@@ -114,51 +112,32 @@ async function DragAndDropEditBlock(runtime, element, params) {
                      */
                     for (let i=0;i< 4;i++) {
                         if (_fn.tabs_editing_status[i.toString()] === true) {
-                            return true
-Ï                        }
+                            return true;
+                        }
                     }
                     return false
                 },
                 backgroundTemplateChoose: function(e) {
                     /**
                      * Handle select background
-                     * Handle delete custom background, call background_check after deleted background
                      */
                     e.preventDefault();
 
-                    if (e.target.matches('#item-delete-circle-3') || e.target.matches('#item-delete-circle-3 svg')) {
-                        // delete custom background
-                        runtime.notify('confirm', {
-                            title: gettext('Delete the custom background?'),
-                            message: gettext('Your current background will be deleted. Are you sure you want to continue?'),
-                            actionLabel: gettext('Yes, delete the background'),
-                            operation: function () {
-                                const patternItemCustomBackground = $("#background-type-" + CUSTOM_TEMPLATE_TYPE.toString());
-                                patternItemCustomBackground.css('display', 'none');
+                    var $item = $(e.currentTarget);
+                    var type_id = parseInt($item.data('template-type'), 10);
+                    var displayUrl = $item.attr('data-background-url');
+                    var portableUrl = $item.attr('data-portable-url') || displayUrl;
+                    var assetId = $item.attr('data-asset-id');
 
-                                if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE) {
-                                    const oldAssetId = _fn.custom_background.substring(_fn.custom_background.lastIndexOf('/') + 1);
-                                    if (oldAssetId) {
-                                        _fn.build.form.background_check(oldAssetId, function(){
-                                            _fn.custom_background = '';
-                                            _fn.build.form.submit('1', continue_mode=true);
-                                        });
-                                    } else {
-                                        _fn.custom_background = '';
-                                        _fn.build.form.submit('1', continue_mode=true);
-                                    }
-                                }
-                            },
-                            onCancelCallback: function () {}
-                        })
-                    } else {
-                        const type_id = parseInt(e.currentTarget.id.replace('background-type-', ''));
-                        if (type_id !== CUSTOM_TEMPLATE_TYPE) {
-                            _fn.build.changeBackgroundType(type_id);
-                        } else if (_fn.custom_background) {
-                            _fn.data.targetImg = _fn.custom_background;
-                            _fn.build.changeBackgroundType(type_id);
-                        }
+                    if (displayUrl || portableUrl) {
+                        _fn.selected_asset_id = assetId || null;
+                        _fn.build.changeBackgroundType(CUSTOM_TEMPLATE_TYPE, function() {
+                            _fn.build.applyStoredBackground(portableUrl, displayUrl);
+                            _fn.build.changeBackgroundSelect();
+                        });
+                    } else if (!isNaN(type_id)) {
+                        _fn.selected_asset_id = null;
+                        _fn.build.changeBackgroundType(type_id);
                     }
                 },
                 changeBackgroundType: function(type_id, onConfirmHandler) {
@@ -170,6 +149,10 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     if (type_id === undefined || type_id === _fn.type_id) {
                         if (type_id === CUSTOM_TEMPLATE_TYPE) {
                             _fn.build.changeBackgroundConfirmHandler(type_id, onConfirmHandler);
+                            // Already Custom, so the calls below the type-change branch never run.
+                            // Selecting or uploading another image still has to enable Save.
+                            _fn.build.set_tab_editing_status();
+                            _fn.build.refresh_save_button_status();
                         }
                         return;
                     }
@@ -365,89 +348,437 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE && _fn.is_old_version===false) {
                         // PYRAMID RECTANGLE BLANK clean background image use template default background
                         _fn.data.targetImg = "";
+                        _fn.background_display_url = "";
                     }
+
+                    var $items = _fn.build.$el.backgroundChoose.templates.find('.pattern-item');
+                    $items.removeClass('is-selected');
+
+                    if (_fn.type_id === CUSTOM_TEMPLATE_TYPE && _fn.custom_background) {
+                        var $customItem = $items.filter(function() {
+                            return _fn.build.elementMatchesStoredBackground(this, _fn.custom_background);
+                        });
+                        $customItem.addClass('is-selected');
+                    } else {
+                        $items.filter('[data-template-type="' + _fn.type_id + '"]').addClass('is-selected');
+                    }
+                },
+                onBackgroundUploadSuccessHandler(asset) {
+                    if (!asset) {
+                        return;
+                    }
+
+                    _fn.build.insertBackgroundAsset(asset, true);
+                    _fn.selected_asset_id = asset.id || null;
+                    _fn.build.changeBackgroundType(CUSTOM_TEMPLATE_TYPE, function() {
+                        _fn.build.applyStoredBackground(asset.portable_url || asset.url, asset.url);
+                        _fn.build.changeBackgroundSelect();
+                    });
+                },
+                initBackgroundAssets: function() {
+                    var backgroundChoose = _fn.build.$el.backgroundChoose;
+                    backgroundChoose.uploadArea = $('.drag-builder .dnd-upload-area', element);
+                    backgroundChoose.uploadInput = $('.drag-builder .dnd-upload-input', element);
+                    backgroundChoose.filesMessage = $('.drag-builder .dnd-files-message', element);
+                    backgroundChoose.filesMessage.find('.close').on('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        _fn.build.setBackgroundMessage('');
+                    });
+
+                    _fn.build.bindBackgroundUploadEvents();
+                    _fn.build.fetchBackgroundAssets();
+                },
+                bindBackgroundUploadEvents: function() {
+                    var backgroundChoose = _fn.build.$el.backgroundChoose;
+
+                    if (!backgroundChoose.uploadArea.length || !backgroundChoose.uploadInput.length) {
+                        return;
+                    }
+
+                    backgroundChoose.uploadArea.on('click', function(e) {
+                        if (e.target !== backgroundChoose.uploadInput[0]) {
+                            backgroundChoose.uploadInput[0].click();
+                        }
+                    });
+
+                    backgroundChoose.uploadArea.on('keydown', function(e) {
+                        if (e.keyCode === 13 || e.keyCode === 32) {
+                            e.preventDefault();
+                            backgroundChoose.uploadInput[0].click();
+                        }
+                    });
+
+                    backgroundChoose.uploadInput.on('change', function(e) {
+                        _fn.build.handleBackgroundUpload(e.target.files);
+                        e.target.value = '';
+                    });
+
+                    backgroundChoose.uploadArea.on('dragenter dragover', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        backgroundChoose.uploadArea.addClass('drag-over');
+                    });
+
+                    backgroundChoose.uploadArea.on('dragleave', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (_fn.build.isDragStillInside(backgroundChoose.uploadArea[0], e)) {
+                            return;
+                        }
+                        backgroundChoose.uploadArea.removeClass('drag-over');
+                    });
+
+                    backgroundChoose.uploadArea.on('dragend drop', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        backgroundChoose.uploadArea.removeClass('drag-over');
+                    });
+
+                    backgroundChoose.uploadArea.on('drop', function(e) {
+                        var files = e.originalEvent && e.originalEvent.dataTransfer ? e.originalEvent.dataTransfer.files : null;
+                        _fn.build.handleBackgroundUpload(files);
+                    });
+                },
+                handleBackgroundUpload: function(files) {
+                    if (!files || !files.length) {
+                        return;
+                    }
+
+                    var file = files[0],
+                        maxSizeInMbs = _fn.build.getMaxBackgroundFileSize(),
+                        maxSizeBytes = maxSizeInMbs ? maxSizeInMbs * 1000 * 1000 : null,
+                        extension = file.name.slice(file.name.lastIndexOf('.') + 1).toLowerCase();
+
+                    if (['jpg', 'jpeg', 'png'].indexOf(extension) === -1) {
+                        _fn.build.setBackgroundMessage(gettext('Unsupported file format. Please upload a JPG or PNG.'), 'error');
+                        return;
+                    }
+
+                    if (maxSizeBytes && file.size > maxSizeBytes) {
+                        _fn.build.setBackgroundMessage(gettext('File is too large. Please upload a smaller file.'), 'error');
+                        return;
+                    }
+
+                    _fn.build.uploadBackgroundFile(file);
+                },
+                uploadBackgroundFile: function(file) {
+                    var assetsUrl = _fn.build.getAssetsUrl();
+                    if (!assetsUrl) {
+                        _fn.build.setBackgroundMessage(gettext('Upload failed. Could not determine upload URL.'), 'error');
+                        return;
+                    }
+
+                    var formData = new FormData();
+                    formData.append('file', file);
+
+                    _fn.build.setBackgroundMessage(gettext('Uploading...'), 'info');
+
+                    fetch(assetsUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRFToken': _fn.build.getCsrfToken()
+                        },
+                        credentials: 'same-origin',
+                        body: formData
+                    })
+                    .then(function(response) {
+                        if (!response.ok) {
+                            return response.json().then(function(body) {
+                                var message = body && body.error ? String(body.error) : gettext('Upload failed');
+                                throw new Error(message);
+                            }, function() {
+                                throw new Error(gettext('Upload failed'));
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        if (!data || !data.asset) {
+                            throw new Error(gettext('Upload failed'));
+                        }
+                        return data.asset;
+                    })
+                    .then(function(asset) {
+                        _fn.build.setBackgroundMessage(gettext('Upload completed'), 'success');
+                        return asset;
+                    }, function(error) {
+                        _fn.build.setBackgroundMessage(error && error.message ? error.message : gettext('Upload failed'), 'error');
+                    })
+                    .then(function(asset) {
+                        if (!asset) {
+                            return;
+                        }
+                        _fn.build.onBackgroundUploadSuccessHandler(asset);
+                    });
+                },
+                fetchBackgroundAssets: function() {
+                    var uploadsUrl = _fn.build.getUploadsUrl();
+                    if (!uploadsUrl) {
+                        return;
+                    }
+
+                    var query = $.param({
+                        format: 'json',
+                        page: 0,
+                        page_size: 1000,
+                        file_type: 'Image',
+                        search: '',
+                        sort: 'date_added',
+                        direction: 'desc'
+                    });
+
+                    fetch(uploadsUrl + '?' + query, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRFToken': _fn.build.getCsrfToken()
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(function(response) {
+                        if (!response.ok) {
+                            throw new Error('Failed to load assets');
+                        }
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        var uploads = data.assets || [];
+                        _fn.build.renderBackgroundAssets(uploads);
+                    })
+                    .catch(function() {
+                        _fn.build.setBackgroundMessage(gettext('Could not load uploaded images.'), 'error');
+                    });
+                },
+                renderBackgroundAssets: function(uploads) {
+                    var backgroundChoose = _fn.build.$el.backgroundChoose;
+                    backgroundChoose.templates.find('.dnd-asset-item').remove();
+
+                    var assets = uploads.filter(function(asset) {
+                        var type = asset.file_type || asset.type || '';
+                        return type === 'Image' || (asset.content_type && asset.content_type.indexOf('image/') === 0);
+                    });
+
+                    assets.forEach(function(asset) {
+                        _fn.build.insertBackgroundAsset(asset, false);
+                    });
 
                     if (_fn.custom_background) {
-                        $('#id-background-thumbnail')
-                            .css("background-image", "url('" + _fn.custom_background + "')");
-                    }
-
-                    // Handle the display of selected and delete circles
-                    for (var i = 0; i < params.tpl_summaries.length; i++) {
-                        const tpl_summary = params.tpl_summaries[i];
-                        // Delete circle appears when the custom background is not selected
-                        const selecedObj = $("#item-selected-circle-" + i.toString());
-                        const deleteCircleObj = $("#item-delete-circle-" + i.toString());
-                        if (parseInt(tpl_summary.type_id) === CUSTOM_TEMPLATE_TYPE && _fn.type_id !== CUSTOM_TEMPLATE_TYPE && _fn.custom_background) {
-                            deleteCircleObj.css('display', '');
-                        } else {
-                            deleteCircleObj.css('display', 'none');
-                        }
-
-                        // Handle the display of selected circles
-                        // Selected circle appears when the background is selected
-                        if (_fn.type_id === parseInt(tpl_summary.type_id)) {
-                            selecedObj.css('display', '');
-                        } else {
-                            selecedObj.css('display', 'none');
+                        var hasCustom = assets.some(function(asset) {
+                            return _fn.build.assetMatchesStoredBackground(asset, _fn.custom_background);
+                        });
+                        if (!hasCustom) {
+                            var displayUrl = _fn.background_display_url || _fn.target_img_expanded_url || _fn.custom_background;
+                            _fn.build.insertBackgroundAsset({
+                                id: 'custom-background',
+                                display_name: _fn.build.getFileNameFromUrl(_fn.custom_background),
+                                url: displayUrl,
+                                portable_url: _fn.custom_background,
+                                thumbnail: displayUrl,
+                                size: 0
+                            }, false);
                         }
                     }
 
-                    // Handle the display of custom background
-                    const patternItemCustomBackground = $("#background-type-" + CUSTOM_TEMPLATE_TYPE.toString());
-                    if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE && !_fn.custom_background) {
-                        patternItemCustomBackground.css('display', 'none');
+                    _fn.build.changeBackgroundSelect();
+                },
+                applyStoredBackground: function(portableUrl, displayUrl) {
+                    // /static/... is the only path that survives export, import, and rerun.
+                    // The asset-key URL is kept only so Studio can preview the file immediately.
+                    var storedUrl = portableUrl || displayUrl || '';
+                    _fn.data.targetImg = storedUrl;
+                    _fn.custom_background = storedUrl;
+                    _fn.background_display_url = displayUrl || storedUrl;
+                },
+                assetMatchesStoredBackground: function(asset, storedUrl) {
+                    if (!asset || !storedUrl) {
+                        return false;
+                    }
+                    return asset.url === storedUrl || asset.portable_url === storedUrl || asset.external_url === storedUrl;
+                },
+                elementMatchesStoredBackground: function(element, storedUrl) {
+                    if (!element || !storedUrl) {
+                        return false;
+                    }
+                    var $item = $(element);
+                    return $item.attr('data-background-url') === storedUrl
+                        || $item.attr('data-portable-url') === storedUrl
+                        || $item.attr('data-external-url') === storedUrl;
+                },
+                canvasBackgroundUrl: function() {
+                    if (_fn.background_display_url) {
+                        return _fn.background_display_url;
+                    }
+                    if (_fn.target_img_expanded_url) {
+                        return _fn.target_img_expanded_url;
+                    }
+                    return _fn.data.targetImg || '';
+                },
+                insertBackgroundAsset: function(asset, isFirstAfterDefaults) {
+                    if (!asset || !(asset.url || asset.portable_url)) {
+                        return;
+                    }
+
+                    var backgroundChoose = _fn.build.$el.backgroundChoose,
+                        displayUrl = asset.url || asset.portable_url,
+                        thumbnail = asset.thumbnail || displayUrl,
+                        displayName = asset.display_name || _fn.build.getFileNameFromUrl(displayUrl) || 'image',
+                        fileSize = _fn.build.formatFileSize(
+                            asset.size || asset.size === 0 ? asset.size : asset.file_size
+                        ),
+                        extension = _fn.build.getFileExtension(displayName),
+                        badgeText = extension || 'jpg',
+                        escapeHtml = _fn.build.escapeHtml,
+                        existingItem,
+                        itemHtml = '' +
+                            '<li class="pattern-item dnd-asset-item" role="button" tabindex="0" data-template-type="' + CUSTOM_TEMPLATE_TYPE + '"' +
+                                ' data-background-url="' + escapeHtml(displayUrl) + '"' +
+                                ' data-portable-url="' + escapeHtml(asset.portable_url || '') + '"' +
+                                ' data-external-url="' + escapeHtml(asset.external_url || '') + '"' +
+                                ' data-asset-id="' + escapeHtml(asset.id || '') + '">' +
+                                '<div class="dnd-file-preview">' +
+                                    '<span class="dnd-file-badge type-image">' + escapeHtml(badgeText) + '</span>' +
+                                    '<div class="pattern-image"></div>' +
+                                '</div>' +
+                                '<div class="dnd-file-info">' +
+                                    '<div class="dnd-file-name" title="' + escapeHtml(displayName) + '">' + escapeHtml(displayName) + '</div>' +
+                                    '<div class="dnd-file-size">' + escapeHtml(fileSize) + '</div>' +
+                                '</div>' +
+                            '</li>';
+
+                    var $item = $(itemHtml);
+                    $item.find('.pattern-image').css('background-image', _fn.build.cssImageValue(thumbnail));
+
+                    existingItem = backgroundChoose.templates.find('.dnd-asset-item').filter(function() {
+                        return _fn.build.elementMatchesStoredBackground(this, displayUrl)
+                            || (asset.portable_url && _fn.build.elementMatchesStoredBackground(this, asset.portable_url));
+                    });
+                    existingItem.remove();
+
+                    if (isFirstAfterDefaults) {
+                        var $defaultItems = backgroundChoose.templates.find('.dnd-template-item');
+                        if ($defaultItems.length) {
+                            $defaultItems.last().after($item);
+                        } else {
+                            backgroundChoose.templates.append($item);
+                        }
                     } else {
-                        patternItemCustomBackground.css('display', '')
+                        backgroundChoose.templates.append($item);
                     }
                 },
-                onBackgroundUploadSuccessHandler(e) {
-                    /**
-                     * Handle the uploaded custom background
-                     * Set the asset url to background and custom_background from uploaded image file
-                     * Save xblock directly
-                     */
-                    // old asset to delete
-                    const oldAssetId = _fn.data.targetImg.substring(_fn.data.targetImg.lastIndexOf('/') + 1);
-                    const newXblockAsset = e.detail.asset;
-                    const newBlockId = newXblockAsset.id.toString();
-
-                    if (oldAssetId !== newBlockId) {
-                        if (_fn.custom_background) {
-                            // overwrites previously custom background
-                            runtime.notify('confirm', {
-                                title: gettext('Replace the custom background?'),
-                                message: gettext('Your current background will be deleted and immediately replaced by the new upload. Are you sure you want to continue?'),
-                                actionLabel: gettext('Yes, replace the background'),
-                                operation: function () {
-                                    onConfirmReplaceCustomBackgroundHandler();
-                                }
-                            });
-                        } else {
-                            onConfirmReplaceCustomBackgroundHandler();
-                        }
+                getFileExtension: function(filename) {
+                    if (!filename) {
+                        return '';
                     }
-
-                    function onConfirmReplaceCustomBackgroundHandler (){
-                        if (oldAssetId) {
-                            _fn.build.form.background_check(oldAssetId, function(){
-                                onBGCheckCallback();
-                            });
-                        } else {
-                            onBGCheckCallback();
-                        }
-
-                        function onBGCheckCallback() {
-                            _fn.build.changeBackgroundType(CUSTOM_TEMPLATE_TYPE, function() {
-                                _fn.data.targetImg = newXblockAsset.url;
-                                _fn.custom_background = newXblockAsset.url;
-                                _fn.build.form.submit('1', continue_mode=true);
-                            })
-                        }
+                    var index = filename.lastIndexOf('.');
+                    if (index === -1) {
+                        return '';
                     }
+                    return filename.slice(index + 1).toLowerCase();
                 },
-                onBackgroundGetAssetsSuccessHandler(e) {
+                getFileNameFromUrl: function(url) {
+                    if (!url) {
+                        return '';
+                    }
+                    var lastPart = url.split('?')[0];
+                    return lastPart.slice(lastPart.lastIndexOf('/') + 1);
+                },
+                formatFileSize: function(bytes) {
+                    if (!bytes && bytes !== 0) {
+                        return '';
+                    }
+                    if (bytes === 0) {
+                        return '0 B';
+                    }
+                    var units = ['B', 'KB', 'MB', 'GB'],
+                        index = Math.floor(Math.log(bytes) / Math.log(1024)),
+                        size = bytes / Math.pow(1024, index);
+                    return size.toFixed(size >= 10 || index === 0 ? 0 : 1) + ' ' + units[index];
+                },
+                getMaxBackgroundFileSize: function() {
+                    var maxSize = Number(params.max_file_size_in_mbs);
+                    if (maxSize > 0) {
+                        return maxSize;
+                    }
+                    return null;
+                },
+                isDragStillInside: function(area, event) {
+                    if (!area) {
+                        return false;
+                    }
+                    var related = event.relatedTarget || (event.originalEvent && event.originalEvent.relatedTarget);
+                    if (related && (related === area || area.contains(related))) {
+                        return true;
+                    }
+                    // Safari often leaves relatedTarget empty while the pointer moves
+                    // onto a child of the drop target.
+                    if (!related && document.elementFromPoint) {
+                        var point = event.originalEvent || event;
+                        var under = document.elementFromPoint(point.clientX, point.clientY);
+                        if (under && (under === area || area.contains(under))) {
+                            return true;
+                        }
+                    }
+                    return false;
+                },
+                getUploadsUrl: function() {
+                    return params.uploads_url || '';
+                },
+                getAssetsUrl: function() {
+                    return params.assets_url || '';
+                },
+                getCsrfToken: function() {
+                    if (window.Cookies && Cookies.get) {
+                        return Cookies.get('csrftoken');
+                    }
+                    if ($.cookie) {
+                        return $.cookie('csrftoken');
+                    }
+                    var match = document.cookie.match(/csrftoken=([^;]+)/);
+                    return match ? match[1] : '';
+                },
+                escapeHtml: function(value) {
+                    if (value === null || value === undefined) {
+                        return '';
+                    }
+                    return String(value)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#39;');
+                },
+                cssImageValue: function(url) {
+                    if (!url) {
+                        return 'none';
+                    }
+                    var encoded = encodeURI(String(url).replace(/\\/g, '%5C'))
+                        .replace(/"/g, '%22')
+                        .replace(/'/g, '%27')
+                        .replace(/\(/g, '%28')
+                        .replace(/\)/g, '%29');
+                    return 'url("' + encoded + '")';
+                },
+                setBackgroundMessage: function(message, type) {
+                    var backgroundChoose = _fn.build.$el.backgroundChoose,
+                        hasMessage;
+                    if (!backgroundChoose.filesMessage || !backgroundChoose.filesMessage.length) {
+                        return;
+                    }
 
+                    hasMessage = Boolean(message);
+                    backgroundChoose.filesMessage
+                        .removeClass('is-shown is-error is-success is-info')
+                        .toggleClass('is-shown', hasMessage)
+                        .toggleClass('is-error', type === 'error' && hasMessage)
+                        .toggleClass('is-success', type === 'success' && hasMessage)
+                        .toggleClass('is-info', type === 'info' && hasMessage);
+                    backgroundChoose.filesMessage.find('.alert-dialog').text(message || '');
+                    if (hasMessage) {
+                        backgroundChoose.filesMessage.removeAttr('hidden');
+                    } else {
+                        backgroundChoose.filesMessage.attr('hidden', 'hidden');
+                    }
                 },
                 updateSwitchers() {
                     /**
@@ -613,16 +944,16 @@ async function DragAndDropEditBlock(runtime, element, params) {
                             }
                             _fn.tpl_summaries.forEach(function(tpl_summary) {
                                 if (tpl_summary.type_id === parseInt(_fn.type_id)) {
-                                    $(drawing_area_selector).css("background-image", "url(" + tpl_summary.thumbnail + ")");
+                                    $(drawing_area_selector).css('background-image', _fn.build.cssImageValue(tpl_summary.thumbnail));
                                 }
                             });
                         } else if (_fn.type_id === 3 || (_fn.is_old_version === true && _fn.target_img_expanded_url != null) ) {     // Custom Background template
                             if (_fn.type_id === 3) {
                                 $(drawing_area_selector)
-                                    .css("background-image", "url(" + _fn.data.targetImg + ")");    // paste uploaded image into background
+                                    .css('background-image', _fn.build.cssImageValue(_fn.build.canvasBackgroundUrl()));
                             } else {
                                 $(drawing_area_selector)
-                                    .css("background-image", "url(" + _fn.target_img_expanded_url + ")");    // paste uploaded image into background
+                                    .css('background-image', _fn.build.cssImageValue(_fn.target_img_expanded_url));
                             }
                             $(drawing_area_selector).css('max-height', '500px');
                         } else {
@@ -1049,8 +1380,8 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     var is_disabled = _fn.build.getEditingStatus()
 
                     if (!is_disabled) {
-                        save_button.setAttribute('disabled', null);
-                    } else if (is_disabled ){
+                        save_button.setAttribute('disabled', 'disabled');
+                    } else {
                         save_button.removeAttribute('disabled');
                     }
                 },
@@ -1129,11 +1460,6 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         _fn.build.form.submit(tabID, continue_mode=false);
 
                         _fn.tabs_editing_status[tabID] = false;
-
-                        var root_div = document.getElementById('tmp_root');
-                        if (root_div != null) {
-                            document.getElementById('tmp_root').id = 'root';
-                        }
                     })
 
                     $element.find('.add_answer_button').bind('click', function(e) {
@@ -1148,7 +1474,13 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     });
 
                     $backgroundChoose.templates
-                        .on('click', '.pattern-item', _fn.build.backgroundTemplateChoose);
+                        .on('click', '.pattern-item', _fn.build.backgroundTemplateChoose)
+                        .on('keydown', '.pattern-item', function(e) {
+                            if (e.keyCode === 13 || e.keyCode === 32) {
+                                e.preventDefault();
+                                _fn.build.backgroundTemplateChoose(e);
+                            }
+                        });
 
                     $zoneTab
                         .on('click', '#id_add_zone_bt', function(e) {
@@ -1939,32 +2271,6 @@ async function DragAndDropEditBlock(runtime, element, params) {
                             }
                         },
                     },
-                    background_check(oldAssetId, callback) {
-                        /**
-                         * Handle check and delete unused custom background asset
-                         */
-                        const data = {
-                            asset_id: oldAssetId
-                        }
-                        var handlerUrl = runtime.handlerUrl(element, 'background_check');
-                        $.post(handlerUrl, JSON.stringify(data), 'json')
-                            .done(function(response) {
-                                if (response.result === 'success') {
-                                    // runtime.notify('save', continue_mode ? {state: 'save_and_continue'} : {state: 'end'});
-                                } else {
-                                    var result = response.result;
-                                    runtime.notify('error', {
-                                        'title': window.gettext("There was an error with your form."),
-                                        'message': result
-                                    });
-                                }
-                            })
-                            .always(function() {
-                                if (callback) {
-                                    callback.apply(this);
-                                }
-                            });
-                    },
                     submit: function(tabID, continue_mode=false) {
                         // Save parts of data for a specified Tab
                         var post_data = {};
@@ -2033,11 +2339,6 @@ async function DragAndDropEditBlock(runtime, element, params) {
     $element.find('.cancel-button').bind('click', function(e) {
         e.preventDefault();
         runtime.notify('cancel', {});
-
-        var root_div = document.getElementById('tmp_root');
-        if (root_div != null) {
-            document.getElementById('tmp_root').id = 'root';
-        }
     });
 
     // Initialize js component

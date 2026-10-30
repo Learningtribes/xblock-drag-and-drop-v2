@@ -1,9 +1,9 @@
 const BLANK_IMAGE_WIDTH = 514;
 const BLANK_IMAGE_HEIGHT = 486;
 
-function DragAndDropTemplates(configuration) {
+function DragAndDropTemplates(configuration, virtualDomLib) {
     "use strict";
-    var h = virtualDom.h;
+    var h = virtualDomLib.h;
 
     var isMobileScreen = function() {
         return window.matchMedia('screen and (max-width: 480px)').matches;
@@ -765,7 +765,8 @@ function DragAndDropBlock(runtime, element, configuration) {
         close_button: '.popup .close-feedback-popup-button'
     };
 
-    var renderView = DragAndDropTemplates(configuration);
+    // Deferred until virtual-dom is available (see waitForVirtualDomAndInit).
+    var renderView = null;
 
     var $element = $(element);
 
@@ -777,7 +778,8 @@ function DragAndDropBlock(runtime, element, configuration) {
     var bgImgNaturalWidth = undefined;  // pixel width of the background image (when not scaled)
     var containerMaxWidth = null;  // measured and set after first render
     var fixedHeaderHeight = 0; // measured in checkForFixedHeader
-    var __vdom = virtualDom.h();  // blank virtual DOM
+    var __vdom = null;
+    var virtualDomLib = window.virtualDom || (typeof virtualDom !== 'undefined' ? virtualDom : null);
 
     // Event string size limit.
     var MAX_LENGTH = 255;
@@ -1178,8 +1180,8 @@ function DragAndDropBlock(runtime, element, configuration) {
 
     var updateDOM = function() {
         var new_vdom = render(state);
-        var patches = virtualDom.diff(__vdom, new_vdom);
-        root = virtualDom.patch(root, patches);
+        var patches = virtualDomLib.diff(__vdom, new_vdom);
+        root = virtualDomLib.patch(root, patches);
         $root = $(root);
         __vdom = new_vdom;
     };
@@ -2088,5 +2090,28 @@ function DragAndDropBlock(runtime, element, configuration) {
         });
     };
 
-    init();
+    // Wait until virtual-dom is available, then continue normal block initialization.
+    var waitForVirtualDomAndInit = function(elapsedMs) {
+        if (!virtualDomLib) {
+            virtualDomLib = window.virtualDom || (typeof virtualDom !== 'undefined' ? virtualDom : null);
+        }
+
+        if (virtualDomLib) {
+            renderView = DragAndDropTemplates(configuration, virtualDomLib);
+            __vdom = virtualDomLib.h();  // blank virtual DOM
+            init();
+            return;
+        }
+
+        if (elapsedMs >= 5000) {
+            $root.text(gettext("An error occurred. Unable to load drag and drop problem."));
+            return;
+        }
+
+        setTimeout(function() {
+            waitForVirtualDomAndInit(elapsedMs + 25);
+        }, 25);
+    };
+
+    waitForVirtualDomAndInit(0);
 }
