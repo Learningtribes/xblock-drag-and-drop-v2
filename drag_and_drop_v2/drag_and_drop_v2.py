@@ -291,7 +291,7 @@ class DragAndDropBlock(
         for css_url in css_urls:
             fragment.add_css_url(self.runtime.local_resource_url(self, css_url))
         for js_url in js_urls:
-            fragment.add_javascript(loader.load_unicode(js_url))
+            fragment.add_javascript_url(self.runtime.local_resource_url(self, js_url))
 
         self.include_theme_files(fragment)
 

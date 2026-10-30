@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """ Drag and Drop v2 XBlock - Utils """
+from __future__ import absolute_import, division, print_function
+
 import copy
 from collections import namedtuple
-import urllib
 
 from django.contrib.staticfiles.storage import staticfiles_storage
+from six.moves.urllib.parse import quote
 
 
 def _(text):
@@ -67,7 +69,7 @@ def get_storage_url(file_path, raw=False):
     except:
         url = file_path
     ## HTML-escaping must be handled by caller
-    return url if raw else urllib.quote(url)
+    return url if raw else quote(url)
 
 
 class DummyTranslationService(object):
