@@ -419,7 +419,16 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         backgroundChoose.uploadArea.addClass('drag-over');
                     });
 
-                    backgroundChoose.uploadArea.on('dragleave dragend drop', function(e) {
+                    backgroundChoose.uploadArea.on('dragleave', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (_fn.build.isDragStillInside(backgroundChoose.uploadArea[0], e)) {
+                            return;
+                        }
+                        backgroundChoose.uploadArea.removeClass('drag-over');
+                    });
+
+                    backgroundChoose.uploadArea.on('dragend drop', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
                         backgroundChoose.uploadArea.removeClass('drag-over');
@@ -578,7 +587,9 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     var backgroundChoose = _fn.build.$el.backgroundChoose,
                         thumbnail = asset.thumbnail || asset.url,
                         displayName = asset.display_name || _fn.build.getFileNameFromUrl(asset.url) || 'image',
-                        fileSize = _fn.build.formatFileSize(asset.size),
+                        fileSize = _fn.build.formatFileSize(
+                            asset.size || asset.size === 0 ? asset.size : asset.file_size
+                        ),
                         extension = _fn.build.getFileExtension(displayName),
                         badgeText = extension || 'jpg',
                         escapeHtml = _fn.build.escapeHtml,
@@ -651,18 +662,27 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     }
                     return null;
                 },
-                getCourseId: function() {
-                    if (window.studioContext && studioContext.course && studioContext.course.id) {
-                        return studioContext.course.id;
+                isDragStillInside: function(area, event) {
+                    if (!area) {
+                        return false;
                     }
-                    return '';
+                    var related = event.relatedTarget || (event.originalEvent && event.originalEvent.relatedTarget);
+                    if (related && (related === area || area.contains(related))) {
+                        return true;
+                    }
+                    // Safari often leaves relatedTarget empty while the pointer moves
+                    // onto a child of the drop target.
+                    if (!related && document.elementFromPoint) {
+                        var point = event.originalEvent || event;
+                        var under = document.elementFromPoint(point.clientX, point.clientY);
+                        if (under && (under === area || area.contains(under))) {
+                            return true;
+                        }
+                    }
+                    return false;
                 },
                 getUploadsUrl: function() {
-                    var courseId = _fn.build.getCourseId();
-                    if (!courseId) {
-                        return '';
-                    }
-                    return '/uploads/' + courseId;
+                    return params.uploads_url || '';
                 },
                 getAssetsUrl: function() {
                     return params.assets_url || '';
@@ -1320,8 +1340,8 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     var is_disabled = _fn.build.getEditingStatus()
 
                     if (!is_disabled) {
-                        save_button.setAttribute('disabled', null);
-                    } else if (is_disabled ){
+                        save_button.setAttribute('disabled', 'disabled');
+                    } else {
                         save_button.removeAttribute('disabled');
                     }
                 },

@@ -30,6 +30,7 @@ setup(
         'XBlock==1.2.9',
         'ddt==0.8.0',
         'mock==1.0.1',
+        'six',
         'lxml==3.8.0',
         'web-fragments==0.2.2',
     ],

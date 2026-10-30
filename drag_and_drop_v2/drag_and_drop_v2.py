@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 """ Drag and Drop v2 XBlock """
-
+from __future__ import absolute_import, division, print_function
 
 import copy
+import json
+
+import webob
 from django.conf import settings
 from django.utils.translation import gettext, ngettext, ugettext
-import json
-import urllib
-import webob
+from six import text_type
+from six.moves.urllib.parse import quote
 
 from xblock.core import XBlock
 from xblock.exceptions import JsonHandlerError
@@ -16,7 +18,6 @@ from xblock.fragment import Fragment
 from xblock.scorable import ScorableXBlockMixin, Score
 from xblockutils.resources import ResourceLoader
 from xblockutils.settings import XBlockWithSettingsMixin, ThemableXBlockMixin
-from xmodule.modulestore.django import modulestore
 
 from .utils import (
     _, DummyTranslationService, FeedbackMessage, FeedbackMessages,
@@ -352,10 +353,11 @@ class DragAndDropBlock(
     def studio_view(self, view_context):
         """Editing view in Studio
         """
-        # CMS route requires the trailing slash. A hard-coded path without it
+        # CMS assets route requires the trailing slash. A hard-coded path without it
         # 301s the upload POST and the file body is dropped.
         from contentstore.utils import reverse_course_url
         assets_url = reverse_course_url('assets_handler', self.course_id)
+        uploads_url = reverse_course_url('uploads_handler', self.course_id)
         max_file_size_in_mbs = getattr(settings, 'MAX_ASSET_UPLOAD_FILE_SIZE_IN_MB', 10)
 
         # Get an 'id_suffix' string that is unique for this block.
@@ -369,23 +371,14 @@ class DragAndDropBlock(
                 - In LMS/Studio, use the location.html_id method.
                 - In the workbench, use the usage_id.
             """
-            return xblock.location.html_id() if hasattr(xblock, 'location') else unicode(xblock.scope_ids.usage_id)
+            return xblock.location.html_id() if hasattr(xblock, 'location') else text_type(xblock.scope_ids.usage_id)
 
-        course_module = modulestore().get_course(self.course_id)
         context = {
-            'course_id': "{}".format(self.course_id),
-            'course': {
-                'org': self.course_id.org,
-                'number': self.course_id.course,
-                'run': self.course_id.run,
-                'url_name': course_module.url_name,
-                'display_name': course_module.display_name
-            },
             'predefined_tabs': TabsHeader(),
             'id_suffix': _get_block_id(self),
             'fields': self.fields,
             'self': self,
-            'data': urllib.quote(json.dumps(self.data)),
+            'data': quote(json.dumps(self.data)),
             'type_id': self.type_id,
             'tpl_summaries': ZONE_TPL_DEFINITIONS.get_templates_summary(self, self.runtime.local_resource_url),
             'default_finish_feedback': ZonesDefinition.FINISH_FEEDBACK,
@@ -431,6 +424,7 @@ class DragAndDropBlock(
         fragment.initialize_js('DragAndDropEditBlock', {
             'data': self.data,
             'assets_url': assets_url,
+            'uploads_url': uploads_url,
             'max_file_size_in_mbs': max_file_size_in_mbs,
             'type_id': self.type_id,
             'custom_background': self.custom_background,
