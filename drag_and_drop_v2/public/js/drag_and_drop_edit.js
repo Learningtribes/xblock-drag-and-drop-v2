@@ -64,7 +64,8 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     _fn.zone_tab_used_tpl_id = _fn.data.template_type;  // activated template id in Zone Tab
                     _fn.type_id = params.type_id;                       // selected template id in Background Tab
                     _fn.target_img_expanded_url = params.target_img_expanded_url;
-                    _fn.custom_background = params.custom_background;   // uploaded custom background image
+                    _fn.custom_background = params.custom_background;   // portable /static/... path saved with the block
+                    _fn.background_display_url = '';                    // servable preview URL for the current editing session
                     _fn.new_selected_tpl_data = undefined;              // new selected template sample data ( replaced duplicated data )
                     _fn.tpl_summaries = params.tpl_summaries;
                     _fn.is_old_version = params.is_old_version;
@@ -124,14 +125,14 @@ async function DragAndDropEditBlock(runtime, element, params) {
 
                     var $item = $(e.currentTarget);
                     var type_id = parseInt($item.data('template-type'), 10);
-                    var backgroundUrl = $item.attr('data-background-url');
+                    var displayUrl = $item.attr('data-background-url');
+                    var portableUrl = $item.attr('data-portable-url') || displayUrl;
                     var assetId = $item.attr('data-asset-id');
 
-                    if (backgroundUrl) {
+                    if (displayUrl || portableUrl) {
                         _fn.selected_asset_id = assetId || null;
                         _fn.build.changeBackgroundType(CUSTOM_TEMPLATE_TYPE, function() {
-                            _fn.data.targetImg = backgroundUrl;
-                            _fn.custom_background = backgroundUrl;
+                            _fn.build.applyStoredBackground(portableUrl, displayUrl);
                             _fn.build.changeBackgroundSelect();
                         });
                     } else if (!isNaN(type_id)) {
@@ -347,6 +348,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     if (_fn.type_id !== CUSTOM_TEMPLATE_TYPE && _fn.is_old_version===false) {
                         // PYRAMID RECTANGLE BLANK clean background image use template default background
                         _fn.data.targetImg = "";
+                        _fn.background_display_url = "";
                     }
 
                     var $items = _fn.build.$el.backgroundChoose.templates.find('.pattern-item');
@@ -354,7 +356,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
 
                     if (_fn.type_id === CUSTOM_TEMPLATE_TYPE && _fn.custom_background) {
                         var $customItem = $items.filter(function() {
-                            return $(this).attr('data-background-url') === _fn.custom_background;
+                            return _fn.build.elementMatchesStoredBackground(this, _fn.custom_background);
                         });
                         $customItem.addClass('is-selected');
                     } else {
@@ -369,8 +371,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     _fn.build.insertBackgroundAsset(asset, true);
                     _fn.selected_asset_id = asset.id || null;
                     _fn.build.changeBackgroundType(CUSTOM_TEMPLATE_TYPE, function() {
-                        _fn.data.targetImg = asset.url;
-                        _fn.custom_background = asset.url;
+                        _fn.build.applyStoredBackground(asset.portable_url || asset.url, asset.url);
                         _fn.build.changeBackgroundSelect();
                     });
                 },
@@ -564,14 +565,16 @@ async function DragAndDropEditBlock(runtime, element, params) {
 
                     if (_fn.custom_background) {
                         var hasCustom = assets.some(function(asset) {
-                            return asset.url === _fn.custom_background || asset.external_url === _fn.custom_background;
+                            return _fn.build.assetMatchesStoredBackground(asset, _fn.custom_background);
                         });
                         if (!hasCustom) {
+                            var displayUrl = _fn.background_display_url || _fn.target_img_expanded_url || _fn.custom_background;
                             _fn.build.insertBackgroundAsset({
                                 id: 'custom-background',
                                 display_name: _fn.build.getFileNameFromUrl(_fn.custom_background),
-                                url: _fn.custom_background,
-                                thumbnail: _fn.custom_background,
+                                url: displayUrl,
+                                portable_url: _fn.custom_background,
+                                thumbnail: displayUrl,
                                 size: 0
                             }, false);
                         }
@@ -579,14 +582,47 @@ async function DragAndDropEditBlock(runtime, element, params) {
 
                     _fn.build.changeBackgroundSelect();
                 },
+                applyStoredBackground: function(portableUrl, displayUrl) {
+                    // /static/... is the only path that survives export, import, and rerun.
+                    // The asset-key URL is kept only so Studio can preview the file immediately.
+                    var storedUrl = portableUrl || displayUrl || '';
+                    _fn.data.targetImg = storedUrl;
+                    _fn.custom_background = storedUrl;
+                    _fn.background_display_url = displayUrl || storedUrl;
+                },
+                assetMatchesStoredBackground: function(asset, storedUrl) {
+                    if (!asset || !storedUrl) {
+                        return false;
+                    }
+                    return asset.url === storedUrl || asset.portable_url === storedUrl || asset.external_url === storedUrl;
+                },
+                elementMatchesStoredBackground: function(element, storedUrl) {
+                    if (!element || !storedUrl) {
+                        return false;
+                    }
+                    var $item = $(element);
+                    return $item.attr('data-background-url') === storedUrl
+                        || $item.attr('data-portable-url') === storedUrl
+                        || $item.attr('data-external-url') === storedUrl;
+                },
+                canvasBackgroundUrl: function() {
+                    if (_fn.background_display_url) {
+                        return _fn.background_display_url;
+                    }
+                    if (_fn.target_img_expanded_url) {
+                        return _fn.target_img_expanded_url;
+                    }
+                    return _fn.data.targetImg || '';
+                },
                 insertBackgroundAsset: function(asset, isFirstAfterDefaults) {
-                    if (!asset || !asset.url) {
+                    if (!asset || !(asset.url || asset.portable_url)) {
                         return;
                     }
 
                     var backgroundChoose = _fn.build.$el.backgroundChoose,
-                        thumbnail = asset.thumbnail || asset.url,
-                        displayName = asset.display_name || _fn.build.getFileNameFromUrl(asset.url) || 'image',
+                        displayUrl = asset.url || asset.portable_url,
+                        thumbnail = asset.thumbnail || displayUrl,
+                        displayName = asset.display_name || _fn.build.getFileNameFromUrl(displayUrl) || 'image',
                         fileSize = _fn.build.formatFileSize(
                             asset.size || asset.size === 0 ? asset.size : asset.file_size
                         ),
@@ -596,7 +632,10 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         existingItem,
                         itemHtml = '' +
                             '<li class="pattern-item dnd-asset-item" role="button" tabindex="0" data-template-type="' + CUSTOM_TEMPLATE_TYPE + '"' +
-                                ' data-background-url="' + escapeHtml(asset.url) + '" data-asset-id="' + escapeHtml(asset.id || '') + '">' +
+                                ' data-background-url="' + escapeHtml(displayUrl) + '"' +
+                                ' data-portable-url="' + escapeHtml(asset.portable_url || '') + '"' +
+                                ' data-external-url="' + escapeHtml(asset.external_url || '') + '"' +
+                                ' data-asset-id="' + escapeHtml(asset.id || '') + '">' +
                                 '<div class="dnd-file-preview">' +
                                     '<span class="dnd-file-badge type-image">' + escapeHtml(badgeText) + '</span>' +
                                     '<div class="pattern-image"></div>' +
@@ -611,7 +650,8 @@ async function DragAndDropEditBlock(runtime, element, params) {
                     $item.find('.pattern-image').css('background-image', _fn.build.cssImageValue(thumbnail));
 
                     existingItem = backgroundChoose.templates.find('.dnd-asset-item').filter(function() {
-                        return $(this).attr('data-background-url') === asset.url;
+                        return _fn.build.elementMatchesStoredBackground(this, displayUrl)
+                            || (asset.portable_url && _fn.build.elementMatchesStoredBackground(this, asset.portable_url));
                     });
                     existingItem.remove();
 
@@ -910,7 +950,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
                         } else if (_fn.type_id === 3 || (_fn.is_old_version === true && _fn.target_img_expanded_url != null) ) {     // Custom Background template
                             if (_fn.type_id === 3) {
                                 $(drawing_area_selector)
-                                    .css('background-image', _fn.build.cssImageValue(_fn.data.targetImg));
+                                    .css('background-image', _fn.build.cssImageValue(_fn.build.canvasBackgroundUrl()));
                             } else {
                                 $(drawing_area_selector)
                                     .css('background-image', _fn.build.cssImageValue(_fn.target_img_expanded_url));
