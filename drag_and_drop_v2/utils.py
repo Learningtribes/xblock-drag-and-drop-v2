@@ -6,7 +6,7 @@ import copy
 from collections import namedtuple
 
 from django.contrib.staticfiles.storage import staticfiles_storage
-from six.moves.urllib.parse import quote
+from urllib.parse import quote
 
 
 def _(text):

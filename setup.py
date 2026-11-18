@@ -26,16 +26,11 @@ setup(
     version='2.1.6',
     description='XBlock - Drag-and-Drop v2',
     packages=['drag_and_drop_v2'],
+    python_requires='>=3.10',
     install_requires=[
-        'XBlock==1.2.9',
-        'ddt==0.8.0',
-        'mock==1.0.1',
-        'six',
-        'lxml==3.8.0',
-        'web-fragments==0.2.2',
-    ],
-    dependency_links=[
-        'git+https://github.com/Learningtribes/xblock-utils.git@ec95e5e718c4144dc8a43d116a545f210d929667#egg=xblock-utils'
+        'Django>=5.2,<6',
+        'XBlock>=6.1,<7',
+        'webob>=1.8,<2',
     ],
     entry_points={
         'xblock.v1': 'drag-and-drop-v2 = drag_and_drop_v2:DragAndDropBlock',

@@ -6,18 +6,17 @@ import copy
 import json
 
 import webob
+from urllib.parse import quote
 from django.conf import settings
-from django.utils.translation import gettext, ngettext, ugettext
-from six import text_type
-from six.moves.urllib.parse import quote
+from django.utils.translation import gettext, ngettext
 
 from xblock.core import XBlock
 from xblock.exceptions import JsonHandlerError
 from xblock.fields import Scope, String, Dict, Float, Boolean, Integer, List
 from xblock.fragment import Fragment
 from xblock.scorable import ScorableXBlockMixin, Score
-from xblockutils.resources import ResourceLoader
-from xblockutils.settings import XBlockWithSettingsMixin, ThemableXBlockMixin
+from xblock.utils.resources import ResourceLoader
+from xblock.utils.settings import XBlockWithSettingsMixin, ThemableXBlockMixin
 
 from .utils import (
     _, DummyTranslationService, FeedbackMessage, FeedbackMessages,
@@ -371,7 +370,7 @@ class DragAndDropBlock(
                 - In LMS/Studio, use the location.html_id method.
                 - In the workbench, use the usage_id.
             """
-            return xblock.location.html_id() if hasattr(xblock, 'location') else text_type(xblock.scope_ids.usage_id)
+            return xblock.location.html_id() if hasattr(xblock, 'location') else str(xblock.scope_ids.usage_id)
 
         context = {
             'predefined_tabs': TabsHeader(),
@@ -803,9 +802,9 @@ class DragAndDropBlock(
             _add_msg_if_exists(missing_ids, FeedbackMessages.not_placed, FeedbackMessages.MessageClasses.NOT_PLACED)
 
         if self.attempts_remain and (misplaced_ids or missing_ids):
-            problem_feedback_message = ugettext(self.data['feedback']['start'])
+            problem_feedback_message = gettext(self.data['feedback']['start'])
         else:
-            problem_feedback_message = ugettext(self.data['feedback']['finish'])
+            problem_feedback_message = gettext(self.data['feedback']['finish'])
 
         problem_feedback_class = self.PROBLEM_FEEDBACK_CLASSES.get(_answer_correctness, None)
         grade_feedback_class = self.GRADE_FEEDBACK_CLASSES.get(_answer_correctness, None)
@@ -814,9 +813,9 @@ class DragAndDropBlock(
 
         if self.weight > 0:
             if self.attempts_remain:
-                grade_feedback_template = ugettext(FeedbackMessages.GRADE_FEEDBACK_TPL)
+                grade_feedback_template = gettext(FeedbackMessages.GRADE_FEEDBACK_TPL)
             else:
-                grade_feedback_template = ugettext(FeedbackMessages.FINAL_ATTEMPT_TPL)
+                grade_feedback_template = gettext(FeedbackMessages.FINAL_ATTEMPT_TPL)
 
             feedback_msgs.append(
                 FeedbackMessage(grade_feedback_template.format(score=self.weighted_grade()), grade_feedback_class)
