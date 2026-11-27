@@ -2122,18 +2122,24 @@ async function DragAndDropEditBlock(runtime, element, params) {
                             let id_answer_name = 'id_answer_name__' + item_uid;
                             let id_answer_colored_zones = 'id_answer_colored_zones__' + item_uid;
 
-                            let answer_element = $(`<div id="id_answer_card__${item_uid}" data-itemid="${item_uid}" class="answer_item"></div>`); // Answer Item Card
+                            let answer_element = $('<div class="answer_item"></div>').attr({
+                                id: 'id_answer_card__' + item_uid,
+                                'data-itemid': item_uid
+                            }); // Answer Item Card
                             let options_menu = $('<div class="answer_zones_dropdown_content"></div>');
                             let options_list = $('<ul></ul>');
                             let handle_el = $('<div class="handler_style"></div>');
                             let handle_icon = $('<i class="fa-solid fa-grip-dots-vertical" style="color: #1D1D1D"></i>');
-                            let answer_text = $(`<div class="answer_text" id="${id_answer_name}" data-item_id="${item_uid}">${item_title}</div>`);
-                            let linked_zones = $(`<div class="selected_zones" id="${id_answer_colored_zones}"></div>`);
+                            let answer_text = $('<div class="answer_text"></div>').attr({
+                                id: id_answer_name,
+                                'data-item_id': item_uid
+                            }).text(item_title);
+                            let linked_zones = $('<div class="selected_zones"></div>').attr('id', id_answer_colored_zones);
                             let dropdown_btn = $('<div class="answer_zones_dropdown_menu fa-solid fa-caret-down"></div>');
 
                             // Options Menu
                             _fn.build.form.zone.zoneObjects.forEach(function(zoneObj){
-                                let option_zone = $(`<li id="${zoneObj.uid}" class="dropdown_item"></li>`);
+                                let option_zone = $('<li class="dropdown_item"></li>').attr('id', zoneObj.uid);
                                 let option_checkbox = document.createElement('input');
                                 option_checkbox.setAttribute('class', 'option_checkbox');
                                 option_checkbox.setAttribute('type', 'checkbox');
@@ -2150,7 +2156,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
                                 options_list.append(option_zone);
                             });
                             var delete_the_answer = gettext('Delete the Answer');
-                            options_list.append($(`<li data-item_id="${item_uid}" class="delete_answer_button">${delete_the_answer}</li>`));
+                            options_list.append($('<li class="delete_answer_button"></li>').attr('data-item_id', item_uid).text(delete_the_answer));
                             options_menu.append(options_list);
                             // Card Icon
                             handle_el.append(handle_icon);
@@ -2171,7 +2177,8 @@ async function DragAndDropEditBlock(runtime, element, params) {
                                 linked_zones.addClass('hidden');
                             } else {
                                 item_used_zones_titles.forEach(function(zoneInfo) {
-                                    let colored_used_zone_title = $(`<div class="colored_name" style="${zoneInfo.style}">${zoneInfo.title}</div>`);
+                                    let colored_used_zone_title = $('<div class="colored_name"></div>')
+                                        .attr('style', zoneInfo.style).text(zoneInfo.title);
                                     linked_zones.append(colored_used_zone_title);
                                 })
                             }
@@ -2216,7 +2223,8 @@ async function DragAndDropEditBlock(runtime, element, params) {
                                                 // add to data
                                                 item.zones.push(zoneId);
                                                 // add to UI
-                                                colored_zones_bar.append($(`<div class="colored_name" style="${zone_style}">${zone_title}</div>`));
+                                                colored_zones_bar.append($('<div class="colored_name"></div>')
+                                                    .attr('style', zone_style).text(zone_title));
                                                 // show colored zone names bar if need
                                                 if (colored_zones_bar.hasClass('hidden')) {
                                                     colored_zones_bar.removeClass('hidden');
@@ -2262,7 +2270,7 @@ async function DragAndDropEditBlock(runtime, element, params) {
 
                                 if (zoneId !== undefined) {
                                     // add to UI
-                                    colored_zones_bar.append($(`<div class="colored_name">${zone_title}</div>`));
+                                    colored_zones_bar.append($('<div class="colored_name"></div>').text(zone_title));
                                     // show colored zone names bar
                                     if (colored_zones_bar.hasClass('hidden')) {
                                         colored_zones_bar.removeClass('hidden');

@@ -21,7 +21,7 @@ from xblock.utils.settings import XBlockWithSettingsMixin, ThemableXBlockMixin
 from .utils import (
     _, DummyTranslationService, FeedbackMessage, FeedbackMessages,
     ItemStats, StateMigration, Constants,
-    make_state_from_attempt, get_max_items_per_zone, present_feedback
+    make_state_from_attempt, get_max_items_per_zone, present_feedback, sanitize_html
 )
 from .default_data import DEFAULT_EMPTY_DATA
 from .tabs_header import TabsHeader
@@ -309,6 +309,7 @@ class DragAndDropBlock(
             items = copy.deepcopy(self.data.get('items', []))
             for item in items:
                 del item['feedback']
+                item['displayName'] = sanitize_html(item.get('displayName'))
                 # Use item.pop to remove both `item['zone']` and `item['zones']`; we don't have
                 # a guarantee that either will be present, so we can't use `del`. Legacy instances
                 # will have `item['zone']`, while current versions will have `item['zones']`.
@@ -337,9 +338,9 @@ class DragAndDropBlock(
             "display_zone_labels": True if _is_old_version else self.data.get('displayLabels', False),
             "display_zone_borders": True if _is_old_version else self.data.get('displayBorders', False),
             "items": items_without_answers(),
-            "title": self.display_name,
+            "title": sanitize_html(self.display_name),
             "show_title": self.show_title,
-            "problem_text": self.question_text,
+            "problem_text": sanitize_html(self.question_text),
             "show_problem_header": self.show_question_header,
             "target_img_expanded_url": self.target_img_expanded_url,
             "target_img_description": '',
