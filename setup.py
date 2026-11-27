@@ -28,6 +28,7 @@ setup(
     packages=['drag_and_drop_v2'],
     python_requires='>=3.10',
     install_requires=[
+        'bleach[css]>=6,<7',
         'Django>=5.2,<6',
         'XBlock>=6.1,<7',
         'webob>=1.8,<2',

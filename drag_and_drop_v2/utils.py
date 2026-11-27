@@ -5,8 +5,39 @@ from __future__ import absolute_import, division, print_function
 import copy
 from collections import namedtuple
 
-from django.contrib.staticfiles.storage import staticfiles_storage
 from urllib.parse import quote
+
+import bleach
+from bleach.css_sanitizer import CSSSanitizer
+from django.contrib.staticfiles.storage import staticfiles_storage
+
+
+# Match the Open edX Drag and Drop rich-text policy.
+ALLOWED_TAGS = bleach.ALLOWED_TAGS | {
+    'br', 'caption', 'dd', 'del', 'div', 'dl', 'dt', 'h1', 'h2', 'h3', 'h4', 'h5',
+    'h6', 'hr', 'img', 'p', 'pre', 's', 'strike', 'span', 'sub', 'sup', 'table',
+    'tbody', 'td', 'tfoot', 'th', 'thead', 'tr', 'u',
+}
+ALLOWED_ATTRIBUTES = {
+    '*': ['class', 'style', 'id'],
+    'a': ['href', 'title', 'target', 'rel'],
+    'abbr': ['title'],
+    'acronym': ['title'],
+    'img': ['src', 'alt', 'title', 'width', 'height'],
+    'table': ['border', 'cellspacing', 'cellpadding'],
+    'td': ['style', 'scope'],
+}
+
+
+def sanitize_html(value: str | None) -> str:
+    """Clean author-supplied rich text before rendering it as HTML."""
+    return bleach.clean(
+        value or '',
+        tags=ALLOWED_TAGS,
+        attributes=ALLOWED_ATTRIBUTES,
+        strip=True,
+        css_sanitizer=CSSSanitizer(),
+    )
 
 
 def _(text):
@@ -155,7 +186,7 @@ def present_feedback(feedback_messages):
     """Transforms feedback messages into format expected by frontend code
     """
     return [
-        {"message": msg.message, "message_class": msg.message_class}
+        {"message": sanitize_html(msg.message), "message_class": msg.message_class}
         for msg in feedback_messages
         if msg.message
     ]
