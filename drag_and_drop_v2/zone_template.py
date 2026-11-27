@@ -422,7 +422,7 @@ class _ZoneTemplateDefinitions(object):
     def predefined_templates(self):
         """Return templates data
         """
-        return self._predefined_templates.values()
+        return list(self._predefined_templates.values())
 
     def __iter__(self):
         return iter(self._predefined_templates.values())

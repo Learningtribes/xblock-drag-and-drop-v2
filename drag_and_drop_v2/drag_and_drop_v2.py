@@ -628,7 +628,7 @@ class DragAndDropBlock(
         # ... and from higher grade to lower
         # if we have an old-style (i.e. unreliable) grade, override no matter what
         saved_raw_earned = self._get_raw_earned_if_set()
-        if current_raw_earned is None or current_raw_earned > saved_raw_earned:
+        if saved_raw_earned is None or current_raw_earned > saved_raw_earned:
             self.raw_earned = current_raw_earned
             self._publish_grade(Score(self.raw_earned, self.max_score()))
 
@@ -652,8 +652,8 @@ class DragAndDropBlock(
             'location': zone.get("title"),
             'location_id': zone.get("uid"),
             'is_correct': is_correct,
-            'item_x': attempt['x'],
-            'item_y': attempt['y']
+            'item_x': attempt.get('x'),
+            'item_y': attempt.get('y')
         })
 
     def _publish_item_to_bank_event(self, item_id, is_correct):
@@ -760,10 +760,7 @@ class DragAndDropBlock(
     @XBlock.handler
     def get_user_state(self, request, suffix=''):
         """ GET all user-specific data, and any applicable feedback """
-        return webob.Response(
-            body=json.dumps(self._get_user_testing_state()),
-            content_type='application/json'
-        )
+        return webob.Response(json=self._get_user_testing_state())
 
     def _get_feedback(self, include_item_feedback=False):
         """Builds overall feedback for both standard and assessment modes
